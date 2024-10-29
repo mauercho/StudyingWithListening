@@ -10,7 +10,7 @@ spring:
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
     hikari:
       connection-timeout: 15000
-      maximum-pool-size: 10
+      maximum-pool-size: 12
       max-lifetime: 240000
       leak-detection-threshold: 10000
   jpa:
