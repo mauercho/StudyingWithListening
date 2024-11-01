@@ -1,10 +1,10 @@
 import React from 'react'
-import icon from './assets/images/icon.png'
+import logo from './assets/images/logo.png'
 
 function App() {
   return (
     <div>
-      <img src={icon} alt="App Icon" />
+      <img src={logo} alt="App Icon" />
     </div>
   )
 }
