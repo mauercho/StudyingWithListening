@@ -38,7 +38,7 @@ public class Summary {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "summary_id")
+	@Column(name = "summary_id", columnDefinition = "BIGINT(20)")
 	private Long summaryId;
 
 	@ManyToOne(fetch = LAZY)
@@ -49,18 +49,18 @@ public class Summary {
 	@JoinColumn(name = "upload_content_id", nullable = false)
 	private UploadContent uploadContent;
 
-	@Column(name = "summary_title")
+	@Column(name = "summary_title", columnDefinition = "VARCHAR(64)")
 	private String summaryTitle;
 
-	@Column(name = "folder_name")
+	@Column(name = "folder_name", columnDefinition = "VARCHAR(64)")
 	private String folderName;
 
 	@Builder.Default
-	@Column(name = "created_at", nullable = false)
+	@Column(name = "created_at", columnDefinition = "DATETIME", nullable = false)
 	private LocalDateTime createdAt = LocalDateTime.now();
 
 	@Builder.Default
-	@Column(name = "modified_at", nullable = false)
+	@Column(name = "modified_at", columnDefinition = "DATETIME", nullable = false)
 	private LocalDateTime modifiedAt = LocalDateTime.now();
 
 	@Builder.Default

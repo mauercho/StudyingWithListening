@@ -31,7 +31,7 @@ public class Index {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "index_id")
+	@Column(name = "index_id", columnDefinition = "BIGINT(20)")
 	private Long indexId;
 
 	@ManyToOne(fetch = LAZY)
@@ -45,10 +45,10 @@ public class Index {
 	@Column(name = "title_level", nullable = false)
 	private Boolean titleLevel;
 
-	@Column(name = "index_title", nullable = false)
+	@Column(name = "index_title", columnDefinition = "VARCHAR(64)", nullable = false)
 	private String indexTitle;
 
 	@Builder.Default
-	@Column(name = "created_at", nullable = false)
+	@Column(name = "created_at", columnDefinition = "DATETIME", nullable = false)
 	private LocalDateTime createdAt = LocalDateTime.now();
 }

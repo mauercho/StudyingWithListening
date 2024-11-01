@@ -35,7 +35,7 @@ public class Sentence {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "sentence_id")
+	@Column(name = "sentence_id", columnDefinition = "BIGINT(20)")
 	private Long sentenceId;
 
 	@ManyToOne(fetch = LAZY)
@@ -45,14 +45,14 @@ public class Sentence {
 	@Column(name = "sentence_content", nullable = false)
 	private String sentenceContent;
 
-	@Column(name = "voice_file_name")
+	@Column(name = "voice_file_name", columnDefinition = "VARCHAR(64)")
 	private String voiceFileName;
 
 	@Column(name = "order", nullable = false)
 	private Integer order;
 
 	@Builder.Default
-	@Column(name = "created_at", nullable = false)
+	@Column(name = "created_at", columnDefinition = "DATETIME", nullable = false)
 	private LocalDateTime createdAt = LocalDateTime.now();
 
 	@Builder.Default
