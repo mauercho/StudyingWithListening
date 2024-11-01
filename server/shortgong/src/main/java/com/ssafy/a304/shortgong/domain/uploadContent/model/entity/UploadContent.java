@@ -7,6 +7,7 @@ import static lombok.AccessLevel.*;
 
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
+import com.ssafy.a304.shortgong.global.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "upload_content")
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)
-public class UploadContent {
+public class UploadContent extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)

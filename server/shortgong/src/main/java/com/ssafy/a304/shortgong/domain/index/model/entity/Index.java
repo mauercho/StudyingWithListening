@@ -4,10 +4,9 @@ import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
-import java.time.LocalDateTime;
-
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
+import com.ssafy.a304.shortgong.global.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +26,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "index")
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)
-public class Index {
+public class Index extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -48,7 +47,4 @@ public class Index {
 	@Column(name = "index_title", columnDefinition = "VARCHAR(64)", nullable = false)
 	private String indexTitle;
 
-	@Builder.Default
-	@Column(name = "created_at", columnDefinition = "DATETIME", nullable = false)
-	private LocalDateTime createdAt = LocalDateTime.now();
 }
