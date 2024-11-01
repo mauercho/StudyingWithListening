@@ -1,27 +1,30 @@
 import React from 'react'
 import styled from '@emotion/styled'
 import useLongPress from '../hooks/useLongPress'
-import { colors } from '../assets/styles/colors'
 
 const Container = styled.div`
   width: 100%;
-  opcaity: 0.6;
-  ${(props) => {
-    if (props.status === 'hidden') {
-      return `
-        opacity: 0.3;
-        text-decoration: line-through;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      `
-    } else if (props.status === 'playing') {
-      return `
-        color: ${colors.primary};
-        opacity: 1;
-      `
-    }
-  }}
+  opacity: 0.6;
+  font-size: 16px;
+  font-weight: ${({ theme }) => theme.font.weight.light};
+
+  ${({ status }) =>
+    status === 'hidden' &&
+    `
+      opacity: 0.3;
+      text-decoration: line-through;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    `}
+
+  ${({ theme, status }) =>
+    status === 'playing' &&
+    `
+      color: ${theme.color.primary_dark};
+      opacity: 1;
+      font-weight: ${theme.font.weight.regular};
+    `}
 `
 
 export default function Sentence({ text, status, onShortPress, onLongPress }) {
