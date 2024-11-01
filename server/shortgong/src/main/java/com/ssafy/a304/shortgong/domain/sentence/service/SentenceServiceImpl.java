@@ -42,4 +42,10 @@ public class SentenceServiceImpl implements SentenceService {
 		return sb.toString();
 	}
 
+	@Override
+	public List<String> splitToSentences(String text) throws Exception {
+
+		return List.of(text.split("[.?!]"));
+	}
+
 }

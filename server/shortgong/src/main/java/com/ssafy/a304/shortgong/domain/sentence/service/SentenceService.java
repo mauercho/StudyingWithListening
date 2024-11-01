@@ -11,4 +11,6 @@ public interface SentenceService {
 	List<Sentence> selectAllSentenceBySummaryId(Long summaryId) throws Exception;
 
 	String convertSentenceListToString(List<Sentence> sentenceList) throws Exception;
+
+	List<String> splitToSentences(String text) throws Exception;
 }
