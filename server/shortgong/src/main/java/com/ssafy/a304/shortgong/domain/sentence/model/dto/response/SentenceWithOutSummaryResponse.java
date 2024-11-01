@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SentenceResponse {
+public class SentenceWithOutSummaryResponse {
 
 	private Long id;
 
@@ -21,9 +21,9 @@ public class SentenceResponse {
 
 	private Boolean openStatus;
 
-	public static SentenceResponse from(Sentence sentence) {
+	public static SentenceWithOutSummaryResponse from(Sentence sentence) {
 
-		return SentenceResponse.builder()
+		return SentenceWithOutSummaryResponse.builder()
 			.id(sentence.getId())
 			.sentenceContent(sentence.getSentenceContent())
 			.voiceFileName(sentence.getVoiceFileName())
