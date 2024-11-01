@@ -1,41 +1,41 @@
 @font-face {
-  font-family: "TheJamsil";
+  font-family: 'TheJamsil';
   font-weight: 100;
   font-style: normal;
-  src: url(".../theJamsil-Thin.woff2") format("woff2");
+  src: url('../fonts/TheJamsil1Thin.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: "TheJamsil";
+  font-family: 'TheJamsil';
   font-style: normal;
   font-weight: 300;
-  src: url(".../theJamsil-Light.woff2") format("woff2");
+  src: url('../fonts/TheJamsil2Light.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: "TheJamsil";
+  font-family: 'TheJamsil';
   font-style: normal;
   font-weight: 400;
-  src: url(".../theJamsil-Regular.woff2") format("woff2");
+  src: url('../fonts/TheJamsil3Regular.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: "TheJamsil";
+  font-family: 'TheJamsil';
   font-style: normal;
   font-weight: 500;
-  src: url(".../theJamsil-Medium.woff2") format("woff2");
+  src: url('../fonts/TheJamsil4Medium.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: "TheJamsil";
+  font-family: 'TheJamsil';
   font-style: normal;
   font-weight: 700;
-  src: url(".../theJamsil-Bold.woff2") format("woff2");
+  src: url('../fonts/TheJamsil5Bold.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: "TheJamsil";
+  font-family: 'TheJamsil';
   font-style: normal;
   font-weight: 800;
-  src: url(".../theJamsil-ExtraBold.woff2") format("woff2");
+  src: url('../fonts/TheJamsil6ExtraBold.ttf') format('truetype');
 }
