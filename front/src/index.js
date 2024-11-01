@@ -1,13 +1,20 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+import { BrowserRouter } from 'react-router-dom'
+
+import App from './App'
+import * as serviceWorkerRegistration from './serviceWorkerRegistration'
+
+import './assets/styles/reset.css'
+
+const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>
-);
+)
 
-serviceWorkerRegistration.register();
+serviceWorkerRegistration.register()
