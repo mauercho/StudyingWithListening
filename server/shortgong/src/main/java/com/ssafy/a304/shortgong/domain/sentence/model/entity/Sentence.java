@@ -36,7 +36,7 @@ public class Sentence extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "sentence_id", columnDefinition = "BIGINT(20)")
-	private Long sentenceId;
+	private Long id;
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "summary_id", nullable = false)

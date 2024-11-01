@@ -34,7 +34,7 @@ public class User extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "user_id", columnDefinition = "BIGINT(20)")
-	private Long userId;
+	private Long id;
 
 	@Column(unique = true, columnDefinition = "VARCHAR(64)")
 	private String nickname;
