@@ -32,19 +32,19 @@ public class User {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "user_id")
+	@Column(name = "user_id", columnDefinition = "BIGINT(20)")
 	private Long userId;
 
-	@Column(nullable = false)
+	@Column(unique = true, columnDefinition = "VARCHAR(64)")
 	private String nickname;
 
-	@Column(nullable = false)
+	@Column(unique = true, columnDefinition = "VARCHAR(64)")
 	private String username;
 
-	@Column(name = "password_hash", nullable = false)
+	@Column(name = "password_hash", columnDefinition = "VARCHAR(64)", nullable = false)
 	private String passwordHash;
 
-	@Column(name = "profile_file_name")
+	@Column(unique = true, columnDefinition = "VARCHAR(64)")
 	private String profileFileName;
 
 	@Builder.Default

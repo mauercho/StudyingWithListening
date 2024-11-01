@@ -31,20 +31,19 @@ public class UploadContent {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "upload_content_id")
+	@Column(name = "upload_content_id", columnDefinition = "BIGINT(20)")
 	private Long uploadContentId;
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@Column(name = "file_name")
+	@Column(name = "file_name", columnDefinition = "VARCHAR(64)")
 	private String fileName;
 
-	@Column(name = "content")
+	@Column(name = "content", columnDefinition = "TEXT", nullable = false)
 	private String content;
 
-	@Builder.Default
 	@OneToOne(mappedBy = "uploadContent", cascade = ALL, fetch = LAZY, orphanRemoval = true)
 	private Summary summary;
 }
