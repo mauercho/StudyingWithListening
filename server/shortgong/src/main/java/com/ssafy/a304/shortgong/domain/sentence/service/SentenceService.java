@@ -1,8 +1,9 @@
 package com.ssafy.a304.shortgong.domain.sentence.service;
 
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceWithOutSummaryResponse;
+import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 
 public interface SentenceService {
 
-	SentenceWithOutSummaryResponse getSentenceWithoutSummary(Long sentenceId) throws Exception;
+	Sentence selectSentenceById(Long id) throws Exception;
+
 }
