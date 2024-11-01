@@ -1,5 +1,7 @@
 package com.ssafy.a304.shortgong.domain.sentence.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,12 @@ public class SentenceServiceImpl implements SentenceService {
 
 		return sentenceRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("해당 id의 문장이 존재하지 않습니다."));
+	}
+
+	@Override
+	public List<Sentence> selectAllSentenceBySummaryId(Long summaryId) throws Exception {
+
+		return sentenceRepository.findAllBySummary_Id(summaryId);
 	}
 
 }
