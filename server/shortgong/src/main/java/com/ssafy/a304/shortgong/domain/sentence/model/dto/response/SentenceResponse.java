@@ -9,7 +9,7 @@ import lombok.Getter;
 @Builder
 public class SentenceResponse {
 
-	private Long sentenceId;
+	private Long id;
 
 	private String sentenceContent;
 
@@ -24,7 +24,7 @@ public class SentenceResponse {
 	public static SentenceResponse from(Sentence sentence) {
 
 		return SentenceResponse.builder()
-			.sentenceId(sentence.getSentenceId())
+			.id(sentence.getId())
 			.sentenceContent(sentence.getSentenceContent())
 			.voiceFileName(sentence.getVoiceFileName())
 			.order(sentence.getOrder())
