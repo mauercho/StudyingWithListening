@@ -27,7 +27,7 @@ public class SentenceServiceImpl implements SentenceService {
 	@Override
 	public List<Sentence> selectAllSentenceBySummaryId(Long summaryId) throws Exception {
 
-		return sentenceRepository.findAllBySummary_Id(summaryId);
+		return sentenceRepository.findAllBySummary_IdOrderByOrder(summaryId);
 	}
 
 }
