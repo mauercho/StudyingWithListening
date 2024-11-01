@@ -5,12 +5,12 @@ import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
+import com.ssafy.a304.shortgong.global.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "sentence")
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)
-public class Sentence {
+public class Sentence extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -50,10 +50,6 @@ public class Sentence {
 
 	@Column(name = "order", nullable = false)
 	private Integer order;
-
-	@Builder.Default
-	@Column(name = "created_at", columnDefinition = "DATETIME", nullable = false)
-	private LocalDateTime createdAt = LocalDateTime.now();
 
 	@Builder.Default
 	@Column(name = "open_status", nullable = false)

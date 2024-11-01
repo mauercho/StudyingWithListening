@@ -5,7 +5,6 @@ import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
+import com.ssafy.a304.shortgong.global.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +34,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "summary")
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)
-public class Summary {
+public class Summary extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
@@ -54,14 +54,6 @@ public class Summary {
 
 	@Column(name = "folder_name", columnDefinition = "VARCHAR(64)")
 	private String folderName;
-
-	@Builder.Default
-	@Column(name = "created_at", columnDefinition = "DATETIME", nullable = false)
-	private LocalDateTime createdAt = LocalDateTime.now();
-
-	@Builder.Default
-	@Column(name = "modified_at", columnDefinition = "DATETIME", nullable = false)
-	private LocalDateTime modifiedAt = LocalDateTime.now();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "summary", cascade = ALL, orphanRemoval = true, fetch = LAZY)

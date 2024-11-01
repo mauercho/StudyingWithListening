@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
+import com.ssafy.a304.shortgong.global.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "user")
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PROTECTED)
-public class User {
+public class User extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
