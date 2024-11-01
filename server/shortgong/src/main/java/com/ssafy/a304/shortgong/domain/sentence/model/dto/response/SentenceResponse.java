@@ -22,6 +22,7 @@ public class SentenceResponse {
 	private Boolean openStatus;
 
 	public static SentenceResponse from(Sentence sentence) {
+
 		return SentenceResponse.builder()
 			.sentenceId(sentence.getSentenceId())
 			.sentenceContent(sentence.getSentenceContent())

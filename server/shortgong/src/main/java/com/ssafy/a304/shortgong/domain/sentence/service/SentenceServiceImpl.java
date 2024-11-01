@@ -15,6 +15,7 @@ public class SentenceServiceImpl implements SentenceService {
 
 	@Override
 	public SentenceResponse getSentence(Long sentenceId) throws Exception {
+
 		return SentenceResponse.from(sentenceRepository.findById(sentenceId).orElseThrow(() -> new Exception(
 			"해당 문장이 존재하지 않습니다.")));
 	}
