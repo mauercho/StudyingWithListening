@@ -12,5 +12,5 @@ public interface SentenceService {
 
 	String convertSentenceListToString(List<Sentence> sentenceList) throws Exception;
 
-	List<String> splitToSentences(String text) throws Exception;
+	void updateSentenceWithGPTUsingBulk(Long sentenceId, String GPTResponse) throws Exception;
 }

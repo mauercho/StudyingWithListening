@@ -19,6 +19,16 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	private final SentenceService sentenceService;
 
 	@Override
+	public void executeGptApi(Long sentenceId) throws Exception {
+
+		String prompt = makePrompt(sentenceId);
+		// TODO: GPT API 호출 -> prompt를 파라미터로 받아서 전송
+		String GPTResponse = "GPT API 호출 결과. 입니다.";
+		sentenceService.updateSentenceWithGPTUsingBulk(sentenceId, GPTResponse); // 호출 결과 파싱 후 저장
+
+	}
+
+	@Override
 	public String makePrompt(Long sentenceId) throws Exception {
 
 		StringBuilder sb = new StringBuilder();
