@@ -50,7 +50,7 @@ public class Summary extends BaseEntity {
 	private UploadContent uploadContent;
 
 	@Column(name = "summary_title", columnDefinition = "VARCHAR(64)")
-	private String summaryTitle;
+	private String title;
 
 	@Column(name = "folder_name", columnDefinition = "VARCHAR(64)")
 	private String folderName;
