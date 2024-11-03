@@ -33,7 +33,7 @@ public class UploadContent extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "upload_content_id", columnDefinition = "BIGINT(20)")
-	private Long uploadContentId;
+	private Long id;
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "user_id")

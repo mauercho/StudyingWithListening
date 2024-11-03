@@ -31,7 +31,7 @@ public class Index extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "index_id", columnDefinition = "BIGINT(20)")
-	private Long indexId;
+	private Long id;
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "summary_id", nullable = false)

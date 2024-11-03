@@ -39,7 +39,7 @@ public class Summary extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "summary_id", columnDefinition = "BIGINT(20)")
-	private Long summaryId;
+	private Long id;
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "writer_id", referencedColumnName = "user_id", nullable = false)
