@@ -48,7 +48,7 @@ public class Sentence extends BaseEntity {
 	@Column(name = "voice_file_name", columnDefinition = "VARCHAR(64)")
 	private String voiceFileName;
 
-	@Column(name = "order", nullable = false)
+	@Column(name = "sentence_order", nullable = false)
 	private Integer order;
 
 	@Builder.Default
