@@ -3,6 +3,7 @@ package com.ssafy.a304.shortgong.domain.sentence.facade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
@@ -19,13 +20,12 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	private final SentenceService sentenceService;
 
 	@Override
-	public void executeGptApi(Long sentenceId) throws Exception {
+	public SentencesCreateResponse executeGptApi(Long sentenceId) throws Exception {
 
 		String prompt = makePrompt(sentenceId);
 		// TODO: GPT API 호출 -> prompt를 파라미터로 받아서 전송
 		String GPTResponse = "GPT API 호출 결과. 입니다.";
-		sentenceService.updateSentenceWithGPTUsingBulk(sentenceId, GPTResponse); // 호출 결과 파싱 후 저장
-
+		return sentenceService.updateSentenceWithGPTUsingBulk(sentenceId, GPTResponse); // 호출 결과 파싱 후 저장
 	}
 
 	@Override

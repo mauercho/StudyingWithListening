@@ -2,6 +2,7 @@ package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import java.util.List;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 
 public interface SentenceService {
@@ -12,5 +13,5 @@ public interface SentenceService {
 
 	String convertSentenceListToString(List<Sentence> sentenceList) throws Exception;
 
-	void updateSentenceWithGPTUsingBulk(Long sentenceId, String GPTResponse) throws Exception;
+	SentencesCreateResponse updateSentenceWithGPTUsingBulk(Long sentenceId, String GPTResponse) throws Exception;
 }
