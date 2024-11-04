@@ -10,7 +10,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum FileErrorCode implements ErrorCode {
-	IMG_EXTENSION_FIND_FAILED(UNSUPPORTED_MEDIA_TYPE, "이미지 파일이 아닙니다"),
+	PROFILE_IMG_EXTENSION_FIND_FAILED(UNSUPPORTED_MEDIA_TYPE, "프로필 이미지 파일이 아닙니다"),
+	OCR_IMG_EXTENSION_FIND_FAILED(UNSUPPORTED_MEDIA_TYPE, "OCR 가능한 이미지 파일이 아닙니다"),
 	MP3_EXTENSION_FIND_FAILED(UNSUPPORTED_MEDIA_TYPE, "Mp3 파일이 아닙니다"),
 
 	FILE_FIND_FAILED(NOT_FOUND, "해당 파일을 찾을 수 없습니다"),
