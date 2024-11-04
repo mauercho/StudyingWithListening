@@ -23,7 +23,8 @@ class ClovaVoiceUtilTest {
 
 		// 예외가 발생하지 않는지 확인
 		Assertions.assertDoesNotThrow(() -> {
-			String voice = clovaVoiceUtil.requestVoiceByTextAndVoice("안녕 이건 테스트 문장이야", "dsinu-matt");
+			byte[] voice = clovaVoiceUtil.requestVoiceByTextAndVoice("만나서 반갑습니다.", "dsinu-matt");
+
 			Assertions.assertNotNull(voice, "TTS 요청 실패: voice 값이 null입니다.");
 		});
 	}

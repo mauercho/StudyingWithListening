@@ -2,12 +2,11 @@ package com.ssafy.a304.shortgong.global.util;
 
 import static com.ssafy.a304.shortgong.global.errorCode.ClovaErrorCode.*;
 
-import java.net.URLEncoder;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,28 +26,29 @@ public class ClovaVoiceUtil {
 
 	private final NaverTTSConfig naverTTSConfig;
 
-	public String requestVoiceByTextAndVoice(String text, String voice) throws CustomException {
+	public byte[] requestVoiceByTextAndVoice(String text, String voice) throws CustomException {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		headers.add("X-NCP-APIGW-API-KEY-ID", naverTTSConfig.getClientId());
 		headers.add("X-NCP-APIGW-API-KEY", naverTTSConfig.getClientSecret());
 
-		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("speaker", voice);
+		params.add("volume", "0");
+		params.add("speed", "0");
+		params.add("pitch", "0");
+		params.add("format", "mp3");
+		params.add("text", text);
+
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
 		try {
-			String postParams =
-				"speaker=" + voice
-					+ "&volume=0"
-					+ "&speed=0"
-					+ "&pitch=0"
-					+ "&format=mp3"
-					+ "&text=" + URLEncoder.encode(text, "UTF-8");
 			return restTemplate.exchange(
-				naverTTSConfig.getNaverTTSUrl() + postParams,
+				naverTTSConfig.getNaverTTSUrl(),
 				HttpMethod.POST,
 				request,
-				String.class
+				byte[].class
 			).getBody();
 		} catch (Exception e) {
 			log.debug("{} : {}", NAVER_CLOVA_TTS_REQUEST_FAIL.getMessage(), e.getMessage());
