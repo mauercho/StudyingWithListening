@@ -1,16 +1,42 @@
-import React from 'react'
+import React from 'react';
+import styled from '@emotion/styled';
+import { Outlet, useLocation } from 'react-router-dom';
 
-import styled from '@emotion/styled'
+import routes from '../routes';
+import BackButtonTitle from '../components/BackButtonTitle';
+
+const Container = styled.main`
+  margin: auto;
+  max-width: 768px;
+  min-width: 320px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
 
 const Main = styled.div`
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 10px;
-  min-width: 320px;
+  padding: 0px 10px;
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const Player = styled.div`
+  height: 65px;
 `
 
-export default function TitleLayout() {
 
-  return <Main></Main>
+export default function TitleLayout() {
+  const location = useLocation();
+  const currentRoute = routes.find((route) => route.path === location.pathname);
+  const title = currentRoute ? currentRoute.title : '';
+
+  return (
+    <Container>
+      <BackButtonTitle title={title} />
+      <Main>
+        <Outlet />
+      </Main>
+      <Player></Player>
+    </Container>
+  );
 }

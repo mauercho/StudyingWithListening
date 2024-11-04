@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom'
 
 import { FaArrowLeft } from 'react-icons/fa'
 
-const Container = styled.div`
+const Container = styled.header`
   width: 100%;
   height: 60px;
-  padding: 10px;
+  padding: 0px 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid ${({theme}) => theme.color.primary};
 `
 
 const Space = styled.div`
@@ -28,6 +29,7 @@ const BackButton = styled.button`
 
 const Title = styled.span`
   font-size: ${({ theme }) => theme.font.size['2xl']};
+  font-weight: ${({ theme }) => theme.font.weight.bold};
 `
 
 export default function BackButtonTitle({ title = '제목', ...props }) {
