@@ -3,8 +3,9 @@ server:
 
 logging:
   level:
-    root: info
-    com.ssafy.a304.shortgong.domain: debug
+    root: ${ROOT_LOG_LEVEL}
+    com.ssafy.a304.shortgong.domain: ${DOMAIN_LOG_LEVEL}
+    com.ssafy.a304.shortgong.global: ${GLOBAL_LOG_LEVEL}
 
 spring:
   config:
