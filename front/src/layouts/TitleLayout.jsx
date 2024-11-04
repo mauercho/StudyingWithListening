@@ -10,6 +10,7 @@ const Main = styled.div`
   min-width: 320px;
 `
 
-export default function MainLayout({ children }) {
-  return <Main>{children}</Main>
+export default function TitleLayout() {
+
+  return <Main></Main>
 }
