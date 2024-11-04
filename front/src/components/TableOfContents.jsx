@@ -13,6 +13,7 @@ const Container = styled.div`
 const Navigation = styled.nav`
   height: 252px;
   display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+  overflow-y: auto;
 `
 
 const TableButton = styled.button`
