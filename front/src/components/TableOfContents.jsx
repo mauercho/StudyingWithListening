@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from '@emotion/styled'
 import { FaGripLines } from 'react-icons/fa'
 
@@ -64,8 +64,9 @@ const ToggleButton = styled.button`
 `
 
 // TODO: 1104 기준 API대로 작성. 이후 상태관리 기반 현재 문장 활성화, API 변경시 다른 요소 추가 필요
-export default function TableOfContents({ indexes, isOpen, onToggle }) {
+export default function TableOfContents({ indexes }) {
   const currentSentenceId = null // 현재 재생중인 문장의 id를 받을 수단 필요(상태관리..?)
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <Container>
@@ -80,7 +81,7 @@ export default function TableOfContents({ indexes, isOpen, onToggle }) {
           ))}
         </ul>
       </Navigation>
-      <ToggleButton onClick={onToggle} isOpen={isOpen}>
+      <ToggleButton onClick={() => setIsOpen(!isOpen)} isOpen={isOpen}>
         <FaGripLines size={24} />
       </ToggleButton>
     </Container>
