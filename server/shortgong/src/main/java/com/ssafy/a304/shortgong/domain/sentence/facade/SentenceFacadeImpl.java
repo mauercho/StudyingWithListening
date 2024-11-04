@@ -8,6 +8,8 @@ import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.domain.summary.service.SummaryService;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
+import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,17 +20,20 @@ public class SentenceFacadeImpl implements SentenceFacade {
 
 	private final SummaryService summaryService;
 	private final SentenceService sentenceService;
+	private final ClaudeUtil claudeUtil;
 
 	@Override
+	@Transactional
 	public SentencesCreateResponse executeGptApi(Long sentenceId) throws Exception {
 
 		String prompt = makePrompt(sentenceId);
-		// TODO: GPT API 호출 -> prompt를 파라미터로 받아서 전송
-		String GPTResponse = "GPT API 호출 결과. 입니다.";
-		return sentenceService.updateSentenceWithGPTUsingBulk(sentenceId, GPTResponse); // 호출 결과 파싱 후 저장
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
+		String claudeResponseText = claudeResponse.getContent().get(0).getText();
+		return sentenceService.updateSentenceWithGPTUsingBulk(sentenceId, claudeResponseText); // 호출 결과 파싱 후 저장
 	}
 
 	@Override
+	@Transactional
 	public String makePrompt(Long sentenceId) throws Exception {
 
 		StringBuilder sb = new StringBuilder();

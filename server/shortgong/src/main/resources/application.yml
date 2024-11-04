@@ -91,5 +91,8 @@ file:
 
 claude:
   api:
-    key: ${SHORTGONG_CLAUDE_SECRET_KEY}
-    url: ${SHORTGONG_CLAUDE_URL}
+    key: ${CLAUDE_API_SECRET_KEY}
+    url: ${CLAUDE_API_URL}
+    model: ${CLAUDE_API_MODEL}
+    temperature: ${CLAUDE_API_TEMPERATURE}
+    max-tokens: ${CLAUDE_API_MAX_TOKENS}

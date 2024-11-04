@@ -80,6 +80,8 @@ public class SentenceServiceImpl implements SentenceService {
 	/* String을 받아서 문장기호를 기준으로 List<String>으로 변환 */
 	public List<String> splitToSentences(String text) {
 
+		if (text == null || text.isEmpty())
+			return List.of("");
 		return List.of(text.split("[.?!]"));
 	}
 }
