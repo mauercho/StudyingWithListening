@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
-import com.ssafy.a304.shortgong.global.entity.BaseEntity;
+import com.ssafy.a304.shortgong.global.model.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

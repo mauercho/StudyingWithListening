@@ -8,9 +8,9 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.ssafy.a304.shortgong.global.entity.ClaudeMessage;
-import com.ssafy.a304.shortgong.global.entity.dto.request.ClaudeRequest;
-import com.ssafy.a304.shortgong.global.entity.dto.response.ClaudeResponse;
+import com.ssafy.a304.shortgong.global.model.dto.request.ClaudeRequest;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
+import com.ssafy.a304.shortgong.global.model.entity.ClaudeMessage;
 
 import lombok.RequiredArgsConstructor;
 
