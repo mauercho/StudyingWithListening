@@ -24,7 +24,7 @@ const TableButton = styled.button`
   cursor: pointer;
   background-color: ${({ theme }) => theme.color.white};
   border: 0;
-  font: inherit; /* 기본 버튼 폰트 스타일을 초기화 */
+  font: inherit;
   p {
     text-decoration: none;
     ${({ theme }) =>
