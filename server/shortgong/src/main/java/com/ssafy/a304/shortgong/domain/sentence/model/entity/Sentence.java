@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
-import com.ssafy.a304.shortgong.global.entity.BaseEntity;
+import com.ssafy.a304.shortgong.global.model.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -42,6 +43,7 @@ public class Sentence extends BaseEntity {
 	@JoinColumn(name = "summary_id", nullable = false)
 	private Summary summary;
 
+	@Setter
 	@Column(name = "sentence_content", nullable = false)
 	private String sentenceContent;
 
