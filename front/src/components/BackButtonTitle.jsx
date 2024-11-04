@@ -27,7 +27,7 @@ const BackButton = styled.button`
 `
 
 const Title = styled.span`
-  font-size: 24px;
+  font-size: ${({ theme }) => theme.font.size['2xl']};
 `
 
 export default function BackButtonTitle({ title = '제목', ...props }) {
