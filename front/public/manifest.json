@@ -1,0 +1,17 @@
+{
+  "short_name": "ShortGong",
+  "name": "ShortGong: Study On the Move",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/svg"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#4db6ac",
+  "background_color": "#ffffff",
+  "lang": "ko"
+}
