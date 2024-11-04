@@ -9,22 +9,19 @@ const Container = styled.div`
   max-width: 768px;
   min-width: 320px;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+`
 
-  @media (min-width: 320px) and (max-width: 480px) {
-    max-width: 100%;
-  }
-
-  @media (min-width: 481px) and (max-width: 768px) {
-    /* 스타일 설정 */
-  }
+const Player = styled.div`
+  height: 65px;
 `
 
 export default function Layout() {
   return (
-    <div>
-      <Container>
-        <Outlet />
-      </Container>
-    </div>
+    <Container>
+      <Outlet />
+      <Player></Player>
+    </Container>
   )
 }
