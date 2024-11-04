@@ -22,11 +22,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.a304.shortgong.global.config.NaverOCRConfig;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Getter
 @Slf4j
 @RequiredArgsConstructor
 public class ClovaOCRUtil {
