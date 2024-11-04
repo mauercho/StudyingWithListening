@@ -57,8 +57,8 @@ public class SentenceServiceImpl implements SentenceService {
 		int existingOrder = existingSentence.getOrder();
 
 		// 벌크 연산으로 기존 문장 다음 order들을 newSenteces의 size만큼 증가시킴
-		int increment = newSentences.size();
-		if (increment > 1)
+		int increment = newSentences.size() - 1;
+		if (increment > 0)
 			sentenceRepository.bulkUpdateOrder(summaryId, existingOrder, increment);
 
 		// 기존 문장 내용 수정
@@ -96,6 +96,17 @@ public class SentenceServiceImpl implements SentenceService {
 		}
 
 		return sentences;
+	}
+
+	@Override
+	public String reSummarizePrompt(String sentencesString, String sentenceContent) throws Exception {
+
+		return "나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n"
+			+ sentencesString
+			+ "\n\n위 텍스트의 전체 맥락을 고려하여, 내가 다음으로 전해주는 문장을 다시 작성해서 제공해줘\n---\n"
+			+ sentenceContent
+			+ "\n---\n'전체 텍스트의 맥락을 고려했을 때, 해당 문장을 다음과 같이 수정하면 좋을 것 같습니다:' 같은 멘트나 "
+			+ "'수정 이유는 다음과 같습니다:'와 같은 멘트는 필요 없어. 2문장으로 제공해줘.";
 	}
 
 }
