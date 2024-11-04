@@ -41,7 +41,8 @@ dependencies {
 //    implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
     // AWS S3
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+//    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
 
     // Compile, Develop, Runtime, Annotation
     compileOnly 'org.projectlombok:lombok'
