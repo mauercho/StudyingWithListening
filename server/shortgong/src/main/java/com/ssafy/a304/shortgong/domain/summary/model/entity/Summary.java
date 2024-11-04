@@ -12,7 +12,7 @@ import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
-import com.ssafy.a304.shortgong.global.entity.BaseEntity;
+import com.ssafy.a304.shortgong.global.model.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
