@@ -2,6 +2,7 @@ package com.ssafy.a304.shortgong.global.util;
 
 import java.util.Collections;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,8 +20,12 @@ import lombok.RequiredArgsConstructor;
 public class ClaudeUtil {
 
 	private final RestTemplate restTemplate;
-	private final String CLAUDE_API_URL = "...";
-	private final String API_KEY = "...";
+
+	@Value("${CLAUDE_API_URL}")
+	private String CLAUDE_API_URL;
+
+	@Value("${claude.api.key}")
+	private String API_KEY;
 
 	public ClaudeResponse sendMessage(String userMessage) {
 

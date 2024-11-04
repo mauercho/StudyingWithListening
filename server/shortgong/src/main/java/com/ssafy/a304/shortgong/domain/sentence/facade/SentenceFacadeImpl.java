@@ -39,6 +39,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 		String sentencesString = sentenceService.convertSentenceListToString(
 			sentenceService.selectAllSentenceBySummaryId(summary.getId()));
 
+		// TODO: 아래 부분을 service 단으로 이동
 		sb.append("나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n")
 			.append(sentencesString)
 			.append("\n\n위 텍스트의 전체 맥락을 고려하여, 내가 다음으로 전해주는 문장을 다시 작성해서 제공해줘\n---\n")

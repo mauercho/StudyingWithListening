@@ -82,3 +82,8 @@ file:
   path:
     user-profile-folder: user
     summary-folder: summary
+
+claude:
+  api:
+    key: ${SHORTGONG_CLAUDE_SECRET_KEY}
+    url: ${SHORTGONG_CLAUDE_URL}
