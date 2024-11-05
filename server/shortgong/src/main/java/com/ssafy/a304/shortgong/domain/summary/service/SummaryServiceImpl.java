@@ -21,11 +21,9 @@ public class SummaryServiceImpl implements SummaryService {
 	private final SummaryRepository summaryRepository;
 
 	@Override
-	public Summary selectSummaryById(Long summaryId) throws CustomException {
+	public Summary selectSummaryById(Long id) throws CustomException {
 
-		return summaryRepository.findById(summaryId)
-			.orElseThrow(() -> new CustomException(SUMMARY_FIND_FAIL));
-
+		return summaryRepository.findById(id).orElseThrow(() -> new CustomException(SUMMARY_FIND_FAIL));
 	}
 
 	@Override
