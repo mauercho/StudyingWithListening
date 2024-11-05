@@ -74,13 +74,13 @@ public class ClovaOCRUtil {
 		}
 	}
 
-	private List<String> parseSentencesFromResponse(String response) throws CustomException {
+	private List<String> parseSentencesFromResponse(String jsonString) throws CustomException {
 
 		List<String> sentences = new ArrayList<>();
 		ObjectMapper objectMapper = new ObjectMapper();
 		JsonNode root = null;
 		try {
-			root = objectMapper.readTree(response);
+			root = objectMapper.readTree(jsonString);
 		} catch (JsonProcessingException e) {
 			// TODO: Custom Exception
 			throw new IllegalArgumentException(e);
