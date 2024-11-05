@@ -1,9 +1,18 @@
 from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
 import requests
 from bs4 import BeautifulSoup
 from service.html_parser_service import HtmlParserService
 
 app = FastAPI(root_path="/crawling")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 도메인 허용 (특정 도메인을 허용하려면 ["http://example.com"] 형식으로 변경)
+    allow_credentials=True,
+    allow_methods=["*"],  # 모든 HTTP 메서드 허용
+    allow_headers=["*"],  # 모든 HTTP 헤더 허용
+)
 
 @app.get("/")
 def crawl_page(url: str = Query(..., description="크롤링할 웹 페이지의 URL")):
