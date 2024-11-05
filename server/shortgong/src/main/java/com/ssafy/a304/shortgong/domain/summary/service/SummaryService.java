@@ -6,7 +6,7 @@ import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 
 public interface SummaryService {
 
-	Summary selectSummaryById(Long id) throws Exception;
+	Summary selectSummaryById(Long summaryId);
 
 	Summary createNewSummary(User loginUser,
 		UploadContent uploadContent);

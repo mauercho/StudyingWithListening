@@ -30,8 +30,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 
 	@Override
 	@Transactional
-	public SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest) throws
-		Exception {
+	public SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest) {
 
 		Sentence sentence = sentenceService.selectSentenceById(sentenceId);
 		Summary summary = summaryService.selectSummaryById(sentence.getSummary().getId());
@@ -49,8 +48,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	 * @author 이주형
 	 */
 	@Transactional
-	protected SentencesCreateResponse updateSentence(Sentence sentence, ClaudeResponse claudeResponse) throws
-		Exception {
+	protected SentencesCreateResponse updateSentence(Sentence sentence, ClaudeResponse claudeResponse) {
 
 		List<Sentence> sentences = sentenceService.getModifySentences(sentence,
 			claudeResponse.getContent().get(0).getText());

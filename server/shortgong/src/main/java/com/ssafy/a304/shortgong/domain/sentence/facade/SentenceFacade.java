@@ -11,8 +11,7 @@ public interface SentenceFacade {
 	 * @return SentencesCreateResponse (재생성된 문장을 리스트로 감싼 Dto)
 	 * @author 이주형
 	 */
-	SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest) throws
-		Exception;
+	SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest);
 
 	void updateSentenceOpenStatus(Long sentenceId, SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest);
 

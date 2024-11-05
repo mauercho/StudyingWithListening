@@ -1,5 +1,7 @@
 package com.ssafy.a304.shortgong.domain.sentence.service;
 
+import static com.ssafy.a304.shortgong.global.errorCode.SentenceErrorCode.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
+import com.ssafy.a304.shortgong.global.error.CustomException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,10 +24,10 @@ public class SentenceServiceImpl implements SentenceService {
 	private final SentenceRepository sentenceRepository;
 
 	@Override
-	public Sentence selectSentenceById(Long sentenceId) {
+	public Sentence selectSentenceById(Long sentenceId) throws CustomException {
 
 		return sentenceRepository.findById(sentenceId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 id의 문장이 존재하지 않습니다."));
+			.orElseThrow(() -> new CustomException(SENTENCE_FIND_FAIL));
 	}
 
 	@Override
