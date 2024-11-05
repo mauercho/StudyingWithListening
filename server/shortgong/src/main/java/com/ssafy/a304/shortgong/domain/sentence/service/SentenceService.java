@@ -13,7 +13,7 @@ public interface SentenceService {
 
 	String convertSentenceListToString(List<Sentence> sentenceList) throws Exception;
 
-	SentencesCreateResponse updateSentenceWithGPTUsingBulk(Long sentenceId, String GPTResponse) throws Exception;
+	SentencesCreateResponse updateSentence(Long sentenceId, String GPTResponse) throws Exception;
 
-	String reSummarizePrompt(String sentencesString, String sentenceContent) throws Exception;
+	String recreatePrompt(String sentencesString, String sentenceContent) throws Exception;
 }

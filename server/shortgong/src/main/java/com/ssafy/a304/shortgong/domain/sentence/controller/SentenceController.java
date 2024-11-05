@@ -20,7 +20,7 @@ public class SentenceController {
 	@PatchMapping("/{sentence-id}")
 	private ResponseEntity<?> RecreateSentence(@PathVariable("sentence-id") Long sentenceId) throws Exception {
 
-		return ResponseEntity.ok(sentenceFacade.executeGptApi(sentenceId));
+		return ResponseEntity.ok(sentenceFacade.recreateSentence(sentenceId));
 	}
 
 }

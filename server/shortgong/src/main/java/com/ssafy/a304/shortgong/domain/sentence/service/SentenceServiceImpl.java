@@ -48,10 +48,11 @@ public class SentenceServiceImpl implements SentenceService {
 
 	/* 벌크 연산 후 문장 업데이트 */
 	@Override
-	public SentencesCreateResponse updateSentenceWithGPTUsingBulk(Long sentenceId, String GPTResponse) throws
+	@Transactional
+	public SentencesCreateResponse updateSentence(Long sentenceId, String claudeResponse) throws
 		Exception {
 
-		List<String> newSentences = splitToSentences(GPTResponse);
+		List<String> newSentences = splitToSentences(claudeResponse);
 		Sentence existingSentence = selectSentenceById(sentenceId);
 		Long summaryId = existingSentence.getSummary().getId();
 		int existingOrder = existingSentence.getOrder();
@@ -99,7 +100,7 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
-	public String reSummarizePrompt(String sentencesString, String sentenceContent) throws Exception {
+	public String recreatePrompt(String sentencesString, String sentenceContent) throws Exception {
 
 		return "나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n"
 			+ sentencesString

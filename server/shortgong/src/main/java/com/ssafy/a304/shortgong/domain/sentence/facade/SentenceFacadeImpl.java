@@ -24,17 +24,15 @@ public class SentenceFacadeImpl implements SentenceFacade {
 
 	@Override
 	@Transactional
-	public SentencesCreateResponse executeGptApi(Long sentenceId) throws Exception {
+	public SentencesCreateResponse recreateSentence(Long sentenceId) throws Exception {
 
-		String prompt = makePrompt(sentenceId);
+		String prompt = makeRecreatePrompt(sentenceId);
 		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
 		String claudeResponseText = claudeResponse.getContent().get(0).getText();
-		return sentenceService.updateSentenceWithGPTUsingBulk(sentenceId, claudeResponseText); // 호출 결과 파싱 후 저장
+		return sentenceService.updateSentence(sentenceId, claudeResponseText); // 호출 결과 파싱 후 저장
 	}
 
-	@Override
-	@Transactional
-	public String makePrompt(Long sentenceId) throws Exception {
+	private String makeRecreatePrompt(Long sentenceId) throws Exception {
 
 		Sentence sentence = sentenceService.selectSentenceById(sentenceId);
 		Summary summary = summaryService.selectSummaryById(sentence.getSummary().getId());
@@ -42,7 +40,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 		String sentencesString = sentenceService.convertSentenceListToString(
 			sentenceService.selectAllSentenceBySummaryId(summary.getId()));
 
-		return sentenceService.reSummarizePrompt(sentencesString, sentence.getSentenceContent());
+		return sentenceService.recreatePrompt(sentencesString, sentence.getSentenceContent());
 	}
 
 }
