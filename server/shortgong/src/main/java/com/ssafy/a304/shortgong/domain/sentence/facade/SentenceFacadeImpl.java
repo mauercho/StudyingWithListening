@@ -40,7 +40,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 		String sentencesString = sentenceService.convertSentenceListToString(
 			sentenceService.selectAllSentenceBySummaryId(summary.getId()));
 
-		return sentenceService.recreatePrompt(sentencesString, sentence.getSentenceContent());
+		return sentenceService.getRecreatePrompt(sentencesString, sentence.getSentenceContent());
 	}
 
 }

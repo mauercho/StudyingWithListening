@@ -100,7 +100,7 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
-	public String recreatePrompt(String sentencesString, String sentenceContent) throws Exception {
+	public String getRecreatePrompt(String sentencesString, String sentenceContent) throws Exception {
 
 		return "나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n"
 			+ sentencesString

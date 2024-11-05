@@ -7,13 +7,38 @@ import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 
 public interface SentenceService {
 
+	/**
+	 * @apiNote 문장 객체 반환
+	 * @param id (문장 pk)
+	 * @return Sentence (문장 객체)
+	 * @author 이주형
+	 * */
 	Sentence selectSentenceById(Long id) throws Exception;
 
+	/**
+	 * @apiNote 문장 객체 리스트 반환
+	 * @return List<Sentence> (문장 객체 리스트)
+	 * @author 이주형
+	 * */
 	List<Sentence> selectAllSentenceBySummaryId(Long summaryId) throws Exception;
 
+	/**
+	 * @apiNote 문장 객체 리스트를 문자열로 변환
+	 * @return String (문장 객체 리스트를 문자열로 변환한 결과)
+	 * @author 이주형
+	 * */
 	String convertSentenceListToString(List<Sentence> sentenceList) throws Exception;
 
-	SentencesCreateResponse updateSentence(Long sentenceId, String GPTResponse) throws Exception;
+	/**
+	 * @apiNote 특정 문장을 claudeResponse로 업데이트
+	 * @return SentencesCreateResponse (업데이트된 문장 객체를 리스트로 감싼 Dto)
+	 * @author 이주형
+	 */
+	SentencesCreateResponse updateSentence(Long sentenceId, String claudeResponse) throws Exception;
 
-	String recreatePrompt(String sentencesString, String sentenceContent) throws Exception;
+	/**
+	 * @return 문장 재생성 프롬프트 반환
+	 * @author 이주형
+	 */
+	String getRecreatePrompt(String sentencesString, String sentenceContent) throws Exception;
 }
