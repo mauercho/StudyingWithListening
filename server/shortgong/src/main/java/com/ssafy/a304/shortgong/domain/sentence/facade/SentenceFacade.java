@@ -1,6 +1,7 @@
 package com.ssafy.a304.shortgong.domain.sentence.facade;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceModifyRequest;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceUpdateOpenStatusRequest;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 
 public interface SentenceFacade {
@@ -12,5 +13,7 @@ public interface SentenceFacade {
 	 */
 	SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest) throws
 		Exception;
+
+	void updateSentenceOpenStatus(Long sentenceId, SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest);
 
 }

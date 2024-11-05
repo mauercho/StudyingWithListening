@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceModifyRequest;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceUpdateOpenStatusRequest;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
@@ -79,6 +80,14 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	private String makeDetailPrompt(Sentence sentence, String sentencesString) {
 
 		return sentenceService.getDetailPrompt(sentencesString, sentence.getSentenceContent());
+	}
+
+	@Override
+	@Transactional
+	public void updateSentenceOpenStatus(Long sentenceId,
+		SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest) {
+
+		sentenceService.updateSentenceOpenStatus(sentenceId, sentenceUpdateOpenStatusRequest.getOpenStatus());
 	}
 
 }

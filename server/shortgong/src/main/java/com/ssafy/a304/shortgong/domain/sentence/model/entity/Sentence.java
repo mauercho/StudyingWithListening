@@ -66,4 +66,9 @@ public class Sentence extends BaseEntity {
 		this.voiceFileName = voiceFileName;
 	}
 
+	public void updateOpenStatus(Boolean openStatus) {
+
+		this.openStatus = openStatus;
+	}
+
 }
