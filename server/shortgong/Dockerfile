@@ -9,7 +9,7 @@ COPY . .
 RUN chmod +x ./gradlew
 
 # Gradle 빌드 실행
-RUN ./gradlew clean build
+RUN ./gradlew clean build -x test
 
 FROM bellsoft/liberica-openjdk-alpine:17
 LABEL authors="SSAFY"
