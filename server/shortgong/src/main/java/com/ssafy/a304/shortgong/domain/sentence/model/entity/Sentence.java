@@ -61,4 +61,9 @@ public class Sentence extends BaseEntity {
 	@OneToMany(mappedBy = "sentence", cascade = ALL, orphanRemoval = true, fetch = LAZY)
 	private List<Index> indexes = new ArrayList<>();
 
+	public void updateVoiceFileName(String voiceFileName) {
+
+		this.voiceFileName = voiceFileName;
+	}
+
 }
