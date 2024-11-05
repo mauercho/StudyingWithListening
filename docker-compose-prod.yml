@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     image: shortgong_frontend:latest
     ports:
-      - "5000:5000"
+      - "3000:3000"
     environment:
       - TZ=Asia/Seoul
     networks:
