@@ -13,11 +13,10 @@ RUN npm ci
 # 프로젝트 전체를 컨테이너로 복사
 COPY . .
 
-EXPOSE 5000
+EXPOSE 3000
 
 # React를 위한 환경 변수 설정
 ENV NODE_ENV=production
-ENV PORT=5000
 
 # 애플리케이션 실행
 CMD ["npm", "start"]
