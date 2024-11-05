@@ -1,12 +1,16 @@
 package com.ssafy.a304.shortgong.domain.summary.facade;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
+import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.domain.summary.service.SummaryService;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
@@ -56,7 +60,11 @@ public class SummaryFacadeImpl implements SummaryFacade {
 				.fileName(savedFilename)
 				.build());
 
+		// 요약집 저장하기
 		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
+
+		// TODO : 요약집 제목 수정 (자동 기입) 하기
+		// summaryService.updateTitle(summary);
 
 		// TODO : text 요약해서 summarizedText 만들기
 		// String summarizedText = sentenceService.summarizeText(text);
@@ -67,12 +75,45 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		// List<SentenceResponse> sentenceResponseList = sentenceService.convertToList(summarizedText);
 
 		// TODO : 문장들을 TTS 요청하여 저장하기
-		// sentenceResponseList.stream()
-		// 		.map(sentenceResponse -> clovaVoiceUtil.requestVoiceByTextAndVoice(sentenceResponse.getText(), DSINU_MATT.getName()))
-		// 		.collect(Collectors.toList());
+		// 예시
+		List<Sentence> sentenceList = new ArrayList<>();
+		sentenceList.add(Sentence.builder()
+			.order(1)
+			.summary(summary)
+			.sentenceContent("test sentence 1.")
+			.build());
+		sentenceList.add(Sentence.builder()
+			.order(2)
+			.summary(summary)
+			.sentenceContent("test sentence 2.")
+			.build());
+		sentenceList.add(Sentence.builder()
+			.order(3)
+			.summary(summary)
+			.sentenceContent("test sentence 3.")
+			.build());
+
+		sentenceList.forEach(sentence -> sentenceService.saveSentences(sentenceList));
+
+		sentenceList.forEach(sentenceService::addSentenceVoice);
 
 		// TODO : 문장들 db에 저장
 		// sentenceService.saveSentences(sentenceResponseList);
 		return summary.getId();
+	}
+
+	/**
+	 * 요약집의 상세 페이지에 필요한 정보
+	 *
+	 * @return SummaryDetailResponse(요약집 제목, 문장들의 정보)
+	 * @author 정재영
+	 */
+	@Override
+	public SummaryDetailResponse getSummaryDetail(Long summaryId) {
+
+		return SummaryDetailResponse.builder()
+			.summaryTitle(summaryService.selectSummaryById(summaryId).getTitle())
+			.sentenceResponseList(sentenceService.searchAllSentenceResponseBySummaryId(summaryId))
+			.build();
 	}
 }
