@@ -1,11 +1,12 @@
 package com.ssafy.a304.shortgong.global.util;
 
-import java.util.Collections;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.ssafy.a304.shortgong.global.model.dto.request.ClaudeRequest;
@@ -13,41 +14,60 @@ import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.model.entity.ClaudeMessage;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Slf4j
+@Component
 @RequiredArgsConstructor
 public class ClaudeUtil {
 
 	private final RestTemplate restTemplate;
-	private final String CLAUDE_API_URL = "...";
-	private final String API_KEY = "...";
 
-	public ClaudeResponse sendMessage(String userMessage) {
+	@Value("${claude.api.url}")
+	private String API_URL;
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("x-api-key", API_KEY);
-		headers.set("anthropic-version", "2023-06-01");
+	@Value("${claude.api.key}")
+	private String apiKey;
 
-		// 요청 본문 생성
-		ClaudeRequest request = ClaudeRequest.builder()
-			.model("claude-3-opus-20240229")
-			.messages(Collections.singletonList(
-				ClaudeMessage.builder()
-					.role("user")
-					.content(userMessage)
-					.build()
-			))
-			.temperature(0.7)
-			.maxTokens(1000)
+	@Value("${claude.api.model}")
+	private String model;
+
+	@Value("${claude.api.temperature}")
+	private Double temperature;
+
+	@Value("${claude.api.max-tokens}")
+	private Integer maxTokens;
+
+	public ClaudeResponse sendMessage(String userMessage2) {
+
+		String userMessage = "\n\nHuman:" + userMessage2 + "\n\nAssistant:";
+
+		// 요청 데이터 설정
+		ClaudeMessage userMessageObj = ClaudeMessage.builder()
+			.role("user")
+			.content(userMessage)
 			.build();
 
-		HttpEntity<ClaudeRequest> entity = new HttpEntity<>(request, headers);
+		ClaudeRequest requestPayload = ClaudeRequest.builder()
+			.model(model)
+			.messages(List.of(userMessageObj))
+			.temperature(temperature)
+			.maxTokens(maxTokens)
+			.build();
 
-		return restTemplate.postForObject(
-			CLAUDE_API_URL,
-			entity,
-			ClaudeResponse.class
-		);
+		// HTTP 헤더 설정
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+		headers.set("x-api-key", apiKey);
+		headers.set("anthropic-version", "2023-06-01");
+
+		// HTTP 요청 생성
+		HttpEntity<ClaudeRequest> requestEntity = new HttpEntity<>(requestPayload, headers);
+
+		// API 요청 보내기
+		ResponseEntity<ClaudeResponse> responseEntity = restTemplate.postForEntity(API_URL, requestEntity,
+			ClaudeResponse.class);
+
+		return responseEntity.getBody();
 	}
 }

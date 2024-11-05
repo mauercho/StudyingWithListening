@@ -16,7 +16,9 @@ public class SentencesCreateResponse {
 	public static SentencesCreateResponse of(List<Sentence> sentences) {
 
 		return SentencesCreateResponse.builder()
-			.sentences(sentences.stream().map(SentenceCreateResponse::from).toList())
+			.sentences(sentences.stream()
+				.map(SentenceCreateResponse::from)
+				.toList())
 			.build();
 	}
 

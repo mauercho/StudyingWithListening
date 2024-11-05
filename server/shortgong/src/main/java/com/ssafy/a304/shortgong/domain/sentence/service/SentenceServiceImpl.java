@@ -2,6 +2,8 @@ package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,8 +80,22 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	/* String을 받아서 문장기호를 기준으로 List<String>으로 변환 */
-	public List<String> splitToSentences(String text) {
+	private List<String> splitToSentences(String text) {
 
-		return List.of(text.split("[.?!]"));
+		if (text == null || text.isEmpty()) {
+			return List.of("");
+		}
+
+		List<String> sentences = new ArrayList<>();
+		// 정규식을 사용하여 문장과 문장 부호를 함께 캡처
+		Pattern pattern = Pattern.compile("[^.!?]+[.!?]");
+		Matcher matcher = pattern.matcher(text);
+
+		while (matcher.find()) {
+			sentences.add(matcher.group());
+		}
+
+		return sentences;
 	}
+
 }
