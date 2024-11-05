@@ -6,7 +6,7 @@ import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 
 public interface SummaryService {
 
-	Summary selectSummaryById(Long summaryId);
+	Summary selectSummaryById(Long id);
 
 	Summary createNewSummary(User loginUser,
 		UploadContent uploadContent);

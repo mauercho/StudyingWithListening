@@ -2,6 +2,7 @@ package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import java.util.List;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 
@@ -55,4 +56,9 @@ public interface SentenceService {
 	String getDetailPrompt(String sentencesString, String sentenceContent);
 
 	void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus);
+
+	void addSentenceVoice(Sentence sentence);
+
+	List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId);
+
 }

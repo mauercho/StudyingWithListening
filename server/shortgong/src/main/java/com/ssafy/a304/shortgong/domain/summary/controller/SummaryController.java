@@ -2,6 +2,8 @@ package com.ssafy.a304.shortgong.domain.summary.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -19,7 +21,7 @@ public class SummaryController {
 
 	private final SummaryFacade summaryFacade;
 
-	/*
+	/**
 	 * 파일 업로드 및 요약본 생성
 	 * */
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, "multipart/form-data"})
@@ -28,6 +30,15 @@ public class SummaryController {
 	) {
 
 		return ResponseEntity.ok(summaryFacade.uploadContent(contentFile));
+	}
+
+	/**
+	 * 요약본 상세 페이지 정보
+	 * */
+	@GetMapping("/{summary-id}")
+	public ResponseEntity<?> getSummaryDetail(@PathVariable("summary-id") Long summaryId) {
+
+		return ResponseEntity.ok(summaryFacade.getSummaryDetail(summaryId));
 	}
 
 }

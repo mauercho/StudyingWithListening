@@ -1,18 +1,24 @@
 package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import static com.ssafy.a304.shortgong.global.errorCode.SentenceErrorCode.*;
+import static com.ssafy.a304.shortgong.global.model.constant.ClovaVoice.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
 import com.ssafy.a304.shortgong.global.error.CustomException;
+import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
+import com.ssafy.a304.shortgong.global.util.FileUtil;
+import com.ssafy.a304.shortgong.global.util.RandomUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +28,27 @@ import lombok.RequiredArgsConstructor;
 public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
+	private final ClovaVoiceUtil clovaVoiceUtil;
+
+	/**
+	 * 문장에 해당하는 voice 생성 & 저장
+	 * @return 파일명
+	 * */
+	@Override
+	public void addSentenceVoice(Sentence sentence) {
+
+		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(sentence.getSentenceContent(),
+			DSINU_MATT.getName());
+
+		// TODO : 이미 파일이 존재하면 삭제하기
+
+		String fileName = FileUtil.uploadSentenceVoiceFileByUuid(
+			voiceData,
+			sentence.getSummary().getFolderName(),
+			RandomUtil.generateUUID());
+
+		sentence.updateVoiceFileName(fileName);
+	}
 
 	@Override
 	public Sentence selectSentenceById(Long sentenceId) throws CustomException {
@@ -41,6 +68,20 @@ public class SentenceServiceImpl implements SentenceService {
 	public List<Sentence> saveSentences(List<Sentence> sentences) {
 
 		return sentenceRepository.saveAll(sentences);
+	}
+
+	/**
+	 * 요약본 상세 페이지에 필요한 문장 리스트 가져오기
+	 * @author 정재영
+	 */
+	@Override
+	public List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId) {
+
+		return selectAllSentenceBySummaryId(summaryId).stream()
+			.map(sentence -> SentenceResponse.builder()
+				.sentence(sentence)
+				.build())
+			.collect(Collectors.toList());
 	}
 
 	/* List<Sentence>를 받아서 스트링으로 변환 */
