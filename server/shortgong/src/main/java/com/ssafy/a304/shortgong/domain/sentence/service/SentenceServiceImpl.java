@@ -22,14 +22,14 @@ public class SentenceServiceImpl implements SentenceService {
 	private final SentenceRepository sentenceRepository;
 
 	@Override
-	public Sentence selectSentenceById(Long id) throws Exception {
+	public Sentence selectSentenceById(Long id) {
 
 		return sentenceRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("해당 id의 문장이 존재하지 않습니다."));
 	}
 
 	@Override
-	public List<Sentence> selectAllSentenceBySummaryId(Long summaryId) throws Exception {
+	public List<Sentence> selectAllSentenceBySummaryId(Long summaryId) {
 
 		return sentenceRepository.findAllBySummary_IdOrderByOrder(summaryId);
 	}
