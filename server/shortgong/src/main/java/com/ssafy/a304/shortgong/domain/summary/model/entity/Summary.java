@@ -13,6 +13,7 @@ import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 import com.ssafy.a304.shortgong.global.model.entity.BaseEntity;
+import com.ssafy.a304.shortgong.global.util.RandomUtil;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +23,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,4 +64,24 @@ public class Summary extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "summary", cascade = ALL, orphanRemoval = true, fetch = LAZY)
 	private List<Index> indexes = new ArrayList<>();
+
+	@Builder
+	public Summary(User writer, UploadContent uploadContent) {
+
+		this.writer = writer;
+		this.uploadContent = uploadContent;
+	}
+
+	public void updateTitle(String title) {
+
+		this.title = title;
+	}
+
+	@PrePersist
+	private void prePersist() {
+
+		if (this.folderName == null || this.folderName.isEmpty()) {
+			this.folderName = RandomUtil.generateUUID(); // 기본 폴더 이름을 설정하거나, 원하는 로직으로 변경 가능
+		}
+	}
 }

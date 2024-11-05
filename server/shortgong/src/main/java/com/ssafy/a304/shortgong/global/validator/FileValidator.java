@@ -6,10 +6,17 @@ import com.ssafy.a304.shortgong.global.error.CustomException;
 
 public class FileValidator {
 
-	public static void checkImageExt(String ext) throws CustomException {
+	public static void checkProfileImageExt(String ext) throws CustomException {
 
 		if (!ext.equals("png") && !ext.equals("jpg") && !ext.equals("jpeg")) {
-			throw new CustomException(IMG_EXTENSION_FIND_FAILED);
+			throw new CustomException(PROFILE_IMG_EXTENSION_FIND_FAILED);
+		}
+	}
+
+	public static void checkOcrImageExt(String ext) throws CustomException {
+
+		if (!ext.equals("png") && !ext.equals("jpg") && !ext.equals("jpeg") && !ext.equals("pdf")) {
+			throw new CustomException(OCR_IMG_EXTENSION_FIND_FAILED);
 		}
 	}
 
