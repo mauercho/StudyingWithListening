@@ -27,24 +27,24 @@ public interface SentenceService {
 	 * @return String (문장 객체 리스트를 문자열로 변환한 결과)
 	 * @author 이주형
 	 * */
-	String convertSentenceListToString(List<Sentence> sentenceList) throws Exception;
+	String convertSentenceListToString(List<Sentence> sentenceList);
 
 	/**
 	 * @apiNote 특정 문장을 claudeResponse로 업데이트
 	 * @return SentencesCreateResponse (업데이트된 문장 객체를 리스트로 감싼 Dto)
 	 * @author 이주형
 	 */
-	SentencesCreateResponse updateSentence(Long sentenceId, String claudeResponse) throws Exception;
+	SentencesCreateResponse updateSentence(Sentence existingSentence, String claudeResponse) throws Exception;
 
 	/**
 	 * @return 문장 재생성 프롬프트 반환
 	 * @author 이주형
 	 */
-	String getRecreatePrompt(String sentencesString, String sentenceContent) throws Exception;
+	String getRecreatePrompt(String sentencesString, String sentenceContent);
 
 	/**
 	 * @return 문장 상세 프롬프트 반환
 	 * @author 이주형
 	 */
-	String getDetailPrompt(String sentencesString, String sentenceContent) throws Exception;
+	String getDetailPrompt(String sentencesString, String sentenceContent);
 }

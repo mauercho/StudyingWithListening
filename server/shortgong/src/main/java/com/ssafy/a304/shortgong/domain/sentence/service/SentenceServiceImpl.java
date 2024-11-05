@@ -36,7 +36,7 @@ public class SentenceServiceImpl implements SentenceService {
 
 	/* List<Sentence>를 받아서 스트링으로 변환 */
 	@Override
-	public String convertSentenceListToString(List<Sentence> sentenceList) throws Exception {
+	public String convertSentenceListToString(List<Sentence> sentenceList) {
 
 		StringBuilder sb = new StringBuilder();
 		for (Sentence sentence : sentenceList) {
@@ -49,11 +49,10 @@ public class SentenceServiceImpl implements SentenceService {
 	/* 벌크 연산 후 문장 업데이트 */
 	@Override
 	@Transactional
-	public SentencesCreateResponse updateSentence(Long sentenceId, String claudeResponse) throws
+	public SentencesCreateResponse updateSentence(Sentence existingSentence, String claudeResponse) throws
 		Exception {
 
 		List<String> newSentences = splitToSentences(claudeResponse);
-		Sentence existingSentence = selectSentenceById(sentenceId);
 		Long summaryId = existingSentence.getSummary().getId();
 		int existingOrder = existingSentence.getOrder();
 
@@ -62,10 +61,8 @@ public class SentenceServiceImpl implements SentenceService {
 		if (increment > 0)
 			sentenceRepository.bulkUpdateOrder(summaryId, existingOrder, increment);
 
-		// 기존 문장 내용 수정
-		existingSentence.setSentenceContent(newSentences.get(0));
-
 		// 문장 업데이트
+		existingSentence.setSentenceContent(newSentences.get(0));
 		List<Sentence> newSentenceEntities = new ArrayList<>(List.of(existingSentence));
 		for (int i = 1; i < newSentences.size(); i++) {
 			Sentence newSentence = Sentence.builder()
@@ -100,7 +97,7 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
-	public String getRecreatePrompt(String sentencesString, String sentenceContent) throws Exception {
+	public String getRecreatePrompt(String sentencesString, String sentenceContent) {
 
 		return "나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n"
 			+ sentencesString
@@ -111,7 +108,7 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
-	public String getDetailPrompt(String sentencesString, String sentenceContent) throws Exception {
+	public String getDetailPrompt(String sentencesString, String sentenceContent) {
 
 		return "나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n"
 			+ sentencesString

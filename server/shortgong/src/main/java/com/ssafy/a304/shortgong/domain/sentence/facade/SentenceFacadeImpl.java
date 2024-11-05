@@ -3,6 +3,7 @@ package com.ssafy.a304.shortgong.domain.sentence.facade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceModifyRequest;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
@@ -24,23 +25,49 @@ public class SentenceFacadeImpl implements SentenceFacade {
 
 	@Override
 	@Transactional
-	public SentencesCreateResponse recreateSentence(Long sentenceId) throws Exception {
-
-		String prompt = makeRecreatePrompt(sentenceId);
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
-		String claudeResponseText = claudeResponse.getContent().get(0).getText();
-		return sentenceService.updateSentence(sentenceId, claudeResponseText); // 호출 결과 파싱 후 저장
-	}
-
-	private String makeRecreatePrompt(Long sentenceId) throws Exception {
+	public SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest) throws
+		Exception {
 
 		Sentence sentence = sentenceService.selectSentenceById(sentenceId);
 		Summary summary = summaryService.selectSummaryById(sentence.getSummary().getId());
-
 		String sentencesString = sentenceService.convertSentenceListToString(
 			sentenceService.selectAllSentenceBySummaryId(summary.getId()));
 
+		if (sentenceModifyRequest.getIsDetail())
+			return updateSentence(sentence, claudeUtil.sendMessage(makeDetailPrompt(sentence, sentencesString)));
+		return updateSentence(sentence, claudeUtil.sendMessage(makeRecreatePrompt(sentence, sentencesString)));
+	}
+
+	/**
+	 * @apiNote 재생성 또는 상세 내용 생성을 위한 프롬프트를 보내고, 결과를 저장
+	 * @return 생성된 문장 정보
+	 * @author 이주형
+	 */
+	@Transactional
+	protected SentencesCreateResponse updateSentence(Sentence sentence, ClaudeResponse claudeResponse) throws
+		Exception {
+
+		return sentenceService.updateSentence(sentence, claudeResponse.getContent().get(0).getText());
+	}
+
+	/**
+	 * @apiNote 재생성을 위한 프롬프트 생성
+	 * @return 재생성을 위한 프롬프트
+	 * @author 이주형
+	 */
+	private String makeRecreatePrompt(Sentence sentence, String sentencesString) {
+
 		return sentenceService.getRecreatePrompt(sentencesString, sentence.getSentenceContent());
+	}
+
+	/**
+	 * @apiNote 상세 내용 생성을 위한 프롬프트 생성
+	 * @return 상세 내용 생성을 위한 프롬프트
+	 * @author 이주형
+	 */
+	private String makeDetailPrompt(Sentence sentence, String sentencesString) {
+
+		return sentenceService.getDetailPrompt(sentencesString, sentence.getSentenceContent());
 	}
 
 }
