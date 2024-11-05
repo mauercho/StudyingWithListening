@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 
 import routes from '../routes';
 import BackButtonTitle from '../components/BackButtonTitle';
+import Player from '../components/Player'
 
 const Container = styled.main`
   margin: auto;
@@ -21,10 +22,6 @@ const Main = styled.div`
   overflow-y: auto;
 `;
 
-const Player = styled.div`
-  height: 65px;
-`
-
 
 export default function TitleLayout() {
   const location = useLocation();
@@ -37,7 +34,7 @@ export default function TitleLayout() {
       <Main>
         <Outlet />
       </Main>
-      <Player></Player>
+      <Player />
     </Container>
   );
 }
