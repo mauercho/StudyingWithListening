@@ -9,9 +9,10 @@ const Container = styled.main`
   margin: auto;
   max-width: 768px;
   min-width: 320px;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: ${({theme}) => theme.color.white};
 `;
 
 const Main = styled.div`
