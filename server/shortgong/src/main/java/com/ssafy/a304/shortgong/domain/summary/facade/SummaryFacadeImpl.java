@@ -3,6 +3,7 @@ package com.ssafy.a304.shortgong.domain.summary.facade;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
@@ -12,6 +13,7 @@ import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.uploadContent.service.UploadContentService;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 import com.ssafy.a304.shortgong.domain.user.service.UserService;
+import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
 import com.ssafy.a304.shortgong.global.util.FileUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -27,8 +29,10 @@ public class SummaryFacadeImpl implements SummaryFacade {
 	private final UploadContentService uploadContentService;
 	private final UserService userService;
 	private final SentenceService sentenceService;
+	private final ClovaVoiceUtil clovaVoiceUtil;
 
 	@Override
+	@Transactional
 	public long uploadContent(MultipartFile contentFile) {
 		// 로그인 유저 가져오기
 		User loginUser = userService.selectLoginUser();
@@ -61,6 +65,11 @@ public class SummaryFacadeImpl implements SummaryFacade {
 
 		// TODO : 요청 온 요약 텍스트 문장으로 split
 		// List<SentenceResponse> sentenceResponseList = sentenceService.convertToList(summarizedText);
+
+		// TODO : 문장들을 TTS 요청하여 저장하기
+		// sentenceResponseList.stream()
+		// 		.map(sentenceResponse -> clovaVoiceUtil.requestVoiceByTextAndVoice(sentenceResponse.getText(), DSINU_MATT.getName()))
+		// 		.collect(Collectors.toList());
 
 		// TODO : 문장들 db에 저장
 		// sentenceService.saveSentences(sentenceResponseList);
