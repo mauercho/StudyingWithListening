@@ -3,6 +3,7 @@ package com.ssafy.a304.shortgong.domain.sentence.facade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceModifyRequest;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
@@ -24,36 +25,49 @@ public class SentenceFacadeImpl implements SentenceFacade {
 
 	@Override
 	@Transactional
-	public SentencesCreateResponse executeGptApi(Long sentenceId) throws Exception {
-
-		String prompt = makePrompt(sentenceId);
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
-		String claudeResponseText = claudeResponse.getContent().get(0).getText();
-		return sentenceService.updateSentenceWithGPTUsingBulk(sentenceId, claudeResponseText); // 호출 결과 파싱 후 저장
-	}
-
-	@Override
-	@Transactional
-	public String makePrompt(Long sentenceId) throws Exception {
-
-		StringBuilder sb = new StringBuilder();
+	public SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest) throws
+		Exception {
 
 		Sentence sentence = sentenceService.selectSentenceById(sentenceId);
 		Summary summary = summaryService.selectSummaryById(sentence.getSummary().getId());
-
 		String sentencesString = sentenceService.convertSentenceListToString(
 			sentenceService.selectAllSentenceBySummaryId(summary.getId()));
 
-		// TODO: 아래 부분을 service 단으로 이동
-		sb.append("나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n")
-			.append(sentencesString)
-			.append("\n\n위 텍스트의 전체 맥락을 고려하여, 내가 다음으로 전해주는 문장을 다시 작성해서 제공해줘\n---\n")
-			.append(sentence.getSentenceContent())
-			.append(
-				"\n---\n'전체 텍스트의 맥락을 고려했을 때, 해당 문장을 다음과 같이 수정하면 좋을 것 같습니다:' 같은 멘트나 "
-					+ "'수정 이유는 다음과 같습니다:'와 같은 멘트는 필요 없어");
+		if (sentenceModifyRequest.getIsDetail())
+			return updateSentence(sentence, claudeUtil.sendMessage(makeDetailPrompt(sentence, sentencesString)));
+		return updateSentence(sentence, claudeUtil.sendMessage(makeRecreatePrompt(sentence, sentencesString)));
+	}
 
-		return sb.toString();
+	/**
+	 * @apiNote 재생성 또는 상세 내용 생성을 위한 프롬프트를 보내고, 결과를 저장
+	 * @return 생성된 문장 정보
+	 * @author 이주형
+	 */
+	@Transactional
+	protected SentencesCreateResponse updateSentence(Sentence sentence, ClaudeResponse claudeResponse) throws
+		Exception {
+
+		return sentenceService.updateSentence(sentence, claudeResponse.getContent().get(0).getText());
+	}
+
+	/**
+	 * @apiNote 재생성을 위한 프롬프트 생성
+	 * @return 재생성을 위한 프롬프트
+	 * @author 이주형
+	 */
+	private String makeRecreatePrompt(Sentence sentence, String sentencesString) {
+
+		return sentenceService.getRecreatePrompt(sentencesString, sentence.getSentenceContent());
+	}
+
+	/**
+	 * @apiNote 상세 내용 생성을 위한 프롬프트 생성
+	 * @return 상세 내용 생성을 위한 프롬프트
+	 * @author 이주형
+	 */
+	private String makeDetailPrompt(Sentence sentence, String sentencesString) {
+
+		return sentenceService.getDetailPrompt(sentencesString, sentence.getSentenceContent());
 	}
 
 }
