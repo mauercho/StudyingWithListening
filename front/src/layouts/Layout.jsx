@@ -3,6 +3,8 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 import styled from '@emotion/styled'
 
+import Player from '../components/Player'
+
 const Container = styled.div`
   margin: auto;
   padding: 0px 10px;
@@ -14,15 +16,11 @@ const Container = styled.div`
   background-color: ${({theme}) => theme.color.white};
 `
 
-const Player = styled.div`
-  height: 65px;
-`
-
 export default function Layout() {
   return (
     <Container>
       <Outlet />
-      <Player></Player>
+      <Player />
     </Container>
   )
 }

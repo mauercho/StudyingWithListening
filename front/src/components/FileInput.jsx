@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 
 import styled from '@emotion/styled'
-
 import { FaPlus, FaArrowUp } from 'react-icons/fa6'
+
+import PopUpMenu from './PopUpMenu'
 
 const Container = styled.div`
   width: 100%;
@@ -44,20 +45,42 @@ const Input = styled.input`
   outline: none;
   padding: 0px 10px;
   background-color: ${({ theme, url }) =>
-  url ? theme.color.white : theme.color.grey};
+    url ? theme.color.white : theme.color.grey};
   font-size: ${({ theme }) => theme.font.size.xs};
-  font-weight: ${({theme}) => theme.font.weight.regular};
+  font-weight: ${({ theme }) => theme.font.weight.regular};
 `
 
 export default function FileInput() {
-  const [type, setType] = useState("url");
+  const [type, setType] = useState('url')
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const buttonRef = useRef(null)
+
+  const handleAddButtonClick = () => setIsMenuOpen((prev) => !prev)
+
+  const items = [
+    { text: 'PDF', onClick: () => setType('PDF') },
+    { text: 'IMAGE', onClick: () => setType('IMAGE') },
+    { text: 'URL', onClick: () => setType('URL') },
+  ]
 
   return (
     <Container>
-      <AddButton>
+      <AddButton ref={buttonRef} onClick={handleAddButtonClick}>
         <FaPlus size={16} />
       </AddButton>
-      <Input aria-label="fileInput" url={type === "url"} disabled={type !== "url"} placeholder={""} />
+      <PopUpMenu
+        triggerRef={buttonRef}
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        items={items}
+      />
+
+      <Input
+        aria-label="fileInput"
+        url={type === 'URL'}
+        disabled={type !== 'URL'}
+        placeholder={type === 'URL' ? 'URL을 입력해주세요.' : ''}
+      />
       <UploadButton>
         <FaArrowUp size={16} />
       </UploadButton>
