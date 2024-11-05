@@ -41,4 +41,10 @@ public interface SentenceService {
 	 * @author 이주형
 	 */
 	String getRecreatePrompt(String sentencesString, String sentenceContent) throws Exception;
+
+	/**
+	 * @return 문장 상세 프롬프트 반환
+	 * @author 이주형
+	 */
+	String getDetailPrompt(String sentencesString, String sentenceContent) throws Exception;
 }
