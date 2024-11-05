@@ -62,4 +62,16 @@ public class Summary extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "summary", cascade = ALL, orphanRemoval = true, fetch = LAZY)
 	private List<Index> indexes = new ArrayList<>();
+
+	@Builder
+	public Summary(User writer, UploadContent uploadContent) {
+
+		this.writer = writer;
+		this.uploadContent = uploadContent;
+	}
+
+	public void updateTitle(String title) {
+
+		this.title = title;
+	}
 }
