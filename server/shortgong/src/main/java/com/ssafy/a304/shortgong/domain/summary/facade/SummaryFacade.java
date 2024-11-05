@@ -2,6 +2,8 @@ package com.ssafy.a304.shortgong.domain.summary.facade;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
+
 public interface SummaryFacade {
 
 	/**
@@ -10,4 +12,11 @@ public interface SummaryFacade {
 	 * @author 정재영
 	 * */
 	long uploadContent(MultipartFile contentFile);
+
+	/**
+	 * 요약본 상세 페이지에 필요한 데이터 전송
+	 * @return SummaryDetailResponse
+	 * @author 정재영
+	 * */
+	SummaryDetailResponse getSummaryDetail(Long summaryId);
 }
