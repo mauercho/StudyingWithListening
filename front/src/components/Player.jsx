@@ -9,7 +9,7 @@ import {
   MdOutlineSettings,
 } from 'react-icons/md'
 
-import { theme } from '../assets/styles/theme'
+import theme from '../assets/styles/theme'
 // 이거는 실험용 음악파일 입니다.
 import fade from '../music/As You Fade Away - NEFFEX.mp3'
 import enough from '../music/Enough - NEFFEX.mp3'
@@ -30,7 +30,7 @@ const PlayerWrapper = styled.div`
   background-color: white;
   width: 100%;
   padding: 20px;
-  border-top: 1px solid ${(props) => props.theme.color.primary_dark};
+  border-top: 1px solid ${theme.color.primary_dark};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -39,54 +39,61 @@ const PlayerWrapper = styled.div`
 const ControlsWrapper = styled.div`
   display: flex;
   justify-content: center;
-  aligh-items: center;
-  gap: 0px;
+  align-items: center;
+  gap: 0;
   margin-right: 20px;
   height: 100%;
 `
 
 const TitleSection = styled.div`
   display: flex;
-  color: #4db6ac;
+  color: ${theme.color.primary};
   margin-left: 20px;
   flex-direction: column;
+  width: 200px;
 `
 const Title = styled.div`
-  font-size: 18px;
-  font-weight: 400;
+  font-weight: ${theme.font.weight.regular};
+  font-size: ${theme.font.size.lg};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 const SubInfoWrapper = styled.div`
   display: flex;
-  font-size: 10px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  font-weight: ${theme.font.weight.regular};
+  font-size: ${theme.font.size.xxs};
+  gap: 30px;
 `
 
 const IconButton = styled.button`
   background: none;
   border: none;
-  color: #4db6ac;
+  color: ${theme.color.primary};
   padding: 0 3px;
   display: flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    color: black;
+    color: ${theme.color.primary};
+  }
+
+  &:active {
+    color: ${theme.color.black};
   }
 
   svg {
     font-size: 24px;
   }
-
-  &.play-button svg {
-    font-size: 24px;
-  }
 `
 
 const playlist = [
-  { file: fade, title: 'As You Fade Away', artist: '1zzzzzzzz' },
+  {
+    file: fade,
+    title: 'As You Fade Away',
+    artist: 'sdaofasdiofnsdaofnasdoinfsd',
+  },
   { file: enough, title: 'Enough', artist: '2' },
   { file: immortal, title: 'Immortal', artist: '3' },
   { file: playDead, title: 'Play Dead', artist: 'sadfsdfsdfasdf' },
@@ -142,12 +149,12 @@ export default function Player() {
   useEffect(() => {
     if ('mediaSession' in navigator && 'MediaMetadata' in window) {
       navigator.mediaSession.metadata = new window.MediaMetadata({
-        title: truncateText(playlist[index].title, 50), // 실제 노래 제목
-        artist: truncateText(playlist[index].artist, 40), // 실제 아티스트
-        album: '', // 앨범 정보 제거
+        title: truncateText(playlist[index].title, 50),
+        artist: truncateText(playlist[index].artist, 40),
+        album: '',
       })
 
-      navigator.mediaSession.setPositionState(null) // 추가
+      navigator.mediaSession.setPositionState(null)
       navigator.mediaSession.setActionHandler('seekto', null)
       navigator.mediaSession.setActionHandler('seekforward', null)
       navigator.mediaSession.setActionHandler('seekbackward', null)
@@ -181,7 +188,6 @@ export default function Player() {
         preload="auto"
         playsInline
         controlsList="noplaybackrate noseek nodownload"
-        disableSeekBar
         controls={false}
         onEnded={toggleSkipForward}
       />
