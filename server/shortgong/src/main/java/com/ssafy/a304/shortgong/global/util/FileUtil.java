@@ -49,9 +49,11 @@ public class FileUtil {
 		this.bucket = bucket;
 	}
 
-	/*
+	/**
 	 * 유저 이미지 업로드하기
-	 * */
+	 * @return 파일명
+	 * @author 정재영
+	 */
 	public static String uploadUserProfileImgFileByUuid(MultipartFile file, String uuid) throws
 		CustomException {
 
@@ -65,9 +67,21 @@ public class FileUtil {
 		return upload(convert(file), staticUploadContentFolderPath, uuid, getExtension(file));
 	}
 
-	/*
+	/**
 	 * 해당 요약집 폴더에 문자 보이스 mp3 파일 업로드하기
-	 * */
+	 * @return 파일명
+	 * @author 정재영
+	 */
+	public static String uploadSentenceVoiceFileByUuid(byte[] voiceData, String summaryUuid,
+		String mp3FileUuid) throws CustomException {
+
+		String ext = "mp3";
+		File voiceFile = convertByteArrayToFile(voiceData, mp3FileUuid, ext);
+
+		return upload(voiceFile, staticSummaryListFolderPath + "/" + summaryUuid, mp3FileUuid, ext);
+
+	}
+
 	public static String uploadSentenceVoiceFileByUuid(MultipartFile file, String summaryUuid,
 		String mp3FileUuid) throws
 		CustomException {
@@ -78,24 +92,19 @@ public class FileUtil {
 
 	public static String getUserProfileImgUrl(String fileName) throws CustomException {
 
-		return staticAmazonS3Client.getUrl(staticBucket, staticUserProfileFolderPath + "/" + fileName).toString();
+		return staticAmazonS3Client.getUrl(staticBucket, /*staticUserProfileFolderPath + "/" + */ fileName).toString();
 	}
 
 	public static String getSentenceVoiceFileUrl(String summaryUuid, String fileName) throws CustomException {
 
 		return staticAmazonS3Client.getUrl(staticBucket,
-			staticSummaryListFolderPath + "/" + summaryUuid + "/" + fileName).toString();
+			/* staticSummaryListFolderPath + "/" + summaryUuid + "/" + */ fileName).toString();
 	}
 
 	public static String getExtension(MultipartFile file) throws CustomException {
 
 		String originalFilename = file.getOriginalFilename();
-		FileValidator.checkFileNonEmpty(originalFilename);
-		int index = originalFilename.lastIndexOf(".");
-		if (index == -1) {
-			throw new CustomException(EXTENSION_FIND_FAILED);
-		}
-		return originalFilename.substring(index + 1);
+		return getExtensionString(originalFilename);
 	}
 
 	public static String getExtensionString(String s3Url) throws CustomException {
@@ -137,16 +146,24 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * @return 파일명
+	 * @author 정재영
+	 */
 	private static String upload(File uploadFile, String folderPath, String uploadName, String ext)
 		throws CustomException {
 
 		String fileName = folderPath + "/" + uploadName + "." + ext;
-		String uploadImageUrl = putS3(uploadFile, fileName);
+		String uploadFileName = putS3(uploadFile, fileName);
 		removeLocalFile(uploadFile);
 
-		return uploadImageUrl;
+		return uploadFileName;
 	}
 
+	/**
+	 * @return 파일명
+	 * @author 정재영
+	 */
 	private static String putS3(File uploadFile, String fileName) {
 
 		ObjectMetadata metadata = new ObjectMetadata();
@@ -198,6 +215,20 @@ public class FileUtil {
 		}
 		log.debug("로컬에서 파일이 삭제되었습니다.");
 
+	}
+
+	/**
+	 * byte[]를 파일로 변환하는 메서드
+	 */
+	private static File convertByteArrayToFile(byte[] data, String fileName, String ext) throws CustomException {
+
+		File file = new File(fileName + "." + ext);
+		try (FileOutputStream fos = new FileOutputStream(file)) {
+			fos.write(data);
+			return file;
+		} catch (IOException e) {
+			throw new CustomException(FILE_CREATE_FAILED);
+		}
 	}
 
 	@PostConstruct
