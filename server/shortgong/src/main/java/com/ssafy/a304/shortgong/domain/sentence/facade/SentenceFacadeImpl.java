@@ -1,5 +1,7 @@
 package com.ssafy.a304.shortgong.domain.sentence.facade;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +13,7 @@ import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.domain.summary.service.SummaryService;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
+import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +25,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	private final SummaryService summaryService;
 	private final SentenceService sentenceService;
 	private final ClaudeUtil claudeUtil;
+	private final ClovaVoiceUtil clovaVoiceUtil;
 
 	@Override
 	@Transactional
@@ -47,7 +51,14 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	protected SentencesCreateResponse updateSentence(Sentence sentence, ClaudeResponse claudeResponse) throws
 		Exception {
 
-		return sentenceService.updateSentence(sentence, claudeResponse.getContent().get(0).getText());
+		List<Sentence> sentences = sentenceService.getModifySentences(sentence,
+			claudeResponse.getContent().get(0).getText());
+		// sentences.stream()
+		// 	.forEach(s -> s.updateVoiceFileName(
+		// 		clovaVoiceUtil.requestVoiceByTextAndVoice(s.getSentenceContent(), DSINU_MATT.getName())));
+		sentenceService.saveSentences(sentences);
+
+		return SentencesCreateResponse.of(sentences);
 	}
 
 	/**

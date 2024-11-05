@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
 
@@ -34,6 +33,13 @@ public class SentenceServiceImpl implements SentenceService {
 		return sentenceRepository.findAllBySummary_IdOrderByOrder(summaryId);
 	}
 
+	@Override
+	@Transactional
+	public List<Sentence> saveSentences(List<Sentence> sentences) {
+
+		return sentenceRepository.saveAll(sentences);
+	}
+
 	/* List<Sentence>를 받아서 스트링으로 변환 */
 	@Override
 	public String convertSentenceListToString(List<Sentence> sentenceList) {
@@ -49,7 +55,7 @@ public class SentenceServiceImpl implements SentenceService {
 	/* 벌크 연산 후 문장 업데이트 */
 	@Override
 	@Transactional
-	public SentencesCreateResponse updateSentence(Sentence existingSentence, String claudeResponse) throws
+	public List<Sentence> getModifySentences(Sentence existingSentence, String claudeResponse) throws
 		Exception {
 
 		List<String> newSentences = splitToSentences(claudeResponse);
@@ -72,9 +78,10 @@ public class SentenceServiceImpl implements SentenceService {
 				.build();
 			newSentenceEntities.add(newSentence);
 		}
-		sentenceRepository.saveAll(newSentenceEntities);
+		return newSentenceEntities;
+		// saveSentences(newSentenceEntities);
 
-		return SentencesCreateResponse.of(newSentenceEntities);
+		// return SentencesCreateResponse.of(newSentenceEntities);
 	}
 
 	/* String을 받아서 문장기호를 기준으로 List<String>으로 변환 */
