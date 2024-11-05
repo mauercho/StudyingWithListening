@@ -2,7 +2,7 @@ package com.ssafy.a304.shortgong.global.model.dto.response;
 
 import java.util.List;
 
-import com.ssafy.a304.shortgong.global.model.entity.ClaudeMessage;
+import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +13,8 @@ public class ClaudeResponse {
 
 	private String id;
 
-	private List<ClaudeMessage> content;
+	private String role;
+
+	private List<ClaudeResponseMessage> content;
 
 }

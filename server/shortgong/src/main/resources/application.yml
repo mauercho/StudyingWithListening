@@ -53,6 +53,9 @@ spring:
       url: https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts
       client-id: ${NAVER_SHORTGONG_CLIENT_ID}
       client-secret: ${NAVER_SHORTGONG_CLIENT_SECRET}
+    ocr:
+      url: ${NAVER_OCR_URL}
+      secret-key: ${NAVER_OCR_SECRET}
 
 jwt:
   secret: ${JWT_SECRET}
@@ -88,3 +91,11 @@ file:
   path:
     user-profile-folder: user
     summary-folder: summary
+
+claude:
+  api:
+    key: ${CLAUDE_API_SECRET_KEY}
+    url: ${CLAUDE_API_URL}
+    model: ${CLAUDE_API_MODEL}
+    temperature: ${CLAUDE_API_TEMPERATURE}
+    max-tokens: ${CLAUDE_API_MAX_TOKENS}

@@ -75,6 +75,16 @@ public class FileUtil {
 		return originalFilename.substring(index + 1);
 	}
 
+	public static String getExtensionString(String s3Url) throws CustomException {
+
+		FileValidator.checkFileNonEmpty(s3Url);
+		int index = s3Url.lastIndexOf(".");
+		if (index == -1) {
+			throw new CustomException(EXTENSION_FIND_FAILED);
+		}
+		return s3Url.substring(index + 1);
+	}
+
 	public static boolean isExistUserProfileImgFile(String fileName) throws CustomException {
 
 		return true;
