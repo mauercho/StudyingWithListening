@@ -5,6 +5,7 @@ services:
     build:
       context: ./server/shortgong
       dockerfile: Dockerfile
+    image: shortgong_backend:latest
     ports:
       - "8080:8080"
     env_file:
@@ -19,6 +20,7 @@ services:
     build:
       context: ./front
       dockerfile: Dockerfile
+    image: shortgong_frontend:latest
     ports:
       - "5000:5000"
     environment:

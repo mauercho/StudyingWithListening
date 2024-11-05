@@ -1,7 +1,7 @@
 docker-compose -f docker-compose-prod.yml down
 
-docker rmi -f $(docker images koala_backend:latest -q) || true
-docker rmi -f $(docker images koala_frontend:latest -q) || true
+docker rmi -f $(docker images shortgong_backend:latest -q) || true
+docker rmi -f $(docker images shortgong_frontend:latest -q) || true
 
 docker-compose -f docker-compose-prod.yml pull
 
