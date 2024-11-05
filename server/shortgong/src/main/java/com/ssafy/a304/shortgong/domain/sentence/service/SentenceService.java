@@ -12,7 +12,7 @@ public interface SentenceService {
 	 * @return Sentence (문장 객체)
 	 * @author 이주형
 	 * */
-	Sentence selectSentenceById(Long id) throws Exception;
+	Sentence selectSentenceById(Long id);
 
 	/**
 	 * @apiNote 문장 객체 리스트 반환
@@ -53,4 +53,6 @@ public interface SentenceService {
 	 * @author 이주형
 	 */
 	String getDetailPrompt(String sentencesString, String sentenceContent);
+
+	void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus);
 }

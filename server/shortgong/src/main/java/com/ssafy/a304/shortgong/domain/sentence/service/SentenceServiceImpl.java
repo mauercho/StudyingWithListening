@@ -21,14 +21,14 @@ public class SentenceServiceImpl implements SentenceService {
 	private final SentenceRepository sentenceRepository;
 
 	@Override
-	public Sentence selectSentenceById(Long id) throws Exception {
+	public Sentence selectSentenceById(Long sentenceId) {
 
-		return sentenceRepository.findById(id)
+		return sentenceRepository.findById(sentenceId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 id의 문장이 존재하지 않습니다."));
 	}
 
 	@Override
-	public List<Sentence> selectAllSentenceBySummaryId(Long summaryId) throws Exception {
+	public List<Sentence> selectAllSentenceBySummaryId(Long summaryId) {
 
 		return sentenceRepository.findAllBySummary_IdOrderByOrder(summaryId);
 	}
@@ -55,8 +55,7 @@ public class SentenceServiceImpl implements SentenceService {
 	/* 벌크 연산 후 문장 업데이트 */
 	@Override
 	@Transactional
-	public List<Sentence> getModifySentences(Sentence existingSentence, String claudeResponse) throws
-		Exception {
+	public List<Sentence> getModifySentences(Sentence existingSentence, String claudeResponse) {
 
 		List<String> newSentences = splitToSentences(claudeResponse);
 		Long summaryId = existingSentence.getSummary().getId();
@@ -123,6 +122,15 @@ public class SentenceServiceImpl implements SentenceService {
 			+ sentenceContent
 			+ "\n---\n'전체 텍스트의 맥락을 고려했을 때, 해당 문장을 다음과 같이 수정하면 좋을 것 같습니다:' 같은 멘트나 "
 			+ "'수정 이유는 다음과 같습니다:'와 같은 멘트는 필요 없어. 2문장으로 제공해줘.";
+	}
+
+	@Override
+	@Transactional
+	public void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus) {
+
+		Sentence sentence = selectSentenceById(sentenceId);
+		sentence.updateOpenStatus(openStatus);
+		sentenceRepository.save(sentence);
 	}
 
 }
