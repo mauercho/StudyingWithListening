@@ -86,6 +86,8 @@ cloud:
       auto: false
     cloudfront:
       url: ${CLOUDFRONT_URL}
+      key-pair-id: ${CLOUDFRONT_KEY_PAIR_ID}
+      private-key: ${CLOUDFRONT_PRIVATE_KEY}
 
 file:
   path:

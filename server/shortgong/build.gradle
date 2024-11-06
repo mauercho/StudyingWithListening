@@ -44,7 +44,9 @@ dependencies {
     // AWS S3
 //    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
-
+    // AWS SDK for CloudFront
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.12.777'
+    
     // Compile, Develop, Runtime, Annotation
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
