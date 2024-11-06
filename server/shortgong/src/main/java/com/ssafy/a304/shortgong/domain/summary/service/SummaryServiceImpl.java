@@ -27,7 +27,7 @@ public class SummaryServiceImpl implements SummaryService {
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Summary createNewSummary(User loginUser, UploadContent uploadContent) {
 
 		return summaryRepository.save(
