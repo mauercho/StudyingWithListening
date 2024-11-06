@@ -1,35 +1,43 @@
 import React, { useState } from 'react'
 import styled from '@emotion/styled'
+import { scroller, Element } from 'react-scroll'
 
 import TableOfContents from '../components/TableOfContents'
 import Sentence from '../components/Sentence'
 import Modal from '../components/Modal'
 
-const Container = styled.div`
+const OuterContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  height: 100%;
+  justify-content: center;
+  width: 100%;
+  height: 100vh; /* 전체 화면에 맞추기 */
 `
 
-const Header = styled.div`
+const Container = styled.div`
+  width: 100%;
+  max-width: 768px; /* 원하는 최대 너비 */
+  display: flex;
+  flex-direction: column;
+`
+
+const HeaderWrapper = styled.div`
   position: fixed;
   top: 60px;
   width: 100%;
+  max-width: 768px; /* 부모 너비에 맞게 고정 */
   background: ${({ theme }) => theme.color.white};
   z-index: 80;
-  box-sizing: border-box;
   border-radius: 0 0 16px 16px;
 `
 
 const ContentArea = styled.ul`
+  flex: 1; /* 남은 공간을 차지하여 자동으로 크기 조정 */
+  margin-top: 60px; /* Header 높이만큼 여백 */
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
-  padding: 10px;
-  padding-top: 34px;
-  gap: 10px;
-  overflow-x: hidden;
+  gap: 300px;
+  overflow-y: auto;
   box-sizing: border-box;
   background: ${({ theme }) => theme.color.grey};
 `
@@ -88,27 +96,44 @@ export default function Detail() {
     console.log(`Sentence ${id}`)
   }
 
+  const handleTableTouch = (sentenceId) => {
+    scroller.scrollTo(`sentence-${sentenceId}`, {
+      containerId: 'content-area',
+      duration: 500,
+      delay: 0,
+      smooth: 'easeInOutQuart',
+      offset: -60, // 헤더 높이 보정
+    })
+  }
+
   const closeModal = () => {
     setIsModalOpen(false)
   }
 
   return (
-    <Container>
-      <Header>
-        <TableOfContents indexes={indexes} />
-      </Header>
-      <ContentArea>
-        {sentences.map((sentence) => (
-          <Sentence
-            key={sentence.id}
-            text={sentence.text}
-            status={sentence.status}
-            onShortPress={() => handleShortPress(sentence.id, sentence.status)}
-            onLongPress={() => handleLongPress(sentence.id, sentence.status)}
-          />
-        ))}
-      </ContentArea>
-      <Modal isOpen={isModalOpen} onClose={closeModal} flag={modalFlag} />
-    </Container>
+    <OuterContainer>
+      <Container>
+        <HeaderWrapper>
+          <TableOfContents indexes={indexes} onButtonClick={handleTableTouch} />
+        </HeaderWrapper>
+        <ContentArea id="content-area">
+          {sentences.map((sentence) => (
+            <Element name={`sentence-${sentence.id}`} key={sentence.id}>
+              <Sentence
+                text={sentence.text}
+                status={sentence.status}
+                onShortPress={() =>
+                  handleShortPress(sentence.id, sentence.status)
+                }
+                onLongPress={() =>
+                  handleLongPress(sentence.id, sentence.status)
+                }
+              />
+            </Element>
+          ))}
+        </ContentArea>
+        <Modal isOpen={isModalOpen} onClose={closeModal} flag={modalFlag} />
+      </Container>
+    </OuterContainer>
   )
 }

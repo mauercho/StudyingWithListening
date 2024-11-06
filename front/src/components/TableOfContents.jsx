@@ -72,7 +72,7 @@ const ToggleButton = styled.button`
 `
 
 // TODO: 1104 기준 API대로 작성. 이후 상태관리 기반 현재 문장 활성화, API 변경시 다른 요소 추가 필요
-export default function TableOfContents({ indexes }) {
+export default function TableOfContents({ indexes, onButtonClick }) {
   const currentSentenceId = null // 현재 재생중인 문장의 id를 받을 수단 필요(상태관리..?)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -82,7 +82,10 @@ export default function TableOfContents({ indexes }) {
         <ul>
           {indexes.map((item) => (
             <li key={item.indexId}>
-              <TableButton isPlaying={item.sentenceId === currentSentenceId}>
+              <TableButton
+                onClick={() => onButtonClick(item.sentenceId)}
+                isPlaying={item.sentenceId === currentSentenceId}
+              >
                 <p>{item.indexTitle}</p>
               </TableButton>
             </li>

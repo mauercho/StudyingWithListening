@@ -7,6 +7,7 @@ const Container = styled.li`
   cursor: pointer;
   padding: 10px;
   border-radius: 10px;
+  box-sizing: border-box;
 
   &:active {
     background-color: ${({ theme }) => theme.color.grey_dark};
