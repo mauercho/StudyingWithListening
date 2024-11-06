@@ -6,8 +6,11 @@ import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceRespo
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.global.error.CustomException;
+import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
 
 public interface SentenceService {
+
+	List<ClaudeResponseMessage> getSummarizedText(String text);
 
 	/**
 	 * 문장 객체 반환
@@ -63,8 +66,9 @@ public interface SentenceService {
 	 */
 	void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus);
 
-	void addSentenceVoice(Sentence sentence);
+	void uploadSentenceVoice(Sentence sentence);
 
 	List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId);
 
+	String getTextByImgFileNameWithOcr(String savedFilename);
 }
