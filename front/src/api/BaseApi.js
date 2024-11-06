@@ -1,6 +1,6 @@
 import api from './api';
 
-class BaseApi {
+class baseApi {
   constructor(endpoint) {
     this.endpoint = endpoint;
   }
@@ -22,4 +22,4 @@ class BaseApi {
   }
 }
 
-export default BaseApi;
+export default baseApi;
