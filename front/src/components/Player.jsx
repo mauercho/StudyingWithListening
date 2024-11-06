@@ -10,6 +10,7 @@ import {
 } from 'react-icons/md'
 
 import theme from '../assets/styles/theme'
+import PopUpMenu from './PopUpMenu'
 // 이거는 실험용 음악파일 입니다.
 import fade from '../music/As You Fade Away - NEFFEX.mp3'
 import enough from '../music/Enough - NEFFEX.mp3'
@@ -19,11 +20,14 @@ import winning from '../music/Winning - NEFFEX.mp3'
 
 const Container = styled.div`
   background-color: white;
-  height: 65px;
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100vw;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
 `
 
 const PlayerWrapper = styled.div`
@@ -34,6 +38,7 @@ const PlayerWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box;
 `
 
 const ControlsWrapper = styled.div`
@@ -105,12 +110,50 @@ export default function Player() {
   const [index, setIndex] = useState(0)
   const [currentSong] = useState(playlist[index].file)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [playbackRate, setPlaybackRate] = useState(1.0)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const settingsButtonRef = useRef(null)
   const truncateText = (text, maxLength) => {
     if (text.length > maxLength) {
       return text.slice(0, maxLength) + '...'
     }
     return text
   }
+  const handlePlaybackRateChange = (rate) => {
+    audioPlayer.current.playbackRate = rate
+    setPlaybackRate(rate)
+    setIsMenuOpen(false)
+  }
+
+  const StyledPopUpMenu = styled(PopUpMenu)`
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 10px; // 설정 아이콘과의 간격
+  `
+
+  const speedItems = [
+    {
+      text: '0.5x',
+      onClick: () => handlePlaybackRateChange(0.5),
+      isSelected: playbackRate === 0.5,
+    },
+    {
+      text: '1.0x',
+      onClick: () => handlePlaybackRateChange(1.0),
+      isSelected: playbackRate === 1.0,
+    },
+    {
+      text: '1.5x',
+      onClick: () => handlePlaybackRateChange(1.5),
+      isSelected: playbackRate === 1.5,
+    },
+    {
+      text: '2.0x',
+      onClick: () => handlePlaybackRateChange(2.0),
+      isSelected: playbackRate === 2.0,
+    },
+  ]
   const togglePlay = useCallback(() => {
     if (!isPlaying) {
       audioPlayer.current.play()
@@ -215,9 +258,18 @@ export default function Player() {
             <MdOutlineSkipNext />
           </IconButton>
 
-          <IconButton>
+          <IconButton
+            ref={settingsButtonRef}
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
             <MdOutlineSettings />
           </IconButton>
+          <PopUpMenu
+            triggerRef={settingsButtonRef}
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            items={speedItems}
+          />
         </ControlsWrapper>
       </PlayerWrapper>
     </Container>
