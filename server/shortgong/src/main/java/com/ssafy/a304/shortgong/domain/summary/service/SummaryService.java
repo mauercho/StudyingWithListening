@@ -10,4 +10,6 @@ public interface SummaryService {
 
 	Summary createNewSummary(User loginUser,
 		UploadContent uploadContent);
+
+	Summary save(Summary summary);
 }

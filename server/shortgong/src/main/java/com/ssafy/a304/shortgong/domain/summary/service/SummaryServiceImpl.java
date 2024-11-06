@@ -36,4 +36,11 @@ public class SummaryServiceImpl implements SummaryService {
 				.uploadContent(uploadContent)
 				.build());
 	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Summary save(Summary summary) {
+
+		return summaryRepository.save(summary);
+	}
 }

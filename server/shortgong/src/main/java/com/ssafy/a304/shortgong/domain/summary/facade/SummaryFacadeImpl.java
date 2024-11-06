@@ -109,4 +109,12 @@ public class SummaryFacadeImpl implements SummaryFacade {
 			.sentenceResponseList(sentenceService.searchAllSentenceResponseBySummaryId(summaryId))
 			.build();
 	}
+
+	@Override
+	public void updateTitleBySummaryId(String title, Long summaryId) {
+
+		Summary summary = summaryService.selectSummaryById(summaryId);
+		summary.updateTitle(title);
+		summaryService.save(summary);
+	}
 }

@@ -19,4 +19,6 @@ public interface SummaryFacade {
 	 * @author 정재영
 	 * */
 	SummaryDetailResponse getSummaryDetail(Long summaryId);
+
+	void updateTitleBySummaryId(String title, Long summaryId);
 }

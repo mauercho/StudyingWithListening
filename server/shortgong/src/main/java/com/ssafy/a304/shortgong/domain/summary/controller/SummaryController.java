@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +40,17 @@ public class SummaryController {
 	public ResponseEntity<?> getSummaryDetail(@PathVariable("summary-id") Long summaryId) {
 
 		return ResponseEntity.ok(summaryFacade.getSummaryDetail(summaryId));
+	}
+
+	/**
+	 * 요약본 제목 변경
+	 * */
+	@GetMapping("/{summary-id}")
+	public ResponseEntity<?> modifySummaryTitle(@PathVariable("summary-id") Long summaryId,
+		@RequestBody String title) {
+
+		summaryFacade.updateTitleBySummaryId(title, summaryId);
+		return ResponseEntity.ok().build();
 	}
 
 }
