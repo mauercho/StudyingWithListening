@@ -1,8 +1,7 @@
 package com.ssafy.a304.shortgong.domain.summary.facade;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +16,17 @@ import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.uploadContent.service.UploadContentService;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 import com.ssafy.a304.shortgong.domain.user.service.UserService;
-import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
+import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
 import com.ssafy.a304.shortgong.global.util.FileUtil;
+import com.ssafy.a304.shortgong.global.util.SentenceUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 요약본과 관련된 기능 담당 Facade
  * */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SummaryFacadeImpl implements SummaryFacade {
@@ -33,7 +35,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 	private final UploadContentService uploadContentService;
 	private final UserService userService;
 	private final SentenceService sentenceService;
-	private final ClovaVoiceUtil clovaVoiceUtil;
+	private final SentenceUtil sentenceUtil;
 
 	@Override
 	@Transactional
@@ -41,24 +43,19 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		// 로그인 유저 가져오기
 		User loginUser = userService.selectLoginUser();
 
-		// 업로드 컨텐츠 파일 S3에 저장
-		String savedFilename = FileUtil.uploadContentFileByUuid(contentFile, UUID.randomUUID().toString());
+		// 업로드 컨텐츠 파일 S3에 업로드
+		String savedFilename = uploadContentService.uploadContentFile(contentFile);
+		String uploadContentUrl = FileUtil.getUploadContentUrl(savedFilename);
 
 		// TODO : txt 파일이면 그냥 text 만 추출하기
 		// if ("savedFilename 의 확장자" == "txt") {
 		// 	String text = FileUtil.getTextByTxtFile(contentFile);
 		// }
 
-		// TODO : Ocr (Image -> Text)
-		String text = "ClovaOcrUtil.getTextByImage(contentFile)";
+		String text = sentenceService.getTextByImgFileNameWithOcr(uploadContentUrl);
 
 		// 업로드 컨텐츠 db에 저장
-		UploadContent uploadContent = uploadContentService.saveUploadContent(
-			UploadContent.builder()
-				.user(loginUser)
-				.content(text)
-				.fileName(savedFilename)
-				.build());
+		UploadContent uploadContent = uploadContentService.saveUploadContent(loginUser, text, savedFilename);
 
 		// 요약집 저장하기
 		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
@@ -66,39 +63,35 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		// TODO : 요약집 제목 수정 (자동 기입) 하기
 		// summaryService.updateTitle(summary);
 
-		// TODO : text 요약해서 summarizedText 만들기
-		// String summarizedText = sentenceService.summarizeText(text);
-
 		// TODO : 목차 생성
 
-		// TODO : 요청 온 요약 텍스트 문장으로 split
-		// List<SentenceResponse> sentenceResponseList = sentenceService.convertToList(summarizedText);
+		// text 를 요약해서 summarizedText 만들고 문장으로 split
+		AtomicInteger orderCounter = new AtomicInteger(1);
 
-		// TODO : 문장들을 TTS 요청하여 저장하기
-		// 예시
-		List<Sentence> sentenceList = new ArrayList<>();
-		sentenceList.add(Sentence.builder()
-			.order(1)
-			.summary(summary)
-			.sentenceContent("test sentence 1.")
-			.build());
-		sentenceList.add(Sentence.builder()
-			.order(2)
-			.summary(summary)
-			.sentenceContent("test sentence 2.")
-			.build());
-		sentenceList.add(Sentence.builder()
-			.order(3)
-			.summary(summary)
-			.sentenceContent("test sentence 3.")
-			.build());
+		List<ClaudeResponseMessage> claudeResponseMessageList = sentenceService.getSummarizedText(text);
+		List<Sentence> sentenceList = claudeResponseMessageList.stream()
+			.flatMap(claudeResponseMessage -> {
+				String summarizedText = claudeResponseMessage.getText();
+				List<String> summarizedSentenceList = sentenceUtil.splitByNewline(summarizedText);
 
-		sentenceList.forEach(sentence -> sentenceService.saveSentences(sentenceList));
+				return summarizedSentenceList.stream()
+					.map(summarizedSentence ->
+						Sentence.builder()
+							.sentenceContent(summarizedSentence)
+							.order(orderCounter.getAndIncrement())
+							.summary(summary)
+							.openStatus(true)
+							.build());
+			})
+			.toList();
+		log.debug("문장 리스트: {}", sentenceList);
 
-		sentenceList.forEach(sentenceService::addSentenceVoice);
+		//  문장들 db에 저장
+		sentenceService.saveSentences(sentenceList);
 
-		// TODO : 문장들 db에 저장
-		// sentenceService.saveSentences(sentenceResponseList);
+		// 문장들을 TTS 요청하여 S3에 업로드하기
+		sentenceList.forEach(sentenceService::uploadSentenceVoice);
+
 		return summary.getId();
 	}
 
