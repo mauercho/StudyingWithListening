@@ -48,18 +48,6 @@ public interface SentenceService {
 	SentencesCreateResponse getModifySentences(Sentence existingSentence, String claudeResponse);
 
 	/**
-	 * @return 문장 재생성 프롬프트 반환
-	 * @author 이주형
-	 */
-	String getRecreatePrompt(String sentencesString, String sentenceContent);
-
-	/**
-	 * @return 문장 상세 프롬프트 반환
-	 * @author 이주형
-	 */
-	String getDetailPrompt(String sentencesString, String sentenceContent);
-
-	/**
 	 * 접기/펼치기 상태 업데이트
 	 * @return Sentence (업데이트된 문장 객체)
 	 * @auther 이주형

@@ -12,6 +12,7 @@ import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.domain.summary.service.SummaryService;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
+import com.ssafy.a304.shortgong.global.util.PromptUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	private final SummaryService summaryService;
 	private final SentenceService sentenceService;
 	private final ClaudeUtil claudeUtil;
+	private final PromptUtil promptUtil;
 
 	@Override
 	@Transactional
@@ -56,7 +58,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	 */
 	private String makeRecreatePrompt(Sentence sentence, String sentencesString) {
 
-		return sentenceService.getRecreatePrompt(sentencesString, sentence.getSentenceContent());
+		return promptUtil.getRecreatePrompt(sentencesString, sentence.getSentenceContent());
 	}
 
 	/**
@@ -66,7 +68,7 @@ public class SentenceFacadeImpl implements SentenceFacade {
 	 */
 	private String makeDetailPrompt(Sentence sentence, String sentencesString) {
 
-		return sentenceService.getDetailPrompt(sentencesString, sentence.getSentenceContent());
+		return promptUtil.getDetailPrompt(sentencesString, sentence.getSentenceContent());
 	}
 
 	@Override
