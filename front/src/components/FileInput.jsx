@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react'
-
 import styled from '@emotion/styled'
 import { FaPlus, FaArrowUp } from 'react-icons/fa6'
 
@@ -51,16 +50,43 @@ const Input = styled.input`
 `
 
 export default function FileInput() {
-  const [type, setType] = useState('url')
+  const [type, setType] = useState('PDF')
+  const [data, setData] = useState('')
+  const [name, setName] = useState("왼쪽 + 버튼을 눌러서 원하시는 학습 자료를 선택해보세요!")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const buttonRef = useRef(null)
+  const inputRef = useRef(null)
 
   const handleAddButtonClick = () => setIsMenuOpen((prev) => !prev)
 
+  const handleInput = (inputType) => {
+    setType(inputType)
+    if (inputType === 'URL') setName('');
+    if (inputType === 'PDF' || inputType === 'IMAGE') {
+      inputRef.current.accept =
+        inputType === 'PDF' ? 'application/pdf' : 'image/*'
+      inputRef.current.click()
+    }
+  }
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+      setName(file.name)
+      setData(file)
+    }
+  }
+
+  const handleUpload = async () => {
+    console.log(data);
+    console.log(type);
+    console.log(name);
+  }
+
   const items = [
-    { text: 'PDF', onClick: () => setType('PDF') },
-    { text: 'IMAGE', onClick: () => setType('IMAGE') },
-    { text: 'URL', onClick: () => setType('URL') },
+    { text: 'PDF', onClick: () => handleInput('PDF') },
+    { text: 'IMAGE', onClick: () => handleInput('IMAGE') },
+    { text: 'URL', onClick: () => handleInput('URL') },
   ]
 
   return (
@@ -80,8 +106,19 @@ export default function FileInput() {
         url={type === 'URL'}
         disabled={type !== 'URL'}
         placeholder={type === 'URL' ? 'URL을 입력해주세요.' : ''}
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value)
+          setData(e.target.value)
+        }}
       />
-      <UploadButton>
+      <input
+        type="file"
+        ref={inputRef}
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+      <UploadButton onClick={handleUpload}>
         <FaArrowUp size={16} />
       </UploadButton>
     </Container>
