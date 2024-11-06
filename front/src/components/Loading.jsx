@@ -5,7 +5,6 @@ import { keyframes } from '@emotion/react'
 
 const Container = styled.div`
   width: 100%;
-  margin-top: 40px;
   display: flex;
   flex-direction: row;
   justify-content: center;
