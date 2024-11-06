@@ -3,6 +3,7 @@ package com.ssafy.a304.shortgong.domain.summary.controller;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,7 +46,7 @@ public class SummaryController {
 	/**
 	 * 요약본 제목 변경
 	 * */
-	@GetMapping("/{summary-id}")
+	@PatchMapping("/{summary-id}")
 	public ResponseEntity<?> modifySummaryTitle(@PathVariable("summary-id") Long summaryId,
 		@RequestBody String title) {
 
