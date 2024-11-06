@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
+
 import styled from '@emotion/styled'
 import { FaGripLines } from 'react-icons/fa'
 
 const Container = styled.div`
-  width: 340px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
