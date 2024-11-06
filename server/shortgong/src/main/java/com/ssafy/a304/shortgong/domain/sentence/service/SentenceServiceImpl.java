@@ -64,15 +64,9 @@ public class SentenceServiceImpl implements SentenceService {
 	@Override
 	public List<ClaudeResponseMessage> getSummarizedText(String text) {
 
-		String prompt = new StringBuilder()
-			.append("당신은 자연어 처리의 전문가로서, 문맥의 일관성을 유지하면서 요약본을 만드는데 특화되어 있습니다. ").append("\n")
-			.append("주어진 텍스트에서 특정 문장을 재생성하는 것이 당신의 임무입니다. ").append("\n")
-			.append("아래의 주어진 문장을 요약해 주세요. ").append("\n")
-			.append("그리고 요약본의 문장들을 개행문자(\"\n\")로 나누어 응답해주세요. ").append("\n")
-			.append("-------------------------").append("\n").append("\n")
-			.toString();
+		String prompt = getSummarizedPrompt(text);
 
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt + text);
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
 
 		return claudeResponse.getContent();
 	}
@@ -184,14 +178,76 @@ public class SentenceServiceImpl implements SentenceService {
 		return sentences;
 	}
 
+	@Override
+	@Transactional
+	public void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus) {
+
+		Sentence sentence = selectSentenceById(sentenceId);
+		sentence.updateOpenStatus(openStatus);
+		sentenceRepository.save(sentence);
+	}
+
+	/**
+	 * text를 받아서 clova voice로 변환하여 voice 파일을 생성하고, 파일명을 반환
+	 * @return 파일명
+	 * @author 이주형
+	 */
+	@Transactional
+	public String createNewSentenceVoice(String content, String folderName) {
+
+		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(content, DSINU_MATT.getName());
+		return FileUtil.uploadSentenceVoiceFileByUuid(voiceData, folderName, RandomUtil.generateUUID());
+	}
+
 	/**
 	 * 본문 텍스트를 받아서 요약된 문장을 반환하는 프롬프트를 생성합니다.
 	 * @return String: 프롬프트
 	 * @author 이주형
 	 */
-	private String getSummarizedPrompt(String sentencesString) {
+	private String getSummarizedPrompt(String text) {
 
-		return "";
+		return String.join("", Arrays.asList(
+			"당신은 자연어 처리의 전문가로서, 주어진 본문 텍스트를 명확하고 간결하게 요약하는 데 특화되어 있습니다. ",
+			"주어지는 본문을 읽고 핵심 내용을 요약해 주세요. 요약문은 대제목과 여러 소제목으로 분류되며, ",
+			"각 대제목은 중요한 주제를 나타내고 소제목은 해당 주제에 대한 세부 사항을 설명합니다. ",
+			"이 요약문은 사용자가 TTS로 듣기만 해도 학습적, 교육적, 암기적 효과를 얻을 수 있도록 작성해야 합니다.\n\n",
+
+			"대제목은 책, 글, 혹은 본문 내의 중요한 큰 주제를 나타내며, 각 대제목 아래에 여러 소제목이 포함될 수 있습니다. ",
+			"소제목은 해당 대제목의 내용을 보완하고, 주요 개념, 핵심 아이디어, 중요한 세부사항 및 키워드를 중심으로 작성합니다. ",
+			"각 대제목과 소제목에 해당하는 문자열을 각각 따로 저장할 수 있도록 다음과 같은 형식을 따릅니다:\n",
+			"대제목: 본문의 주요 주제를 간결하게 요약한 문장으로 작성하세요.\n",
+			"소제목: 대제목과 관련된 세부 사항을 설명하며, 키워드와 핵심 개념을 포함하여 명확하고 간결하게 작성하세요.\n\n",
+
+			"요약된 문장은 다음의 요구사항을 충족해야 합니다:\n",
+			"1. 독자가 쉽게 이해할 수 있도록 명확성을 높일 것.\n",
+			"2. 사용자의 감정을 고려하여 긍정적이고 부드러운 어조를 유지하도록 할 것.\n",
+			"3. 문장의 리듬과 운율을 고려하여 읽기 쉽고 자연스럽게 들리도록 조정할 것.\n",
+			"4. \"다른 표현 방식들\"과 같은 추가적인 표현 방식을 제안하지 말 것.\n",
+			"5. \"작성 이유는 다음과 같습니다:\"와 같은 프롬프트 설명 멘트를 포함하여 반환하지 말 것.\n",
+			"6. 영어 알파벳을 제외한 일본어, 중국어와 같은 외국어 및 한자 등을 포함하여 반환하지 말 것.\n\n",
+
+			"요약문 형식 예시:\n",
+			"대제목 1: \"컴퓨터 네트워크의 개념과 구조\"\n",
+			"소제목 1-1: \"컴퓨터 네트워크의 정의와 주요 기능\"\n",
+			"소제목 1-2: \"네트워크 토폴로지의 종류와 특징\"\n",
+			"소제목 1-3: \"OSI 7 계층 모델의 역할과 중요성\"\n\n",
+			"대제목 2: \"데이터베이스의 기초 개념\"\n",
+			"소제목 2-1: \"데이터베이스의 정의와 필요성\"\n",
+			"소제목 2-2: \"관계형 데이터베이스와 비관계형 데이터베이스의 차이점\"\n",
+			"소제목 2-3: \"SQL의 기본 명령어와 사용 예시\"\n\n",
+			"대제목 3: \"알고리즘의 기본 개념과 응용\"\n",
+			"소제목 3-1: \"알고리즘의 정의와 중요성\"\n",
+			"소제목 3-2: \"시간 복잡도와 공간 복잡도의 개념\"\n",
+			"소제목 3-3: \"정렬 알고리즘의 종류와 그 응용\"\n\n",
+
+			"이제 주어진 본문 텍스트를 요약해 주세요. ",
+			"대제목과 소제목으로 분류하여, 핵심 내용을 빠르고 쉽게 이해할 수 있도록 해 주세요. ",
+			"각 대제목은 주요 주제를 포괄적으로 요약하고, 각 대제목 아래 여러 소제목을 통해 중요한 세부사항을 체계적으로 정리합니다.",
+			"요약문은 교육적 효과를 극대화할 수 있도록 작성하여, 사용자가 TTS로 들었을 때도 충분히 학습적, 암기적 효과를 얻을 수 있도록 구성해 주세요.\n\n",
+
+			"입력 본문 텍스트는 다음과 같습니다. \n\n",
+			"--------------------------------\n", text, "\n--------------------------------\n\n"
+		));
 	}
 
 	@Override
@@ -211,7 +267,7 @@ public class SentenceServiceImpl implements SentenceService {
 			"7. 문맥에 따라 전문 용어나 비유 등을 추가하여 독자가 주제를 더 깊이 이해할 수 있도록 할 것.\n",
 			"8. 문장의 리듬과 운율을 고려하여 읽기 쉽고 자연스럽게 들리도록 조정할 것.\n",
 			"9. \"다른 표현 방식들\"과 같은 추가적인 표현 방식을 제안하지 말 것.\n",
-			"10. \"수정 이유는 다음과 같습니다:\"와 같은 멘트를 포함하여 반환하지 말 것.\n",
+			"10. \"수정 이유는 다음과 같습니다:\"와 같은 프롬프트 설명 멘트를 포함하여 반환하지 말 것.\n",
 			"11. 영어 알파벳을 제외한 일본어, 중국어와 같은 외국어 및 한자 등을 포함하여 반환하지 말 것.\n",
 			"12. 반환하는 문장의 문체와 어투는 본문 텍스트와 특정 문장의 문맥의 문체 및 어투와 동일하게 유지하도록 할 것.",
 			"\"~이다\"와 같은 문체였다면, 반환 문장도 \"~이다\"라는 문체로.",
@@ -240,11 +296,9 @@ public class SentenceServiceImpl implements SentenceService {
 			"다양한 표현 방식과 독자 맞춤형 접근 방식을 고려하여 최상의 결과를 도출해 주세요.\n\n",
 
 			"입력 문단은 다음과 같습니다. \n\n",
-			"--------------------------------\n",
-			sentencesString,
-			"\n--------------------------------\n\n",
+			"--------------------------------\n", sentencesString, "\n--------------------------------\n\n",
 			"대상 문장은 다음과 같습니다. \n\n",
-			"--------------------------------\n"
+			"--------------------------------\n", sentenceContent, "--------------------------------\n"
 		));
 	}
 
@@ -266,7 +320,7 @@ public class SentenceServiceImpl implements SentenceService {
 			"7. 문맥에 따라 전문 용어나 비유나 예시 등을 추가하여 독자가 주제를 더 깊이 이해할 수 있도록 할 것.\n",
 			"8. 문장의 리듬과 운율을 고려하여 읽기 쉽고 자연스럽게 들리도록 조정할 것.\n",
 			"9. \"다른 표현 방식들\"과 같은 추가적인 표현 방식을 제안하지 말 것.\n",
-			"10. \"구체화 이유는 다음과 같습니다:\"와 같은 멘트를 포함하여 반환하지 말 것.\n",
+			"10. \"구체화 이유는 다음과 같습니다:\"와 같은 프롬프트 설명 멘트를 포함하여 반환하지 말 것.\n",
 			"11. 영어 알파벳을 제외한 일본어, 중국어와 같은 외국어 및 한자 등을 포함하여 반환하지 말 것.\n",
 			"12. 반환하는 문장의 문체와 어투는 본문 텍스트와 특정 문장의 문맥의 문체 및 어투와 동일하게 유지하도록 할 것.",
 			"\"~이다\"와 같은 문체였다면, 반환 문장도 \"~이다\"라는 문체로. \"~입니다.\"라는 문체였다면, 반환 문장도 \"~입니다",
@@ -293,7 +347,6 @@ public class SentenceServiceImpl implements SentenceService {
 			"또 다른 예시:\n",
 			"입력 문단: 자바의 제네릭은 클래스나 메서드에서 사용할 데이터 타입을 매개변수로 일반화하여, ",
 			"코드의 재사용성을 높이고 타입 안전성을 보장하는 기능입니다. ",
-			"예를 들어, List<String>은 문자열만 담을 수 있는 리스트를 정의하여, 컴파일 시점에 타입 체크가 이루어집니다. ",
 			"제네릭을 사용하면 다양한 타입을 처리하는 클래스나 메서드를 작성할 때 코드 중복을 줄이고, 캐스팅 오류를 방지할 수 있습니다. ",
 			"T, E와 같은 타입 매개변수를 사용해 제네릭 클래스를 선언하며, 이를 통해 코드의 가독성도 높아집니다. ",
 			"덕분에 타입 관련 오류를 컴파일 단계에서 미리 방지할 수 있어 더욱 안전한 코딩이 가능합니다.\n",
@@ -311,35 +364,10 @@ public class SentenceServiceImpl implements SentenceService {
 			"독자 맞춤형 접근 방식을 다양하게 고려하여 최상의 결과를 도출해 주세요.\n\n",
 
 			"입력 문단은 다음과 같습니다. \n\n",
-			"--------------------------------\n",
-			sentencesString,
-			"\n--------------------------------\n\n",
+			"--------------------------------\n", sentencesString, "\n--------------------------------\n\n",
 			"대상 문장은 다음과 같습니다. \n\n",
-			"--------------------------------\n",
-			sentenceContent,
-			"\n--------------------------------\n"
+			"--------------------------------\n", sentenceContent, "\n--------------------------------\n"
 		));
-	}
-
-	@Override
-	@Transactional
-	public void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus) {
-
-		Sentence sentence = selectSentenceById(sentenceId);
-		sentence.updateOpenStatus(openStatus);
-		sentenceRepository.save(sentence);
-	}
-
-	/**
-	 * text를 받아서 clova voice로 변환하여 voice 파일을 생성하고, 파일명을 반환
-	 * @return 파일명
-	 * @author 이주형
-	 */
-	@Transactional
-	public String createNewSentenceVoice(String content, String folderName) {
-
-		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(content, DSINU_MATT.getName());
-		return FileUtil.uploadSentenceVoiceFileByUuid(voiceData, folderName, RandomUtil.generateUUID());
 	}
 
 }
