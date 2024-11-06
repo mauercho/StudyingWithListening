@@ -36,4 +36,5 @@ public class SummaryServiceImpl implements SummaryService {
 				.uploadContent(uploadContent)
 				.build());
 	}
+
 }
