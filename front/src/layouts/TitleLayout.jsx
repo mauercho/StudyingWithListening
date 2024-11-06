@@ -4,24 +4,35 @@ import { Outlet, useLocation } from 'react-router-dom';
 
 import routes from '../routes';
 import BackButtonTitle from '../components/BackButtonTitle';
-import Player from '../components/Player'
+import Player from '../components/Player';
 
 const Container = styled.main`
   margin: auto;
   max-width: 768px;
   min-width: 320px;
-  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: ${({theme}) => theme.color.white};
+  position: relative;
+  background-color: ${({ theme }) => theme.color.white};
 `;
 
 const Main = styled.div`
   padding: 0px 10px;
-  flex: 1;
+  flex: 1; /* 남은 공간을 차지하도록 설정 */
   overflow-y: auto;
+  display: flex;
 `;
 
+const FixedPlayer = styled(Player)`
+  position: absolute; /* Container 내부 하단에 고정 */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-width: 768px;
+  background-color: ${({ theme }) => theme.color.white};
+`;
 
 export default function TitleLayout() {
   const location = useLocation();
@@ -34,7 +45,7 @@ export default function TitleLayout() {
       <Main>
         <Outlet />
       </Main>
-      <Player />
+      <FixedPlayer />
     </Container>
   );
 }
