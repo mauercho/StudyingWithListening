@@ -12,7 +12,7 @@ const Container = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid ${({theme}) => theme.color.primary};
+  border-bottom: 1px solid ${({ theme }) => theme.color.primary};
 `
 
 const Space = styled.div`

@@ -27,6 +27,9 @@ const TableButton = styled.button`
   background-color: ${({ theme }) => theme.color.white};
   border: 0;
   font: inherit;
+  &:active {
+    background-color: ${({ theme }) => theme.color.grey_dark};
+  }
   p {
     text-decoration: none;
     ${({ theme }) =>
@@ -57,11 +60,14 @@ const ToggleButton = styled.button`
   cursor: pointer;
   border-radius: 0 0 16px 16px;
   ${({ theme, isOpen }) =>
-    !isOpen &&
-    `
+    !isOpen
+      ? `
       border-left: 1px solid ${theme.color.primary};
       border-right: 1px solid ${theme.color.primary};
       border-bottom: 1px solid ${theme.color.primary};
+    `
+      : `
+      box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.15);
     `}
 `
 
