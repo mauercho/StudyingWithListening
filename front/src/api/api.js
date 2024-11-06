@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://api.example.com', 
+  baseURL: 'https://k11a304.p.ssafy.io/api/', 
   timeout: 5000,                     
 });
 
