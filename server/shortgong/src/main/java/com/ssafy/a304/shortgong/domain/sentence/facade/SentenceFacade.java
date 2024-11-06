@@ -7,13 +7,16 @@ import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCrea
 public interface SentenceFacade {
 
 	/**
-	 * @apiNote 문장 수정 분기 메서드 -> sentenceModifyRequest의 isDetail 값에 따라 분기
+	 * 문장 수정 분기 메서드 -> sentenceModifyRequest의 isDetail 값에 따라 분기
 	 * @return SentencesCreateResponse (재생성된 문장을 리스트로 감싼 Dto)
 	 * @author 이주형
 	 */
-	SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest) throws
-		Exception;
+	SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest);
 
+	/**
+	 * 문장의 접힙/펼침 상태를 변경하는 메서드
+	 * @author 이주형
+	 */
 	void updateSentenceOpenStatus(Long sentenceId, SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest);
 
 }

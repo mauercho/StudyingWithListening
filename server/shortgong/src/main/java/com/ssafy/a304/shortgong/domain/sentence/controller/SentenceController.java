@@ -24,7 +24,7 @@ public class SentenceController {
 
 	@PatchMapping("/{sentence-id}")
 	private ResponseEntity<?> modifySentence(@PathVariable("sentence-id") Long sentenceId,
-		@Valid @RequestBody SentenceModifyRequest sentenceModifyRequest) throws Exception {
+		@Valid @RequestBody SentenceModifyRequest sentenceModifyRequest) {
 
 		return ResponseEntity.ok(sentenceFacade.modifySentence(sentenceId, sentenceModifyRequest));
 	}
