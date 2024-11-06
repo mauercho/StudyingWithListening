@@ -24,6 +24,15 @@ public class SummaryController {
 	private final SummaryFacade summaryFacade;
 
 	/**
+	 * 요약본 목록 가져오기
+	 * */
+	@GetMapping
+	public ResponseEntity<?> getSummaryList() {
+
+		return ResponseEntity.ok(summaryFacade.getSummaryList());
+	}
+
+	/**
 	 * 파일 업로드 및 요약본 생성
 	 * */
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, "multipart/form-data"})

@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
+import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryOverviewResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.domain.summary.service.SummaryService;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
@@ -116,5 +117,12 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		Summary summary = summaryService.selectSummaryById(summaryId);
 		summary.updateTitle(title);
 		summaryService.save(summary);
+	}
+
+	@Override
+	public List<SummaryOverviewResponse> getSummaryList() {
+
+		User loginUser = userService.selectLoginUser();
+		return summaryService.selectSummaryListByUser(loginUser);
 	}
 }
