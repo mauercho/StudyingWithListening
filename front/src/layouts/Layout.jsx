@@ -7,20 +7,34 @@ import Player from '../components/Player'
 
 const Container = styled.div`
   margin: auto;
-  padding: 0px 10px;
   max-width: 768px;
+  width: 100%;
   min-width: 320px;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: ${({theme}) => theme.color.white};
+  background-color: ${({ theme }) => theme.color.white};
+`
+
+const Main = styled.main`
+  padding: 0px 10px;
+  flex: 1;
+  display: flex;
+`
+
+const PlayerContainer = styled.div`
+  width: 100%;
 `
 
 export default function Layout() {
   return (
     <Container>
-      <Outlet />
-      <Player />
+      <Main>
+        <Outlet />
+      </Main>
+      <PlayerContainer>
+        <Player />
+      </PlayerContainer>
     </Container>
   )
 }
