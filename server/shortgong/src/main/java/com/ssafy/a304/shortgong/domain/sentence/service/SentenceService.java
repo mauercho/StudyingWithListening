@@ -4,8 +4,11 @@ import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
+import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
 
 public interface SentenceService {
+
+	List<ClaudeResponseMessage> getSummarizedText(String text);
 
 	/**
 	 * @apiNote 문장 객체 반환
@@ -57,8 +60,9 @@ public interface SentenceService {
 
 	void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus);
 
-	void addSentenceVoice(Sentence sentence);
+	void uploadSentenceVoice(Sentence sentence);
 
 	List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId);
 
+	String getTextByImgFileNameWithOcr(String savedFilename);
 }

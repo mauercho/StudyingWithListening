@@ -4,23 +4,26 @@ import static com.ssafy.a304.shortgong.global.model.constant.ClovaVoice.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
+import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
+import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
+import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
 import com.ssafy.a304.shortgong.global.util.FileUtil;
 import com.ssafy.a304.shortgong.global.util.RandomUtil;
+import com.ssafy.a304.shortgong.global.util.SentenceUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,13 +31,16 @@ public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
 	private final ClovaVoiceUtil clovaVoiceUtil;
+	private final ClaudeUtil claudeUtil;
+	private final SentenceUtil sentenceUtil;
+	private final ClovaOCRUtil clovaOCRUtil;
 
 	/**
 	 * 문장에 해당하는 voice 생성 & 저장
 	 * @return 파일명
 	 * */
 	@Override
-	public void addSentenceVoice(Sentence sentence) {
+	public void uploadSentenceVoice(Sentence sentence) {
 
 		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(sentence.getSentenceContent(),
 			DSINU_MATT.getName());
@@ -47,6 +53,22 @@ public class SentenceServiceImpl implements SentenceService {
 			RandomUtil.generateUUID());
 
 		sentence.updateVoiceFileName(fileName);
+	}
+
+	@Override
+	public List<ClaudeResponseMessage> getSummarizedText(String text) {
+
+		String prompt = new StringBuilder()
+			.append("당신은 자연어 처리의 전문가로서, 문맥의 일관성을 유지하면서 요약본을 만드는데 특화되어 있습니다. ").append("\n")
+			.append("주어진 텍스트에서 특정 문장을 재생성하는 것이 당신의 임무입니다. ").append("\n")
+			.append("아래의 주어진 문장을 요약해 주세요. ").append("\n")
+			.append("그리고 요약본의 문장들을 개행문자(\"\n\")로 나누어 응답해주세요. ").append("\n")
+			.append("-------------------------").append("\n").append("\n")
+			.toString();
+
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt + text);
+
+		return claudeResponse.getContent();
 	}
 
 	@Override
@@ -80,7 +102,14 @@ public class SentenceServiceImpl implements SentenceService {
 			.map(sentence -> SentenceResponse.builder()
 				.sentence(sentence)
 				.build())
-			.collect(Collectors.toList());
+			.toList();
+	}
+
+	@Override
+	public String getTextByImgFileNameWithOcr(String savedFilename) {
+
+		List<String> sentenceStringList = clovaOCRUtil.requestTextByImageUrlOcr(savedFilename);
+		return sentenceUtil.joinStrings(sentenceStringList);
 	}
 
 	/* List<Sentence>를 받아서 스트링으로 변환 */
@@ -100,7 +129,7 @@ public class SentenceServiceImpl implements SentenceService {
 	@Transactional
 	public List<Sentence> getModifySentences(Sentence existingSentence, String claudeResponse) {
 
-		List<String> newSentences = splitToSentences(claudeResponse);
+		List<String> newSentences = sentenceUtil.splitToSentences(claudeResponse);
 		Long summaryId = existingSentence.getSummary().getId();
 		int existingOrder = existingSentence.getOrder();
 
@@ -124,25 +153,6 @@ public class SentenceServiceImpl implements SentenceService {
 		// saveSentences(newSentenceEntities);
 
 		// return SentencesCreateResponse.of(newSentenceEntities);
-	}
-
-	/* String을 받아서 문장기호를 기준으로 List<String>으로 변환 */
-	private List<String> splitToSentences(String text) {
-
-		if (text == null || text.isEmpty()) {
-			return List.of("");
-		}
-
-		List<String> sentences = new ArrayList<>();
-		// 정규식을 사용하여 문장과 문장 부호를 함께 캡처
-		Pattern pattern = Pattern.compile("[^.!?]+[.!?]");
-		Matcher matcher = pattern.matcher(text);
-
-		while (matcher.find()) {
-			sentences.add(matcher.group());
-		}
-
-		return sentences;
 	}
 
 	@Override
