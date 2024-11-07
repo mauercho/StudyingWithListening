@@ -51,13 +51,14 @@ export default function Detail() {
   const [sentences, setSentences] = useState([
     {
       id: 1,
-      text: '컴퓨터는 이진수로 데이터를 표현하며, 0과 1로 이루어진 비트를 사용합니다.',
-      status: 'normal',
+      content:
+        '컴퓨터는 이진수로 데이터를 표현하며, 0과 1로 이루어진 비트를 사용합니다.',
+      openStatus: 'normal',
     },
     {
       id: 2,
-      text: '알고리즘은 문제 해결을 위한 명확한 절차 또는 단계입니다.',
-      status: 'normal',
+      content: '알고리즘은 문제 해결을 위한 명확한 절차 또는 단계입니다.',
+      openStatus: 'hidden',
     },
   ])
 
@@ -65,7 +66,7 @@ export default function Detail() {
     const fetchSentences = async () => {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
-        setSentences(data)
+        setSentences(data.sentenceResponseList)
       } catch (error) {
         console.error('Error fetching user:', error)
       }
@@ -134,12 +135,14 @@ export default function Detail() {
         {sentences.map((sentence) => (
           <Element name={`sentence-${sentence.id}`} key={sentence.id}>
             <Sentence
-              text={sentence.text}
-              status={sentence.status}
+              text={sentence.content}
+              status={sentence.openStatus}
               onShortPress={() =>
-                handleShortPress(sentence.id, sentence.status)
+                handleShortPress(sentence.id, sentence.openStatus)
               }
-              onLongPress={() => handleLongPress(sentence.id, sentence.status)}
+              onLongPress={() =>
+                handleLongPress(sentence.id, sentence.openStatus)
+              }
             />
           </Element>
         ))}
