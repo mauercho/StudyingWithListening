@@ -10,6 +10,8 @@ services:
       - "8080:8080"
     env_file:
       - ./server/shortgong/.env
+    volumes:
+      - /home/ubuntu/jenkins-data/workspace/shortgong/server/shortgong/private_key.pem:/app/private_key.pem
     environment:
       - TZ=Asia/Seoul
     networks:
