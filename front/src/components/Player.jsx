@@ -24,10 +24,10 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100vw;
-  position: fixed;
+  /* position: fixed;
   bottom: 0;
   left: 0;
-  right: 0;
+  right: 0; */
 `
 
 const PlayerWrapper = styled.div`
@@ -125,13 +125,6 @@ export default function Player() {
     setIsMenuOpen(false)
   }
 
-  const StyledPopUpMenu = styled(PopUpMenu)`
-    position: absolute;
-    bottom: 100%;
-    right: 0;
-    margin-bottom: 10px; // 설정 아이콘과의 간격
-  `
-
   const speedItems = [
     {
       text: '0.5x',
@@ -172,22 +165,22 @@ export default function Player() {
       audioPlayer.current.src = playlist[index + 1].file
     }
     audioPlayer.current.play()
+    audioPlayer.current.playbackRate = playbackRate
     setIsPlaying(true)
-  }, [index])
+  }, [index, playbackRate])
 
   const toggleSkipBackward = useCallback(() => {
     if (index > 0) {
       setIndex((prev) => prev - 1)
       audioPlayer.current.src = playlist[index - 1].file
-      audioPlayer.current.play()
-      setIsPlaying(true)
     } else if (index === 0) {
       setIndex(playlist.length - 1)
       audioPlayer.current.src = playlist[playlist.length - 1].file
-      audioPlayer.current.play()
-      setIsPlaying(true)
     }
-  }, [index])
+    audioPlayer.current.play()
+    audioPlayer.current.playbackRate = playbackRate
+    setIsPlaying(true)
+  }, [index, playbackRate])
 
   useEffect(() => {
     if ('mediaSession' in navigator && 'MediaMetadata' in window) {
@@ -196,9 +189,17 @@ export default function Player() {
         artist: truncateText(playlist[index].artist, 40),
         album: '',
       })
+    }
+  }, [index])
 
-      navigator.mediaSession.setPositionState(null)
-      navigator.mediaSession.setActionHandler('seekto', null)
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setPositionState({
+        duration: audioPlayer.current?.duration || 0,
+        playbackRate: playbackRate,
+        position: audioPlayer.current?.currentTime || 0,
+      })
+
       navigator.mediaSession.setActionHandler('seekforward', null)
       navigator.mediaSession.setActionHandler('seekbackward', null)
       navigator.mediaSession.setActionHandler(
@@ -215,7 +216,7 @@ export default function Player() {
         setIsPlaying(false)
       })
     }
-  }, [toggleSkipBackward, toggleSkipForward, index])
+  }, [toggleSkipBackward, toggleSkipForward, playbackRate])
 
   useEffect(() => {
     if ('mediaSession' in navigator) {
@@ -269,6 +270,7 @@ export default function Player() {
             isOpen={isMenuOpen}
             onClose={() => setIsMenuOpen(false)}
             items={speedItems}
+            location="l"
           />
         </ControlsWrapper>
       </PlayerWrapper>
