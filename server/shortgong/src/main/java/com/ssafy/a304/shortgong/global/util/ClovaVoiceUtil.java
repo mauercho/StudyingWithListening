@@ -14,11 +14,9 @@ import org.springframework.web.client.RestTemplate;
 import com.ssafy.a304.shortgong.global.config.NaverTTSConfig;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Getter
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -54,7 +52,7 @@ public class ClovaVoiceUtil {
 			).getBody();
 		} catch (Exception e) {
 			log.debug("{} : {}", NAVER_CLOVA_TTS_REQUEST_FAIL.getMessage(), e.getMessage());
-			throw new IllegalAccessError(e.getMessage());
+			throw new IllegalArgumentException(e.getMessage());
 			// throw new CustomException(NAVER_CLOVA_TTS_REQUEST_FAIL);
 		}
 	}

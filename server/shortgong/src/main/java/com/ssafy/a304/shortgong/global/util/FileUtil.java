@@ -5,6 +5,10 @@ import static com.ssafy.a304.shortgong.global.errorCode.FileErrorCode.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,8 +76,8 @@ public class FileUtil {
 	 * @author 정재영
 	 */
 	public static String uploadContentFileByUuid(MultipartFile file, String uuid) {
-
-		FileValidator.checkOcrImageExt(getExtension(file));
+		// img 뿐만 아니라 txt 파일도 올라갈 수 있음
+		// FileValidator.checkOcrImageExt(getExtension(file));
 		return upload(convert(file), staticUploadContentFolderPath, uuid, getExtension(file));
 	}
 
@@ -153,6 +157,21 @@ public class FileUtil {
 	public static void deleteSentenceVoiceFile(String summaryUuid, String fileName) {
 
 		deleteFileFromS3(staticSummaryListFolderPath + "/" + summaryUuid, fileName);
+	}
+
+	public static Path createTextFile(String text, String filename) {
+		// 파일 경로 지정
+		Path filePath = Paths.get(filename + ".txt");
+
+		// 텍스트 파일 생성 및 내용 쓰기
+		try {
+			Files.write(filePath, text.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e) {
+			// TODO : CustomException 으로 변경하기
+			throw new IllegalArgumentException(e);
+		}
+
+		return filePath;
 	}
 
 	private static void deleteFileFromS3(String folderPath, String fileName) throws CustomException {
