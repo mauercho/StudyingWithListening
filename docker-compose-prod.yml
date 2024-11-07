@@ -14,7 +14,7 @@ services:
       - TZ=Asia/Seoul
     networks:
       - shortgong
-      -
+
   crawling:
     container_name: crawling-server
     build:
