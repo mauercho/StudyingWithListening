@@ -77,4 +77,11 @@ public class SentenceFacadeImpl implements SentenceFacade {
 		sentenceService.updateSentenceOpenStatus(sentenceId, sentenceUpdateOpenStatusRequest.getOpenStatus());
 	}
 
+	@Override
+	@Transactional
+	public void deleteSentence(Long sentenceId) {
+
+		sentenceService.deleteSentence(sentenceId);
+	}
+
 }

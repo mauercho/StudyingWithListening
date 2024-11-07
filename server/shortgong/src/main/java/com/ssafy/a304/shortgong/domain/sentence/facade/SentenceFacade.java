@@ -19,4 +19,10 @@ public interface SentenceFacade {
 	 */
 	void updateSentenceOpenStatus(Long sentenceId, SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest);
 
+	/**
+	 * 문장 삭제
+	 * @author 이주형
+	 */
+	void deleteSentence(Long sentenceId);
+
 }
