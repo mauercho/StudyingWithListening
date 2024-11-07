@@ -14,6 +14,19 @@ services:
       - TZ=Asia/Seoul
     networks:
       - shortgong
+      -
+  crawling:
+    container_name: crawling-server
+    build:
+      context: ./crawling_server
+      dockerfile: Dockerfile
+    image: shortgong_crawling:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - TZ=Asia/Seoul
+    networks:
+      - shortgong
 
   frontend:
     container_name: front-client
