@@ -49,6 +49,7 @@ export default function List() {
     const fetchSummaries = async () => {
       try {
         const data = await summariesApi.getSummaries()
+        console.log('1,2, 3,4,')
         setList(data)
       } catch (error) {
         console.error('Error fetching user:', error)
@@ -63,7 +64,7 @@ export default function List() {
       {list.map((v, index) => {
         return (
           <Item key={index} onClick={() => handleLinkClick(v.id)}>
-            {v.title}
+            {v.title ? v.title : '제목 없음'}
           </Item>
         )
       })}
