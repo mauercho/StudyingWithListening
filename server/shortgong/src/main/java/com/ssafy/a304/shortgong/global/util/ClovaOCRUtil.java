@@ -43,7 +43,7 @@ public class ClovaOCRUtil {
 		List<Map<String, Object>> images = new ArrayList<>();
 		for (int i = 0; i < imageUrls.size(); i++) {
 			Map<String, Object> image = new HashMap<>();
-			image.put("format", FileUtil.getExtensionString(imageUrls.get(i)));
+			image.put("format", FileUtil.getExtensionStringFromPreSignedUrl(imageUrls.get(i)));
 			image.put("name", "image_" + (i + 1));
 			image.put("url", imageUrls.get(i));
 			images.add(image);
@@ -77,7 +77,7 @@ public class ClovaOCRUtil {
 
 		List<Map<String, Object>> images = new ArrayList<>();
 		Map<String, Object> image = new HashMap<>();
-		image.put("format", FileUtil.getExtensionString(imageUrl));
+		image.put("format", FileUtil.getExtensionStringFromPreSignedUrl(imageUrl));
 		image.put("name", "image");
 		image.put("url", imageUrl);
 		images.add(image);

@@ -23,13 +23,13 @@ public class CloudFrontSignedUrlUtil {
 
 	public String generateSignedUrl(String relativeFilePath) {
 
-		Date expiration = new Date(System.currentTimeMillis() + (long)60 * 1000);
+		Date expiration = new Date(System.currentTimeMillis() + (long)60 * 1000 * 60);
 
 		String url = null;
 		try {
 			url = CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
 				SignerUtils.Protocol.https,
-				cloudFrontConfig.getCloudFrontUrl(),
+				cloudFrontConfig.getCloudFrontDomain(),
 				new File(cloudFrontConfig.getPrivateKeyFilePath()),
 				relativeFilePath,
 				cloudFrontConfig.getKeyPairId(),

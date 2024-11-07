@@ -88,7 +88,7 @@ cloud:
     stack:
       auto: false
     cloudfront:
-      url: ${CLOUDFRONT_URL}
+      domain: ${CLOUDFRONT_DOMAIN}
       key-pair-id: ${CLOUDFRONT_KEY_PAIR_ID}
       private-key: ${CLOUDFRONT_KEY_FILE_PATH}
 
