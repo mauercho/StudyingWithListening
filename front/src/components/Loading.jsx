@@ -31,8 +31,7 @@ const rotation = keyframes`
 `
 
 const Loader = styled.div`
-  width: 16px;
-  height: 16px;
+  ${({size}) => `width: ${size}px; height: ${size}px;`}
   border: 2px solid ${({ theme }) => theme.color.primary}; // theme에서 색상 가져오기
   border-bottom-color: transparent;
   border-radius: 50%;
@@ -41,10 +40,10 @@ const Loader = styled.div`
   animation: ${rotation} 1s linear infinite;
 `
 
-export default function Loading({ text = '생성중...' }) {
+export default function Loading({ text = '생성중...', size=16 }) {
   return (
     <Container>
-      <Loader />
+      <Loader size={size} />
       <LoadingText>{text}</LoadingText>
     </Container>
   )
