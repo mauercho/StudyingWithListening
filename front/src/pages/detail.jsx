@@ -31,7 +31,7 @@ const ContentArea = styled.ul`
   margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 150px;
+  gap: 10px;
   overflow-y: auto;
   box-sizing: border-box;
   background: ${({ theme }) => theme.color.grey};
@@ -128,7 +128,7 @@ export default function Detail() {
       duration: 500,
       delay: 0,
       smooth: 'easeInOutQuart',
-      offset: -60,
+      offset: -20,
     })
   }
 
@@ -147,7 +147,7 @@ export default function Detail() {
           indexes={indexes}
           onButtonClick={handleTableTouch}
           isOpen={isTableOpen}
-          toggleOpen={toggleTable} // 토글 함수 추가
+          toggleOpen={toggleTable}
         />
       </HeaderWrapper>
       <ContentArea id="content-area">
