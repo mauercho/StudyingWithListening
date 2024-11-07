@@ -8,7 +8,7 @@ const Detail = lazy(() => import('./pages/detail'))
 const routes = [
   { path: '/upload', element: <Upload />, title: '자료 업로드' },
   { path: '/list', element: <List />, title: '학습 목록' },
-  { path: '/detail', element: <Detail />, title: '상세 페이지' },
+  { path: '/detail/:summaryId', element: <Detail />, title: '상세 페이지' },
 ]
 
 export default routes
