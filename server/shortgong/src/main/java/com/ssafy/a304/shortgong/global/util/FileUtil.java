@@ -29,33 +29,44 @@ import lombok.extern.slf4j.Slf4j;
 public class FileUtil {
 
 	private static AmazonS3 staticAmazonS3Client;
+
 	private static String staticUserProfileFolderPath;
+
 	private static String staticSummaryListFolderPath;
+
 	private static String staticUploadContentFolderPath;
+
 	private static String staticBucket;
-	private static String staticCloudFrontUrl;
+
+	private static CloudFrontSignedUrlUtil staticCloudFrontSignedUrlUtil;
 
 	private final AmazonS3 amazonS3Client;
+
 	private final String userProfileFolderPath;
+
 	private final String summaryListFolderPath;
+
 	private final String uploadContentFolderPath;
+
 	private final String bucket;
-	private final String cloudFrontUrl;
+
+	private final CloudFrontSignedUrlUtil cloudFrontSignedUrlUtil;
 
 	@Autowired
 	public FileUtil(AmazonS3 amazonS3Client,
+		CloudFrontSignedUrlUtil cloudFrontSignedUrlUtil,
 		@Value("${file.path.user-profile-folder}") String userProfileFolderPath,
 		@Value("${file.path.summary-folder}") String summaryListFolderPath,
 		@Value("${file.path.upload-content-folder}") String uploadContentFolderPath,
-		@Value("${cloud.aws.s3.bucket}") String bucket,
-		@Value("${cloud.aws.cloudfront.url}") String cloudFrontUrl) {
+		@Value("${cloud.aws.s3.bucket}") String bucket
+	) {
 
 		this.amazonS3Client = amazonS3Client;
 		this.userProfileFolderPath = userProfileFolderPath;
 		this.summaryListFolderPath = summaryListFolderPath;
 		this.uploadContentFolderPath = uploadContentFolderPath;
 		this.bucket = bucket;
-		this.cloudFrontUrl = cloudFrontUrl;
+		this.cloudFrontSignedUrlUtil = cloudFrontSignedUrlUtil;
 	}
 
 	/**
@@ -107,20 +118,17 @@ public class FileUtil {
 	// TODO : 세 get 메서드 모두 getFileUrl(String fileName) 로 통일 할 지 고민하기
 	public static String getUserProfileImgUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontUrl + "/" + fileName;
-		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
+		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName) + "/" + fileName;
 	}
 
 	public static String getSentenceVoiceFileUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontUrl + "/" + fileName;
-		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
+		return staticCloudFrontSignedUrlUtil + "/" + fileName;
 	}
 
 	public static String getUploadContentUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontUrl + "/" + fileName;
-		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
+		return staticCloudFrontSignedUrlUtil + "/" + fileName;
 	}
 
 	public static String getExtension(MultipartFile file) throws CustomException {
@@ -271,7 +279,7 @@ public class FileUtil {
 		staticSummaryListFolderPath = summaryListFolderPath;
 		staticUploadContentFolderPath = uploadContentFolderPath;
 		staticBucket = bucket;
-		staticCloudFrontUrl = cloudFrontUrl;
+		staticCloudFrontSignedUrlUtil = cloudFrontSignedUrlUtil;
 	}
 
 }
