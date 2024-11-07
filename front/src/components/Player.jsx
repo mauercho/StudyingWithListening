@@ -24,10 +24,10 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100vw;
-  /* position: fixed;
+  position: fixed;
   bottom: 0;
   left: 0;
-  right: 0; */
+  right: 0;
 `
 
 const PlayerWrapper = styled.div`

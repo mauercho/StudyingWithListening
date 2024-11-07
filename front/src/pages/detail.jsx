@@ -7,7 +7,7 @@ import { scroller, Element } from 'react-scroll'
 import TableOfContents from '../components/TableOfContents'
 import Sentence from '../components/Sentence'
 import Modal from '../components/Modal'
-// import sentencesApi from '../api/sentencesApi'
+import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
 
 const Container = styled.div`
@@ -75,7 +75,7 @@ export default function Detail() {
     const fetchIndexes = async () => {
       try {
         const data = await summariesApi.getSummariesIndexes(summaryId)
-        setIndexes(data)
+        setIndexes(data.indexes)
       } catch (error) {
         console.error('Error fetching user:', error)
       }
@@ -87,19 +87,72 @@ export default function Detail() {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
-  const [isTableOpen, setIsTableOpen] = useState(false) // 목차 열림 상태 추가
+  const [isTableOpen, setIsTableOpen] = useState(false)
+  const [selectedSentenceId, setSelectedSentenceId] = useState(null)
+
+  const handleDelete = async (sentenceId) => {
+    try {
+      await sentencesApi.deleteSentence(sentenceId)
+      setSentences(sentences.filter((sentence) => sentence.id !== sentenceId))
+    } catch (error) {
+      console.error('Error deleting sentence:', error)
+    }
+  }
+
+  const handleFolding = async (sentenceId) => {
+    try {
+      const currentSentence = sentences.find(
+        (sentence) => sentence.id === sentenceId
+      )
+      await sentencesApi.postSentenceFolding(
+        sentenceId,
+        currentSentence.openStatus
+      )
+      console.log('success')
+      setSentences(
+        sentences.map((sentence) =>
+          sentence.id === sentenceId
+            ? {
+                ...sentence,
+                openStatus: !sentence.openStatus,
+              }
+            : sentence
+        )
+      )
+    } catch (error) {
+      console.error('Error folding sentence:', error)
+    }
+  }
+
+  const handleNewSummary = async (sentenceId) => {
+    try {
+      await sentencesApi.patchSentenceNew(sentenceId)
+    } catch (error) {
+      console.error('Error requesting new summary:', error)
+    }
+  }
+
+  const handleDetailSummary = async (sentenceId) => {
+    try {
+      await sentencesApi.patchSentenceDetail(sentenceId)
+    } catch (error) {
+      console.error('Error requesting detailed summary:', error)
+    }
+  }
 
   const handleShortPress = (sentenceId, status) => {
-    if (status === 'hidden') {
+    if (!status) {
       setModalFlag(false)
+      setSelectedSentenceId(sentenceId)
       setTimeout(() => setIsModalOpen(true), 50)
     }
     console.log(`Sentence ${sentenceId}`)
   }
 
   const handleLongPress = (sentenceId, status) => {
-    setModalFlag(status === 'hidden' ? false : true)
+    setModalFlag(!status ? false : true)
     setIsModalOpen(true)
+    setSelectedSentenceId(sentenceId)
     console.log(`Sentence ${sentenceId}`)
   }
 
@@ -147,7 +200,15 @@ export default function Detail() {
           </Element>
         ))}
       </ContentArea>
-      <Modal isOpen={isModalOpen} onClose={closeModal} flag={modalFlag} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        flag={modalFlag}
+        onDelete={() => handleDelete(selectedSentenceId)}
+        onFolding={() => handleFolding(selectedSentenceId)}
+        onNewSummary={() => handleNewSummary(selectedSentenceId)}
+        onDetailSummary={() => handleDetailSummary(selectedSentenceId)}
+      />
     </Container>
   )
 }

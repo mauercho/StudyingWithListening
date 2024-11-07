@@ -10,11 +10,11 @@ class summariesApi extends baseApi {
   }
 
   getSummariesDetail(summaryId) {
-    return this.get(`${summaryId}`)
+    return this.get(`/${summaryId}`)
   }
 
   getSummariesIndexes(summaryId) {
-    return this.get(`${summaryId}/indexes`)
+    return this.get(`/${summaryId}/indexes`)
   }
 
   postSummaries(summariesData) {
@@ -22,7 +22,7 @@ class summariesApi extends baseApi {
   }
 
   patchSummaries(summaryId, summariesData) {
-    return this.patch(`${summaryId}`, summariesData)
+    return this.patch(`/${summaryId}`, summariesData)
   }
 }
 
