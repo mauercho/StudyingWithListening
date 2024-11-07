@@ -1,8 +1,11 @@
 package com.ssafy.a304.shortgong.domain.summary.facade;
 
+import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
+import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryOverviewResponse;
 
 public interface SummaryFacade {
 
@@ -26,4 +29,8 @@ public interface SummaryFacade {
 	 * @author 정재영
 	 * */
 	SummaryDetailResponse getSummaryDetail(Long summaryId);
+
+	void updateTitleBySummaryId(String title, Long summaryId);
+
+	List<SummaryOverviewResponse> getSummaryList();
 }

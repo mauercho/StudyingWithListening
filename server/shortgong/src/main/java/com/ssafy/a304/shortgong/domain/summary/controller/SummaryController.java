@@ -5,8 +5,10 @@ import static com.ssafy.a304.shortgong.global.errorCode.UploadContentErrorCode.*
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +29,15 @@ import lombok.RequiredArgsConstructor;
 public class SummaryController {
 
 	private final SummaryFacade summaryFacade;
+
+	/**
+	 * 요약본 목록 가져오기
+	 * */
+	@GetMapping
+	public ResponseEntity<?> getSummaryList() {
+
+		return ResponseEntity.ok(summaryFacade.getSummaryList());
+	}
 
 	/**
 	 * 파일 업로드 및 요약본 생성
@@ -60,6 +71,17 @@ public class SummaryController {
 	public ResponseEntity<?> getSummaryDetail(@PathVariable("summary-id") Long summaryId) {
 
 		return ResponseEntity.ok(summaryFacade.getSummaryDetail(summaryId));
+	}
+
+	/**
+	 * 요약본 제목 변경
+	 * */
+	@PatchMapping("/{summary-id}")
+	public ResponseEntity<?> modifySummaryTitle(@PathVariable("summary-id") Long summaryId,
+		@RequestBody String title) {
+
+		summaryFacade.updateTitleBySummaryId(title, summaryId);
+		return ResponseEntity.ok().build();
 	}
 
 }
