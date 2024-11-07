@@ -5,6 +5,10 @@ import static com.ssafy.a304.shortgong.global.errorCode.FileErrorCode.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,24 +33,29 @@ public class FileUtil {
 	private static String staticSummaryListFolderPath;
 	private static String staticUploadContentFolderPath;
 	private static String staticBucket;
+	private static String staticCloudFrontUrl;
+
 	private final AmazonS3 amazonS3Client;
 	private final String userProfileFolderPath;
 	private final String summaryListFolderPath;
 	private final String uploadContentFolderPath;
 	private final String bucket;
+	private final String cloudFrontUrl;
 
 	@Autowired
 	public FileUtil(AmazonS3 amazonS3Client,
 		@Value("${file.path.user-profile-folder}") String userProfileFolderPath,
 		@Value("${file.path.summary-folder}") String summaryListFolderPath,
 		@Value("${file.path.upload-content-folder}") String uploadContentFolderPath,
-		@Value("${cloud.aws.s3.bucket}") String bucket) {
+		@Value("${cloud.aws.s3.bucket}") String bucket,
+		@Value("${cloud.aws.cloudfront.url}") String cloudFrontUrl) {
 
 		this.amazonS3Client = amazonS3Client;
 		this.userProfileFolderPath = userProfileFolderPath;
 		this.summaryListFolderPath = summaryListFolderPath;
 		this.uploadContentFolderPath = uploadContentFolderPath;
 		this.bucket = bucket;
+		this.cloudFrontUrl = cloudFrontUrl;
 	}
 
 	/**
@@ -61,9 +70,14 @@ public class FileUtil {
 		return upload(convert(file), staticUserProfileFolderPath, uuid, getExtension(file));
 	}
 
+	/**
+	 * 유저 이미지 업로드하기
+	 * @return 파일명
+	 * @author 정재영
+	 */
 	public static String uploadContentFileByUuid(MultipartFile file, String uuid) {
-
-		FileValidator.checkOcrImageExt(getExtension(file));
+		// img 뿐만 아니라 txt 파일도 올라갈 수 있음
+		// FileValidator.checkOcrImageExt(getExtension(file));
 		return upload(convert(file), staticUploadContentFolderPath, uuid, getExtension(file));
 	}
 
@@ -90,15 +104,23 @@ public class FileUtil {
 		return upload(convert(file), staticSummaryListFolderPath + "/" + summaryUuid, mp3FileUuid, getExtension(file));
 	}
 
+	// TODO : 세 get 메서드 모두 getFileUrl(String fileName) 로 통일 할 지 고민하기
 	public static String getUserProfileImgUrl(String fileName) throws CustomException {
 
-		return staticAmazonS3Client.getUrl(staticBucket, /*staticUserProfileFolderPath + "/" + */ fileName).toString();
+		return staticCloudFrontUrl + "/" + fileName;
+		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
 	}
 
-	public static String getSentenceVoiceFileUrl(String summaryUuid, String fileName) throws CustomException {
+	public static String getSentenceVoiceFileUrl(String fileName) throws CustomException {
 
-		return staticAmazonS3Client.getUrl(staticBucket,
-			/* staticSummaryListFolderPath + "/" + summaryUuid + "/" + */ fileName).toString();
+		return staticCloudFrontUrl + "/" + fileName;
+		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
+	}
+
+	public static String getUploadContentUrl(String fileName) throws CustomException {
+
+		return staticCloudFrontUrl + "/" + fileName;
+		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
 	}
 
 	public static String getExtension(MultipartFile file) throws CustomException {
@@ -137,6 +159,21 @@ public class FileUtil {
 		deleteFileFromS3(staticSummaryListFolderPath + "/" + summaryUuid, fileName);
 	}
 
+	public static Path createTextFile(String text, String filename) {
+		// 파일 경로 지정
+		Path filePath = Paths.get(filename + ".txt");
+
+		// 텍스트 파일 생성 및 내용 쓰기
+		try {
+			Files.write(filePath, text.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e) {
+			// TODO : CustomException 으로 변경하기
+			throw new IllegalArgumentException(e);
+		}
+
+		return filePath;
+	}
+
 	private static void deleteFileFromS3(String folderPath, String fileName) throws CustomException {
 
 		try {
@@ -171,11 +208,9 @@ public class FileUtil {
 
 		staticAmazonS3Client.putObject(
 			new PutObjectRequest(staticBucket, fileName, uploadFile)
-			// .withCannedAcl(CannedAccessControlList.PublicRead)
 		);
-		log.debug("S3에 파일 업로드 중: {}", fileName);
+
 		return fileName; // 저장 시, filename 만 반환하고 싶어서
-		// amazonS3Client.getUrl(bucket, fileName).toString()
 	}
 
 	private static File convert(MultipartFile file) throws CustomException {
@@ -186,7 +221,6 @@ public class FileUtil {
 		}
 
 		File convertFile = new File(file.getOriginalFilename());
-		log.debug("convertFile: {}", convertFile);
 
 		try {
 			if (convertFile.exists()) {
@@ -213,8 +247,6 @@ public class FileUtil {
 			log.error("로컬에서 파일이 삭제되지 못했습니다.");
 			throw new CustomException(LOCAL_FILE_DELETION_FAILED);
 		}
-		log.debug("로컬에서 파일이 삭제되었습니다.");
-
 	}
 
 	/**
@@ -239,6 +271,7 @@ public class FileUtil {
 		staticSummaryListFolderPath = summaryListFolderPath;
 		staticUploadContentFolderPath = uploadContentFolderPath;
 		staticBucket = bucket;
+		staticCloudFrontUrl = cloudFrontUrl;
 	}
 
 }

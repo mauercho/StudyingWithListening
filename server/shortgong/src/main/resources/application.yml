@@ -1,6 +1,9 @@
 server:
   port: ${BACK_PORT}
 
+fast-api:
+  base-url: ${PROTOCOL}://${DOMAIN}:${FAST_API_PORT}/crawling
+
 logging:
   level:
     root: ${ROOT_LOG_LEVEL}

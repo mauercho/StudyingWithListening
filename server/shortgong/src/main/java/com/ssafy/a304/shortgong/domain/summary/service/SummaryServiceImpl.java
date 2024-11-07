@@ -2,9 +2,12 @@ package com.ssafy.a304.shortgong.domain.summary.service;
 
 import static com.ssafy.a304.shortgong.global.errorCode.SummaryErrorCode.*;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryOverviewResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.domain.summary.repository.SummaryRepository;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
@@ -27,7 +30,7 @@ public class SummaryServiceImpl implements SummaryService {
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public Summary createNewSummary(User loginUser, UploadContent uploadContent) {
 
 		return summaryRepository.save(
@@ -35,5 +38,20 @@ public class SummaryServiceImpl implements SummaryService {
 				.writer(loginUser)
 				.uploadContent(uploadContent)
 				.build());
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Summary save(Summary summary) {
+
+		return summaryRepository.save(summary);
+	}
+
+	@Override
+	public List<SummaryOverviewResponse> selectSummaryListByUser(User user) {
+
+		return summaryRepository.findAllByWriter(user).stream()
+			.map(SummaryOverviewResponse::new)
+			.toList();
 	}
 }

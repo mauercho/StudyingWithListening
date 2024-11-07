@@ -26,8 +26,6 @@ public class SentenceResponse {
 		this.content = sentence.getSentenceContent();
 		this.order = sentence.getOrder();
 		this.openStatus = sentence.getOpenStatus();
-		this.voiceUrl = FileUtil.getSentenceVoiceFileUrl(
-			sentence.getSummary().getFolderName(),
-			sentence.getVoiceFileName());
+		this.voiceUrl = FileUtil.getSentenceVoiceFileUrl(sentence.getVoiceFileName());
 	}
 }

@@ -1,6 +1,7 @@
 package com.ssafy.a304.shortgong.domain.sentence.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,13 @@ public class SentenceController {
 		@Valid @RequestBody SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest) {
 
 		sentenceFacade.updateSentenceOpenStatus(sentenceId, sentenceUpdateOpenStatusRequest);
+		return ResponseEntity.ok().build();
+	}
+
+	@DeleteMapping("/{sentence-id}")
+	private ResponseEntity<?> deleteSentence(@PathVariable("sentence-id") Long sentenceId) {
+
+		sentenceFacade.deleteSentence(sentenceId);
 		return ResponseEntity.ok().build();
 	}
 

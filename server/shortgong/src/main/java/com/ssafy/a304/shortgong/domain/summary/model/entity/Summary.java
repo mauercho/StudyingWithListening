@@ -65,6 +65,7 @@ public class Summary extends BaseEntity {
 	@OneToMany(mappedBy = "summary", cascade = ALL, orphanRemoval = true, fetch = LAZY)
 	private List<Index> indexes = new ArrayList<>();
 
+	// TODO : Class 단위의 Builder 지우기 고려
 	@Builder
 	public Summary(User writer, UploadContent uploadContent) {
 
