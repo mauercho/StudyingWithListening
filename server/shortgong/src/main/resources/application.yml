@@ -1,6 +1,9 @@
 server:
   port: ${BACK_PORT}
 
+fast-api:
+  base-url: ${PROTOCOL}://${DOMAIN}:${FAST_API_PORT}/crawling
+
 logging:
   level:
     root: ${ROOT_LOG_LEVEL}
@@ -85,7 +88,9 @@ cloud:
     stack:
       auto: false
     cloudfront:
-      url: ${CLOUDFRONT_URL}
+      domain: ${CLOUDFRONT_DOMAIN}
+      key-pair-id: ${CLOUDFRONT_KEY_PAIR_ID}
+      private-key: ${CLOUDFRONT_KEY_FILE_PATH}
 
 file:
   path:
@@ -96,7 +101,7 @@ file:
 claude:
   api:
     key: ${CLAUDE_API_SECRET_KEY}
-    url: https://api.anthropic.com/v1/complete
+    url: https://api.anthropic.com/v1/messages
     model: claude-3-5-sonnet-20241022
     temperature: 0.7
     max-tokens: 450

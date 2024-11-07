@@ -47,4 +47,12 @@ public class UploadContent extends BaseEntity {
 
 	@OneToOne(mappedBy = "uploadContent", cascade = ALL, fetch = LAZY, orphanRemoval = true)
 	private Summary summary;
+
+	/**
+	 *
+	 * */
+	public void updateContent(String content) {
+
+		this.content = content;
+	}
 }

@@ -38,9 +38,7 @@ public class ClaudeUtil {
 	@Value("${claude.api.max-tokens}")
 	private Integer maxTokens;
 
-	public ClaudeResponse sendMessage(String userMessage2) {
-
-		String userMessage = "\n\nHuman:" + userMessage2 + "\n\nAssistant:";
+	public ClaudeResponse sendMessage(String userMessage) {
 
 		// 요청 데이터 설정
 		ClaudeMessage userMessageObj = ClaudeMessage.builder()

@@ -13,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class ClovaOCRUtil {
 
@@ -33,21 +35,15 @@ public class ClovaOCRUtil {
 
 	private final NaverOCRConfig naverOCRConfig;
 
-	public List<String> requestOCR(List<String> imageUrls) throws CustomException {
+	public List<String> requestTextByUrlListOcr(List<String> imageUrls) throws CustomException {
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.add("X-OCR-SECRET", naverOCRConfig.getOcrSecret());
-
-		Map<String, Object> requestBody = new HashMap<>();
-		requestBody.put("version", "V2");
-		requestBody.put("requestId", RandomUtil.generateUUID());
-		requestBody.put("timestamp", System.currentTimeMillis());
+		HttpHeaders headers = getDefaultHeader();
+		Map<String, Object> requestBody = getDefaultBody();
 
 		List<Map<String, Object>> images = new ArrayList<>();
 		for (int i = 0; i < imageUrls.size(); i++) {
 			Map<String, Object> image = new HashMap<>();
-			image.put("format", FileUtil.getExtensionString(imageUrls.get(i)));
+			image.put("format", FileUtil.getExtensionStringFromPreSignedUrl(imageUrls.get(i)));
 			image.put("name", "image_" + (i + 1));
 			image.put("url", imageUrls.get(i));
 			images.add(image);
@@ -72,6 +68,56 @@ public class ClovaOCRUtil {
 			// TODO: 커스텀 Exception 변경하기
 			throw new IllegalAccessError(e.getMessage());
 		}
+	}
+
+	public List<String> requestTextByImageUrlOcr(String imageUrl) throws CustomException {
+
+		HttpHeaders headers = getDefaultHeader();
+		Map<String, Object> requestBody = getDefaultBody();
+
+		List<Map<String, Object>> images = new ArrayList<>();
+		Map<String, Object> image = new HashMap<>();
+		image.put("format", FileUtil.getExtensionStringFromPreSignedUrl(imageUrl));
+		image.put("name", "image");
+		image.put("url", imageUrl);
+		images.add(image);
+
+		requestBody.put("images", images);
+		requestBody.put("enableTableDetection", false); // 테이블 감지 비활성화
+
+		HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+		try {
+			String response = restTemplate.exchange(
+				naverOCRConfig.getNaverOCRUrl(),
+				HttpMethod.POST,
+				request,
+				String.class
+			).getBody();
+
+			return parseSentencesFromResponse(response);
+		} catch (RestClientException e) {
+			log.debug("{} : {}", NAVER_CLOVA_OCR_REQUEST_FAIL.getMessage(), e.getMessage());
+			// TODO: 커스텀 Exception 변경하기
+			throw new IllegalArgumentException(e.getMessage());
+		}
+	}
+
+	private HttpHeaders getDefaultHeader() {
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.add("X-OCR-SECRET", naverOCRConfig.getOcrSecret());
+		return headers;
+	}
+
+	private Map<String, Object> getDefaultBody() {
+
+		Map<String, Object> requestBody = new HashMap<>();
+		requestBody.put("version", "V2");
+		requestBody.put("requestId", RandomUtil.generateUUID());
+		requestBody.put("timestamp", System.currentTimeMillis());
+		return requestBody;
 	}
 
 	private List<String> parseSentencesFromResponse(String jsonString) throws CustomException {
