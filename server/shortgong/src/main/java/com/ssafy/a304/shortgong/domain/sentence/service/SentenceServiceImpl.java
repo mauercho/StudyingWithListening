@@ -330,4 +330,11 @@ public class SentenceServiceImpl implements SentenceService {
 		return FileUtil.uploadSentenceVoiceFileByUuid(voiceData, folderName, RandomUtil.generateUUID());
 	}
 
+	@Override
+	@Transactional
+	public void deleteSentence(Long sentenceId) {
+
+		sentenceRepository.delete(selectSentenceById(sentenceId));
+	}
+
 }

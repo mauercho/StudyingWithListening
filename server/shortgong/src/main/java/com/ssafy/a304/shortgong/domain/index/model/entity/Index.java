@@ -15,17 +15,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
 @Table(name = "summary_index")
 @NoArgsConstructor(access = PROTECTED)
-@AllArgsConstructor(access = PROTECTED)
 public class Index extends BaseEntity {
 
 	@Id
@@ -46,5 +43,14 @@ public class Index extends BaseEntity {
 
 	@Column(name = "index_title", columnDefinition = "VARCHAR(64)", nullable = false)
 	private String indexTitle;
+
+	@Builder
+	public Index(Summary summary, Sentence sentence, Boolean titleLevel, String indexTitle) {
+
+		this.summary = summary;
+		this.sentence = sentence;
+		this.titleLevel = titleLevel;
+		this.indexTitle = indexTitle;
+	}
 
 }
