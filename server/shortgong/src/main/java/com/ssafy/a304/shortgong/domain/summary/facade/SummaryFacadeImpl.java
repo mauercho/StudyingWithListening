@@ -153,7 +153,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		// text 를 요약해서 summarizedText 만들고 문장으로 split
 		AtomicInteger orderCounter = new AtomicInteger(1);
 
-		List<ClaudeResponseMessage> claudeResponseMessageList = sentenceService.getSummarizedText(text);
+		List<ClaudeResponseMessage> claudeResponseMessageList = sentenceService.getSummarizedTextFromUrl(text);
 		List<Sentence> sentenceList = claudeResponseMessageList.stream()
 			.flatMap(claudeResponseMessage -> {
 				String summarizedText = claudeResponseMessage.getText();
