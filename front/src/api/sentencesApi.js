@@ -1,6 +1,6 @@
 import baseApi from './baseApi'
 
-class sentenceApi extends baseApi {
+class sentencesApi extends baseApi {
   constructor() {
     super('sentences')
   }
@@ -28,4 +28,4 @@ class sentenceApi extends baseApi {
   }
 }
 
-export default new sentenceApi()
+export default new sentencesApi()

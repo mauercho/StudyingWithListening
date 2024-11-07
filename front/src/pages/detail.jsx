@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { useParams } from 'react-router-dom'
 import styled from '@emotion/styled'
@@ -7,6 +7,8 @@ import { scroller, Element } from 'react-scroll'
 import TableOfContents from '../components/TableOfContents'
 import Sentence from '../components/Sentence'
 import Modal from '../components/Modal'
+// import sentencesApi from '../api/sentencesApi'
+import summariesApi from '../api/summariesApi'
 
 const Container = styled.div`
   display: flex;
@@ -39,25 +41,49 @@ const ContentArea = styled.ul`
   background: ${({ theme }) => theme.color.grey};
 `
 
-const indexes = [
-  { indexId: 1, indexTitle: '컴퓨터와 이진수', sentenceId: 1 },
-  { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
-]
+export default function Detail() {
+  const { summaryId } = useParams()
+  const [indexes, setIndexes] = useState([
+    { indexId: 1, indexTitle: '컴퓨터와 이진수', sentenceId: 1 },
+    { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
+  ])
 
-const sentences = [
-  {
-    id: 1,
-    text: '컴퓨터는 이진수로 데이터를 표현하며, 0과 1로 이루어진 비트를 사용합니다.',
-    status: 'normal',
-  },
-  {
-    id: 2,
-    text: '알고리즘은 문제 해결을 위한 명확한 절차 또는 단계입니다.',
-    status: 'normal',
-  },
-]
+  const [sentences, setSentences] = useState([
+    {
+      id: 1,
+      text: '컴퓨터는 이진수로 데이터를 표현하며, 0과 1로 이루어진 비트를 사용합니다.',
+      status: 'normal',
+    },
+    {
+      id: 2,
+      text: '알고리즘은 문제 해결을 위한 명확한 절차 또는 단계입니다.',
+      status: 'normal',
+    },
+  ])
 
-export default function Detail({ summaryId }) {
+  useEffect(() => {
+    const fetchSentences = async () => {
+      try {
+        const data = await summariesApi.getSummariesDetail(summaryId)
+        setSentences(data)
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      }
+    }
+
+    const fetchIndexes = async () => {
+      try {
+        const data = await summariesApi.getSummariesIndexes(summaryId)
+        setIndexes(data)
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      }
+    }
+
+    fetchSentences()
+    fetchIndexes()
+  }, [summaryId])
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
   const [isTableOpen, setIsTableOpen] = useState(false) // 목차 열림 상태 추가
