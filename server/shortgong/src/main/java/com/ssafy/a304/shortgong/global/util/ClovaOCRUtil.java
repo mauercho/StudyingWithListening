@@ -99,7 +99,7 @@ public class ClovaOCRUtil {
 		} catch (RestClientException e) {
 			log.debug("{} : {}", NAVER_CLOVA_OCR_REQUEST_FAIL.getMessage(), e.getMessage());
 			// TODO: 커스텀 Exception 변경하기
-			throw new IllegalAccessError(e.getMessage());
+			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
 
