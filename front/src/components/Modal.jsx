@@ -61,12 +61,13 @@ const Content = styled.div`
 const Paragraph = styled.p`
   padding: 10px;
   background: ${theme.color.grey};
-  borrder-radius: 10px;
+  border-radius: 10px;
   border: none;
   font-weight: ${theme.font.weight.regular};
   font-size: ${theme.font.size.base};
   &:active {
     background: ${theme.color.grey_dark};
+  }
 `
 
 const ButtonContainer = styled.div`
