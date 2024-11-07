@@ -20,7 +20,7 @@ import winning from '../music/Winning - NEFFEX.mp3'
 const Container = styled.div`
   background-color: white;
   height: 65px;
-  width: inherit;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
