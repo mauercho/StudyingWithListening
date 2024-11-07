@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.ssafy.a304.shortgong.global.model.dto.request.ClaudeRequest;
@@ -38,6 +41,7 @@ public class ClaudeUtil {
 	@Value("${claude.api.max-tokens}")
 	private Integer maxTokens;
 
+	@Retryable(value = HttpServerErrorException.class, maxAttempts = 5, backoff = @Backoff(delay = 3000))
 	public ClaudeResponse sendMessage(String userMessage) {
 
 		// 요청 데이터 설정
