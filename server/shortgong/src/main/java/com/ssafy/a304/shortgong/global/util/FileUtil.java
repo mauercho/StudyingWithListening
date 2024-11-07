@@ -123,12 +123,12 @@ public class FileUtil {
 
 	public static String getSentenceVoiceFileUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontSignedUrlUtil + "/" + fileName;
+		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName) + "/" + fileName;
 	}
 
 	public static String getUploadContentUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontSignedUrlUtil + "/" + fileName;
+		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName) + "/" + fileName;
 	}
 
 	public static String getExtension(MultipartFile file) throws CustomException {
