@@ -13,6 +13,12 @@ public interface SentenceService {
 	List<ClaudeResponseMessage> getSummarizedText(String text);
 
 	/**
+	 * URL로부터 텍스트를 요약
+	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
+	 */
+	List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text);
+
+	/**
 	 * 문장 객체 반환
 	 * @return Sentence (문장 객체)
 	 * @author 이주형

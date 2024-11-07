@@ -73,6 +73,16 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
+	public List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text) {
+
+		String prompt = promptUtil.getUrlSummarizedPrompt(text);
+
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
+
+		return claudeResponse.getContent();
+	}
+
+	@Override
 	public Sentence selectSentenceById(Long sentenceId) throws CustomException {
 
 		return sentenceRepository.findById(sentenceId)
