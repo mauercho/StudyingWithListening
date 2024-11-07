@@ -12,7 +12,7 @@ const Container = styled.div`
   justify-content: start;
   align-items: center;
   width: 100%;
-  height: 80vh;
+  height: 85vh;
 `
 
 const HeaderWrapper = styled.div`
@@ -128,7 +128,7 @@ export default function Detail() {
       duration: 500,
       delay: 0,
       smooth: 'easeInOutQuart',
-      offset: -60, // 헤더 높이 보정
+      offset: -60,
     })
   }
 

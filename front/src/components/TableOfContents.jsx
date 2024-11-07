@@ -8,12 +8,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 34px;
+  gap: 14px;
   margin-bottom: -20px;
 `
 
 const Navigation = styled.nav`
-  height: 252px;
+  height: 272px;
   display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
   overflow-y: auto;
 `
