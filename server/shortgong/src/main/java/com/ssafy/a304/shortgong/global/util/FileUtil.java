@@ -29,33 +29,44 @@ import lombok.extern.slf4j.Slf4j;
 public class FileUtil {
 
 	private static AmazonS3 staticAmazonS3Client;
+
 	private static String staticUserProfileFolderPath;
+
 	private static String staticSummaryListFolderPath;
+
 	private static String staticUploadContentFolderPath;
+
 	private static String staticBucket;
-	private static String staticCloudFrontUrl;
+
+	private static CloudFrontSignedUrlUtil staticCloudFrontSignedUrlUtil;
 
 	private final AmazonS3 amazonS3Client;
+
 	private final String userProfileFolderPath;
+
 	private final String summaryListFolderPath;
+
 	private final String uploadContentFolderPath;
+
 	private final String bucket;
-	private final String cloudFrontUrl;
+
+	private final CloudFrontSignedUrlUtil cloudFrontSignedUrlUtil;
 
 	@Autowired
 	public FileUtil(AmazonS3 amazonS3Client,
+		CloudFrontSignedUrlUtil cloudFrontSignedUrlUtil,
 		@Value("${file.path.user-profile-folder}") String userProfileFolderPath,
 		@Value("${file.path.summary-folder}") String summaryListFolderPath,
 		@Value("${file.path.upload-content-folder}") String uploadContentFolderPath,
-		@Value("${cloud.aws.s3.bucket}") String bucket,
-		@Value("${cloud.aws.cloudfront.url}") String cloudFrontUrl) {
+		@Value("${cloud.aws.s3.bucket}") String bucket
+	) {
 
 		this.amazonS3Client = amazonS3Client;
 		this.userProfileFolderPath = userProfileFolderPath;
 		this.summaryListFolderPath = summaryListFolderPath;
 		this.uploadContentFolderPath = uploadContentFolderPath;
 		this.bucket = bucket;
-		this.cloudFrontUrl = cloudFrontUrl;
+		this.cloudFrontSignedUrlUtil = cloudFrontSignedUrlUtil;
 	}
 
 	/**
@@ -107,36 +118,46 @@ public class FileUtil {
 	// TODO : 세 get 메서드 모두 getFileUrl(String fileName) 로 통일 할 지 고민하기
 	public static String getUserProfileImgUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontUrl + "/" + fileName;
-		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
+		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName);
 	}
 
 	public static String getSentenceVoiceFileUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontUrl + "/" + fileName;
-		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
+		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName);
 	}
 
 	public static String getUploadContentUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontUrl + "/" + fileName;
-		// return staticAmazonS3Client.getUrl(staticBucket, fileName).toString();
+		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName);
 	}
 
 	public static String getExtension(MultipartFile file) throws CustomException {
 
 		String originalFilename = file.getOriginalFilename();
-		return getExtensionString(originalFilename);
+		return getExtensionStringFromFileName(originalFilename);
 	}
 
-	public static String getExtensionString(String s3Url) throws CustomException {
-
+	public static String getExtensionStringFromPreSignedUrl(String s3Url) throws CustomException {
+		
 		FileValidator.checkFileNonEmpty(s3Url);
-		int index = s3Url.lastIndexOf(".");
-		if (index == -1) {
+		int dotIndex = s3Url.lastIndexOf(".");
+		int questionMarkIndex = s3Url.indexOf("?", dotIndex);
+
+		if (dotIndex == -1) {
 			throw new CustomException(EXTENSION_FIND_FAILED);
 		}
-		return s3Url.substring(index + 1);
+		return s3Url.substring(dotIndex + 1, questionMarkIndex);
+	}
+
+	public static String getExtensionStringFromFileName(String fileName) throws CustomException {
+
+		FileValidator.checkFileNonEmpty(fileName);
+		int dotIndex = fileName.lastIndexOf(".");
+
+		if (dotIndex == -1) {
+			throw new CustomException(EXTENSION_FIND_FAILED);
+		}
+		return fileName.substring(dotIndex + 1);
 	}
 
 	public static boolean isExistUserProfileImgFile(String fileName) throws CustomException {
@@ -271,7 +292,7 @@ public class FileUtil {
 		staticSummaryListFolderPath = summaryListFolderPath;
 		staticUploadContentFolderPath = uploadContentFolderPath;
 		staticBucket = bucket;
-		staticCloudFrontUrl = cloudFrontUrl;
+		staticCloudFrontSignedUrlUtil = cloudFrontSignedUrlUtil;
 	}
 
 }

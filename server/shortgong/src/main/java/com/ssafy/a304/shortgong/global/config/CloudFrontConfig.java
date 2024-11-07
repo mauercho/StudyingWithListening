@@ -9,8 +9,8 @@ import lombok.Getter;
 @Configuration
 public class CloudFrontConfig {
 
-	@Value("${cloud.aws.cloudfront.url}")
-	private String cloudFrontUrl;
+	@Value("${cloud.aws.cloudfront.domain}")
+	private String cloudFrontDomain;
 
 	@Value("${cloud.aws.cloudfront.key-pair-id}")
 	private String keyPairId;
