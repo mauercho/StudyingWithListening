@@ -10,6 +10,7 @@ import {
 } from 'react-icons/md'
 
 import theme from '../assets/styles/theme'
+import PopUpMenu from './PopUpMenu'
 // 이거는 실험용 음악파일 입니다.
 import fade from '../music/As You Fade Away - NEFFEX.mp3'
 import enough from '../music/Enough - NEFFEX.mp3'
@@ -19,11 +20,14 @@ import winning from '../music/Winning - NEFFEX.mp3'
 
 const Container = styled.div`
   background-color: white;
-  height: 65px;
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100vw;
+  /* position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0; */
 `
 
 const PlayerWrapper = styled.div`
@@ -34,6 +38,7 @@ const PlayerWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box;
 `
 
 const ControlsWrapper = styled.div`
@@ -105,12 +110,43 @@ export default function Player() {
   const [index, setIndex] = useState(0)
   const [currentSong] = useState(playlist[index].file)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [playbackRate, setPlaybackRate] = useState(1.0)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const settingsButtonRef = useRef(null)
   const truncateText = (text, maxLength) => {
     if (text.length > maxLength) {
       return text.slice(0, maxLength) + '...'
     }
     return text
   }
+  const handlePlaybackRateChange = (rate) => {
+    audioPlayer.current.playbackRate = rate
+    setPlaybackRate(rate)
+    setIsMenuOpen(false)
+  }
+
+  const speedItems = [
+    {
+      text: '0.5x',
+      onClick: () => handlePlaybackRateChange(0.5),
+      isSelected: playbackRate === 0.5,
+    },
+    {
+      text: '1.0x',
+      onClick: () => handlePlaybackRateChange(1.0),
+      isSelected: playbackRate === 1.0,
+    },
+    {
+      text: '1.5x',
+      onClick: () => handlePlaybackRateChange(1.5),
+      isSelected: playbackRate === 1.5,
+    },
+    {
+      text: '2.0x',
+      onClick: () => handlePlaybackRateChange(2.0),
+      isSelected: playbackRate === 2.0,
+    },
+  ]
   const togglePlay = useCallback(() => {
     if (!isPlaying) {
       audioPlayer.current.play()
@@ -129,22 +165,22 @@ export default function Player() {
       audioPlayer.current.src = playlist[index + 1].file
     }
     audioPlayer.current.play()
+    audioPlayer.current.playbackRate = playbackRate
     setIsPlaying(true)
-  }, [index])
+  }, [index, playbackRate])
 
   const toggleSkipBackward = useCallback(() => {
     if (index > 0) {
       setIndex((prev) => prev - 1)
       audioPlayer.current.src = playlist[index - 1].file
-      audioPlayer.current.play()
-      setIsPlaying(true)
     } else if (index === 0) {
       setIndex(playlist.length - 1)
       audioPlayer.current.src = playlist[playlist.length - 1].file
-      audioPlayer.current.play()
-      setIsPlaying(true)
     }
-  }, [index])
+    audioPlayer.current.play()
+    audioPlayer.current.playbackRate = playbackRate
+    setIsPlaying(true)
+  }, [index, playbackRate])
 
   useEffect(() => {
     if ('mediaSession' in navigator && 'MediaMetadata' in window) {
@@ -153,9 +189,17 @@ export default function Player() {
         artist: truncateText(playlist[index].artist, 40),
         album: '',
       })
+    }
+  }, [index])
 
-      navigator.mediaSession.setPositionState(null)
-      navigator.mediaSession.setActionHandler('seekto', null)
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setPositionState({
+        duration: audioPlayer.current?.duration || 0,
+        playbackRate: playbackRate,
+        position: audioPlayer.current?.currentTime || 0,
+      })
+
       navigator.mediaSession.setActionHandler('seekforward', null)
       navigator.mediaSession.setActionHandler('seekbackward', null)
       navigator.mediaSession.setActionHandler(
@@ -172,7 +216,7 @@ export default function Player() {
         setIsPlaying(false)
       })
     }
-  }, [toggleSkipBackward, toggleSkipForward, index])
+  }, [toggleSkipBackward, toggleSkipForward, playbackRate])
 
   useEffect(() => {
     if ('mediaSession' in navigator) {
@@ -215,9 +259,19 @@ export default function Player() {
             <MdOutlineSkipNext />
           </IconButton>
 
-          <IconButton>
+          <IconButton
+            ref={settingsButtonRef}
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
             <MdOutlineSettings />
           </IconButton>
+          <PopUpMenu
+            triggerRef={settingsButtonRef}
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            items={speedItems}
+            location="l"
+          />
         </ControlsWrapper>
       </PlayerWrapper>
     </Container>
