@@ -1,12 +1,12 @@
 package com.ssafy.a304.shortgong.domain.sentence.service;
 
+import static com.ssafy.a304.shortgong.global.errorCode.SentenceErrorCode.*;
 import static com.ssafy.a304.shortgong.global.model.constant.ClovaVoice.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +15,21 @@ import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceRespo
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
+import com.ssafy.a304.shortgong.global.error.CustomException;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
+import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
+import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
+import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
 import com.ssafy.a304.shortgong.global.util.FileUtil;
+import com.ssafy.a304.shortgong.global.util.PromptUtil;
 import com.ssafy.a304.shortgong.global.util.RandomUtil;
+import com.ssafy.a304.shortgong.global.util.SentenceUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,13 +37,17 @@ public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
 	private final ClovaVoiceUtil clovaVoiceUtil;
+	private final ClaudeUtil claudeUtil;
+	private final SentenceUtil sentenceUtil;
+	private final ClovaOCRUtil clovaOCRUtil;
+	private final PromptUtil promptUtil;
 
 	/**
 	 * 문장에 해당하는 voice 생성 & 저장
 	 * @return 파일명
 	 * */
 	@Override
-	public void addSentenceVoice(Sentence sentence) {
+	public void uploadSentenceVoice(Sentence sentence) {
 
 		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(sentence.getSentenceContent(),
 			DSINU_MATT.getName());
@@ -50,10 +63,30 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
-	public Sentence selectSentenceById(Long sentenceId) {
+	public List<ClaudeResponseMessage> getSummarizedText(String text) {
+
+		String prompt = promptUtil.getSummarizedPrompt(text);
+
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
+
+		return claudeResponse.getContent();
+	}
+
+	@Override
+	public List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text) {
+
+		String prompt = promptUtil.getUrlSummarizedPrompt(text);
+
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
+
+		return claudeResponse.getContent();
+	}
+
+	@Override
+	public Sentence selectSentenceById(Long sentenceId) throws CustomException {
 
 		return sentenceRepository.findById(sentenceId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 id의 문장이 존재하지 않습니다."));
+			.orElseThrow(() -> new CustomException(SENTENCE_FIND_FAIL));
 	}
 
 	@Override
@@ -80,10 +113,16 @@ public class SentenceServiceImpl implements SentenceService {
 			.map(sentence -> SentenceResponse.builder()
 				.sentence(sentence)
 				.build())
-			.collect(Collectors.toList());
+			.toList();
 	}
 
-	/* List<Sentence>를 받아서 스트링으로 변환 */
+	@Override
+	public String getTextByImgFileNameWithOcr(String savedFilename) {
+
+		List<String> sentenceStringList = clovaOCRUtil.requestTextByImageUrlOcr(savedFilename);
+		return sentenceUtil.joinStrings(sentenceStringList);
+	}
+
 	@Override
 	public String convertSentenceListToString(List<Sentence> sentenceList) {
 
@@ -95,12 +134,11 @@ public class SentenceServiceImpl implements SentenceService {
 		return sb.toString();
 	}
 
-	/* 벌크 연산 후 문장 업데이트 */
 	@Override
 	@Transactional
-	public List<Sentence> getModifySentences(Sentence existingSentence, String claudeResponse) {
+	public SentencesCreateResponse getModifySentences(Sentence existingSentence, String claudeResponse) {
 
-		List<String> newSentences = splitToSentences(claudeResponse);
+		List<String> newSentences = sentenceUtil.splitToSentences(claudeResponse);
 		Long summaryId = existingSentence.getSummary().getId();
 		int existingOrder = existingSentence.getOrder();
 
@@ -111,22 +149,28 @@ public class SentenceServiceImpl implements SentenceService {
 
 		// 문장 업데이트
 		existingSentence.setSentenceContent(newSentences.get(0));
+		existingSentence.updateVoiceFileName(
+			createNewSentenceVoice(newSentences.get(0), existingSentence.getSummary().getFolderName()));
 		List<Sentence> newSentenceEntities = new ArrayList<>(List.of(existingSentence));
 		for (int i = 1; i < newSentences.size(); i++) {
 			Sentence newSentence = Sentence.builder()
 				.summary(existingSentence.getSummary())
 				.sentenceContent(newSentences.get(i))
 				.order(existingOrder + i)
+				.voiceFileName(
+					createNewSentenceVoice(newSentences.get(i), existingSentence.getSummary().getFolderName()))
 				.build();
+			uploadSentenceVoice(newSentence);
 			newSentenceEntities.add(newSentence);
 		}
-		return newSentenceEntities;
-		// saveSentences(newSentenceEntities);
-
-		// return SentencesCreateResponse.of(newSentenceEntities);
+		return SentencesCreateResponse.of(saveSentences(newSentenceEntities));
 	}
 
-	/* String을 받아서 문장기호를 기준으로 List<String>으로 변환 */
+	/**
+	 * String을 받아서 문장 부호 기준으로 나누어 List로 반환
+	 * @return List<String>: 문장 리스트
+	 * @author 이주형
+	 */
 	private List<String> splitToSentences(String text) {
 
 		if (text == null || text.isEmpty()) {
@@ -146,34 +190,31 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
-	public String getRecreatePrompt(String sentencesString, String sentenceContent) {
-
-		return "나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n"
-			+ sentencesString
-			+ "\n\n위 텍스트의 전체 맥락을 고려하여, 내가 다음으로 전해주는 문장을 다시 작성해서 제공해줘\n---\n"
-			+ sentenceContent
-			+ "\n---\n'전체 텍스트의 맥락을 고려했을 때, 해당 문장을 다음과 같이 수정하면 좋을 것 같습니다:' 같은 멘트나 "
-			+ "'수정 이유는 다음과 같습니다:'와 같은 멘트는 필요 없어. 2문장으로 제공해줘.";
-	}
-
-	@Override
-	public String getDetailPrompt(String sentencesString, String sentenceContent) {
-
-		return "나는 너에게 긴 텍스트 하나를 건네 줄 거야. 그 긴 텍스트는 다음과 같아. \n"
-			+ sentencesString
-			+ "\n\n위 텍스트의 전체 맥락을 고려하여, 내가 다음으로 전해주는 문장을 더 친절하고 자세하고 구체적으로 제공해줘\n---\n"
-			+ sentenceContent
-			+ "\n---\n'전체 텍스트의 맥락을 고려했을 때, 해당 문장을 다음과 같이 수정하면 좋을 것 같습니다:' 같은 멘트나 "
-			+ "'수정 이유는 다음과 같습니다:'와 같은 멘트는 필요 없어. 2문장으로 제공해줘.";
-	}
-
-	@Override
 	@Transactional
 	public void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus) {
 
 		Sentence sentence = selectSentenceById(sentenceId);
 		sentence.updateOpenStatus(openStatus);
 		sentenceRepository.save(sentence);
+	}
+
+	/**
+	 * text를 받아서 clova voice로 변환하여 voice 파일을 생성하고, 파일명을 반환
+	 * @return 파일명
+	 * @author 이주형
+	 */
+	@Transactional
+	public String createNewSentenceVoice(String content, String folderName) {
+
+		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(content, DSINU_MATT.getName());
+		return FileUtil.uploadSentenceVoiceFileByUuid(voiceData, folderName, RandomUtil.generateUUID());
+	}
+
+	@Override
+	@Transactional
+	public void deleteSentence(Long sentenceId) {
+
+		sentenceRepository.delete(selectSentenceById(sentenceId));
 	}
 
 }
