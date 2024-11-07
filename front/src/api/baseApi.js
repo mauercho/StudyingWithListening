@@ -18,7 +18,7 @@ class baseApi {
   }
 
   patch(url = '', data = {}, config = {}) {
-    return api.put(`${this.endpoint}/${url}`, data, config)
+    return api.patch(`${this.endpoint}/${url}`, data, config)
   }
 
   delete(url = '', config = {}) {
