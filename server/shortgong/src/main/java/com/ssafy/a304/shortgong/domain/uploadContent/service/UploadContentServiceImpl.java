@@ -38,7 +38,7 @@ public class UploadContentServiceImpl implements UploadContentService {
 	}
 
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public UploadContent saveUploadContent(User user, String text, String fileName) {
 
 		return uploadContentRepository.save(
@@ -55,7 +55,7 @@ public class UploadContentServiceImpl implements UploadContentService {
 	 * @author 정재영
 	 * */
 	@Override
-	@Transactional(readOnly = false)
+	@Transactional
 	public UploadContent convertFileToText(UploadContent uploadContent) {
 
 		String fileName = FileUtil.getUploadContentUrl(uploadContent.getFileName());
