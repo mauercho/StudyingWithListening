@@ -9,6 +9,7 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   gap: 34px;
+  margin-bottom: -20px;
 `
 
 const Navigation = styled.nav`
@@ -58,7 +59,9 @@ const ToggleButton = styled.button`
   padding: 0;
   margin: 0;
   cursor: pointer;
+  margin-top: ${({ isOpen }) => (isOpen ? '-20px' : '0')};
   border-radius: 0 0 16px 16px;
+  background-color: ${({ theme }) => theme.color.white};
   ${({ theme, isOpen }) =>
     !isOpen
       ? `
