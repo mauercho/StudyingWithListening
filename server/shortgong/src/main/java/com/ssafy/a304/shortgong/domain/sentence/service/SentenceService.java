@@ -59,4 +59,10 @@ public interface SentenceService {
 	List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId);
 
 	String getTextByImgFileNameWithOcr(String savedFilename);
+
+	/**
+	 * 문장 삭제
+	 * @author 이주형
+	 */
+	void deleteSentence(Long sentenceId);
 }

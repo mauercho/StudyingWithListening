@@ -14,6 +14,7 @@ import com.ssafy.a304.shortgong.domain.uploadContent.repository.UploadContentRep
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
+import com.ssafy.a304.shortgong.global.util.CrawlingServerConnectUtil;
 import com.ssafy.a304.shortgong.global.util.FileUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class UploadContentServiceImpl implements UploadContentService {
 
 	private final UploadContentRepository uploadContentRepository;
 	private final ClovaOCRUtil clovaOCRUtil;
+	private final CrawlingServerConnectUtil crawlingServerConnectUtil;
 
 	@Override
 	public UploadContent selectUploadContentById(Long uploadContentId) throws CustomException {
