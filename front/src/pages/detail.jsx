@@ -9,6 +9,7 @@ import Sentence from '../components/Sentence'
 import Modal from '../components/Modal'
 import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
+import usePlayerStore from '../stores/usePlayerStore'
 
 const Container = styled.div`
   display: flex;
@@ -48,6 +49,8 @@ export default function Detail() {
     { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
   ])
 
+  const { setSummaryTitle, setVoiceUrl } = usePlayerStore()
+
   const [sentences, setSentences] = useState([
     {
       id: 1,
@@ -67,22 +70,23 @@ export default function Detail() {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
         setSentences(data.sentenceResponseList)
+        setSummaryTitle(data.summaryTitle)
       } catch (error) {
         console.error('Error fetching user:', error)
       }
     }
 
-    const fetchIndexes = async () => {
-      try {
-        const data = await summariesApi.getSummariesIndexes(summaryId)
-        setIndexes(data.indexes)
-      } catch (error) {
-        console.error('Error fetching user:', error)
-      }
-    }
+    // const fetchIndexes = async () => {
+    //   try {
+    //     const data = await summariesApi.getSummariesIndexes(summaryId)
+    //     setIndexes(data.indexes)
+    //   } catch (error) {
+    //     console.error('Error fetching user:', error)
+    //   }
+    // }
 
     fetchSentences()
-    fetchIndexes()
+    // fetchIndexes()
   }, [summaryId])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -140,13 +144,17 @@ export default function Detail() {
     }
   }
 
-  const handleShortPress = (sentenceId, status) => {
+  const handleShortPress = (sentenceId, sentenceURL, status) => {
     if (!status) {
       setModalFlag(false)
       setSelectedSentenceId(sentenceId)
       setTimeout(() => setIsModalOpen(true), 50)
+      return
     }
-    console.log(`Sentence ${sentenceId}`)
+    if (sentenceURL) {
+      console.log(sentenceURL, '실행해줘잉')
+      setVoiceUrl(sentenceURL)
+    }
   }
 
   const handleLongPress = (sentenceId, status) => {
@@ -174,6 +182,25 @@ export default function Detail() {
     setIsModalOpen(false)
   }
 
+  const downloadAudioFile = async (url) => {
+    try {
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const blob = await response.blob()
+
+      // Blob 데이터를 Audio 태그나 로컬스토리지에 저장하기 위해 변환
+      const audioURL = URL.createObjectURL(blob) // 오디오 재생용 URL 생성
+      return audioURL
+    } catch (error) {
+      console.error('Failed to download audio:', error)
+      return null
+    }
+  }
+
   return (
     <Container>
       <HeaderWrapper>
@@ -191,7 +218,11 @@ export default function Detail() {
               text={sentence.content}
               status={sentence.openStatus}
               onShortPress={() =>
-                handleShortPress(sentence.id, sentence.openStatus)
+                handleShortPress(
+                  sentence.id,
+                  sentence.voiceUrl,
+                  sentence.openStatus
+                )
               }
               onLongPress={() =>
                 handleLongPress(sentence.id, sentence.openStatus)
