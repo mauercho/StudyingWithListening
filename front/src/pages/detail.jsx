@@ -7,8 +7,9 @@ import { scroller, Element } from 'react-scroll'
 import TableOfContents from '../components/TableOfContents'
 import Sentence from '../components/Sentence'
 import Modal from '../components/Modal'
-// import sentencesApi from '../api/sentencesApi'
+import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
+import usePlayerStore from '../stores/usePlayerStore'
 
 const Container = styled.div`
   display: flex;
@@ -48,6 +49,8 @@ export default function Detail() {
     { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
   ])
 
+  const { setSummaryTitle, setVoiceUrl } = usePlayerStore()
+
   const [sentences, setSentences] = useState([
     {
       id: 1,
@@ -67,39 +70,97 @@ export default function Detail() {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
         setSentences(data.sentenceResponseList)
+        setSummaryTitle(data.summaryTitle)
       } catch (error) {
         console.error('Error fetching user:', error)
       }
     }
 
-    const fetchIndexes = async () => {
-      try {
-        const data = await summariesApi.getSummariesIndexes(summaryId)
-        setIndexes(data)
-      } catch (error) {
-        console.error('Error fetching user:', error)
-      }
-    }
+    // const fetchIndexes = async () => {
+    //   try {
+    //     const data = await summariesApi.getSummariesIndexes(summaryId)
+    //     setIndexes(data.indexes)
+    //   } catch (error) {
+    //     console.error('Error fetching user:', error)
+    //   }
+    // }
 
     fetchSentences()
-    fetchIndexes()
+    // fetchIndexes()
   }, [summaryId])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
-  const [isTableOpen, setIsTableOpen] = useState(false) // 목차 열림 상태 추가
+  const [isTableOpen, setIsTableOpen] = useState(false)
+  const [selectedSentenceId, setSelectedSentenceId] = useState(null)
 
-  const handleShortPress = (sentenceId, status) => {
-    if (status === 'hidden') {
-      setModalFlag(false)
-      setTimeout(() => setIsModalOpen(true), 50)
+  const handleDelete = async (sentenceId) => {
+    try {
+      await sentencesApi.deleteSentence(sentenceId)
+      setSentences(sentences.filter((sentence) => sentence.id !== sentenceId))
+    } catch (error) {
+      console.error('Error deleting sentence:', error)
     }
-    console.log(`Sentence ${sentenceId}`)
+  }
+
+  const handleFolding = async (sentenceId) => {
+    try {
+      const currentSentence = sentences.find(
+        (sentence) => sentence.id === sentenceId
+      )
+      await sentencesApi.postSentenceFolding(
+        sentenceId,
+        currentSentence.openStatus
+      )
+      console.log('success')
+      setSentences(
+        sentences.map((sentence) =>
+          sentence.id === sentenceId
+            ? {
+                ...sentence,
+                openStatus: !sentence.openStatus,
+              }
+            : sentence
+        )
+      )
+    } catch (error) {
+      console.error('Error folding sentence:', error)
+    }
+  }
+
+  const handleNewSummary = async (sentenceId) => {
+    try {
+      await sentencesApi.patchSentenceNew(sentenceId)
+    } catch (error) {
+      console.error('Error requesting new summary:', error)
+    }
+  }
+
+  const handleDetailSummary = async (sentenceId) => {
+    try {
+      await sentencesApi.patchSentenceDetail(sentenceId)
+    } catch (error) {
+      console.error('Error requesting detailed summary:', error)
+    }
+  }
+
+  const handleShortPress = (sentenceId, sentenceURL, status) => {
+    if (!status) {
+      setModalFlag(false)
+      setSelectedSentenceId(sentenceId)
+      setTimeout(() => setIsModalOpen(true), 50)
+      return
+    }
+    if (sentenceURL) {
+      console.log(sentenceURL, '실행해줘잉')
+      setVoiceUrl(sentenceURL)
+    }
   }
 
   const handleLongPress = (sentenceId, status) => {
-    setModalFlag(status === 'hidden' ? false : true)
+    setModalFlag(!status ? false : true)
     setIsModalOpen(true)
+    setSelectedSentenceId(sentenceId)
     console.log(`Sentence ${sentenceId}`)
   }
 
@@ -121,6 +182,25 @@ export default function Detail() {
     setIsModalOpen(false)
   }
 
+  const downloadAudioFile = async (url) => {
+    try {
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const blob = await response.blob()
+
+      // Blob 데이터를 Audio 태그나 로컬스토리지에 저장하기 위해 변환
+      const audioURL = URL.createObjectURL(blob) // 오디오 재생용 URL 생성
+      return audioURL
+    } catch (error) {
+      console.error('Failed to download audio:', error)
+      return null
+    }
+  }
+
   return (
     <Container>
       <HeaderWrapper>
@@ -138,7 +218,11 @@ export default function Detail() {
               text={sentence.content}
               status={sentence.openStatus}
               onShortPress={() =>
-                handleShortPress(sentence.id, sentence.openStatus)
+                handleShortPress(
+                  sentence.id,
+                  sentence.voiceUrl,
+                  sentence.openStatus
+                )
               }
               onLongPress={() =>
                 handleLongPress(sentence.id, sentence.openStatus)
@@ -147,7 +231,15 @@ export default function Detail() {
           </Element>
         ))}
       </ContentArea>
-      <Modal isOpen={isModalOpen} onClose={closeModal} flag={modalFlag} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        flag={modalFlag}
+        onDelete={() => handleDelete(selectedSentenceId)}
+        onFolding={() => handleFolding(selectedSentenceId)}
+        onNewSummary={() => handleNewSummary(selectedSentenceId)}
+        onDetailSummary={() => handleDetailSummary(selectedSentenceId)}
+      />
     </Container>
   )
 }
