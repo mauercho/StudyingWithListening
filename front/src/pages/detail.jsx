@@ -9,6 +9,7 @@ import Sentence from '../components/Sentence'
 import Modal from '../components/Modal'
 import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
+import Loading from '../components/Loading'
 
 const Container = styled.div`
   display: flex;
@@ -89,6 +90,7 @@ export default function Detail() {
   const [modalFlag, setModalFlag] = useState(false)
   const [isTableOpen, setIsTableOpen] = useState(false)
   const [selectedSentenceId, setSelectedSentenceId] = useState(null)
+  const [loadingSentenceId, setLoadingSentenceId] = useState(null)
 
   const handleDelete = async (sentenceId) => {
     try {
@@ -126,17 +128,27 @@ export default function Detail() {
 
   const handleNewSummary = async (sentenceId) => {
     try {
+      setLoadingSentenceId(sentenceId)
       await sentencesApi.patchSentenceNew(sentenceId)
+      const data = await summariesApi.getSummariesDetail(summaryId)
+      setSentences(data.sentenceResponseList)
     } catch (error) {
       console.error('Error requesting new summary:', error)
+    } finally {
+      setLoadingSentenceId(null)
     }
   }
 
   const handleDetailSummary = async (sentenceId) => {
     try {
+      setLoadingSentenceId(sentenceId)
       await sentencesApi.patchSentenceDetail(sentenceId)
+      const data = await summariesApi.getSummariesDetail(summaryId)
+      setSentences(data.sentenceResponseList)
     } catch (error) {
       console.error('Error requesting detailed summary:', error)
+    } finally {
+      setLoadingSentenceId(null)
     }
   }
 
@@ -197,6 +209,7 @@ export default function Detail() {
                 handleLongPress(sentence.id, sentence.openStatus)
               }
             />
+            {loadingSentenceId === sentence.id && <Loading />}
           </Element>
         ))}
       </ContentArea>
