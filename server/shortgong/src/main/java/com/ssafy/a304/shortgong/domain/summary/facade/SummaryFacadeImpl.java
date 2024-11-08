@@ -108,6 +108,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 	}
 
 	@Override
+	@Transactional
 	public long uploadTextFileByUrl(String url) {
 
 		// 로그인 유저 가져오기
