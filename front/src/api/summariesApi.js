@@ -10,19 +10,20 @@ class summariesApi extends baseApi {
   }
 
   getSummariesDetail(summaryId) {
-    return this.get(`${summaryId}`)
+    return this.get(`/${summaryId}`)
   }
 
   getSummariesIndexes(summaryId) {
-    return this.get(`${summaryId}/indexes`)
+    return this.get(`/${summaryId}/indexes`)
   }
 
-  postSummaries(summariesData) {
-    return this.post('', summariesData)
+  postSummaries(data, timeout = 60000) {
+    // timeout 60000ms
+    return this.post('', data, { timeout })
   }
 
   patchSummaries(summaryId, summariesData) {
-    return this.patch(`${summaryId}`, summariesData)
+    return this.patch(`/${summaryId}`, summariesData)
   }
 }
 

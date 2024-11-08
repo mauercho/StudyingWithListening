@@ -102,8 +102,36 @@ const Button = styled.button`
   `}
 `
 
-const Modal = ({ isOpen, onClose, flag = true }) => {
+const Modal = ({
+  isOpen,
+  onClose,
+  flag = true,
+  onDelete,
+  onFolding,
+  onNewSummary,
+  onDetailSummary,
+}) => {
   if (!isOpen) return null
+
+  const handleDelete = () => {
+    onDelete()
+    onClose()
+  }
+
+  const handleFolding = () => {
+    onFolding()
+    onClose()
+  }
+
+  const handleNewSummary = () => {
+    onNewSummary()
+    onClose()
+  }
+
+  const handleDetailSummary = () => {
+    onDetailSummary()
+    onClose()
+  }
 
   return (
     <ModalBackground onClick={onClose}>
@@ -116,17 +144,19 @@ const Modal = ({ isOpen, onClose, flag = true }) => {
         </ModalHeader>
         {flag && (
           <Content>
-            <Paragraph onClick={onClose}>
+            <Paragraph onClick={handleNewSummary}>
               내용이 이상해. 다시 요약해 줘.
             </Paragraph>
-            <Paragraph onClick={onClose}>더 자세하게 설명해 줘.</Paragraph>
+            <Paragraph onClick={handleDetailSummary}>
+              더 자세하게 설명해 줘.
+            </Paragraph>
           </Content>
         )}
         <ButtonContainer>
-          <Button primary onClick={onClose}>
+          <Button primary onClick={handleFolding}>
             {flag ? '숨기기' : '숨김 해제'}
           </Button>
-          <Button onClick={onClose}>내용 삭제</Button>
+          <Button onClick={handleDelete}>내용 삭제</Button>
         </ButtonContainer>
       </ModalContainer>
     </ModalBackground>

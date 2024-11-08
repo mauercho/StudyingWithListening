@@ -21,7 +21,7 @@ const Text = styled.p`
   font-size: 16px;
   font-weight: ${({ theme }) => theme.font.weight.light};
   ${({ status }) =>
-    status === 'hidden' &&
+    !status &&
     `
       opacity: 0.3;
       text-decoration: line-through;
