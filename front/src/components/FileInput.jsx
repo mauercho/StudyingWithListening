@@ -65,7 +65,7 @@ export default function FileInput() {
   const handleInput = (inputType) => {
     setType(inputType)
     setData('')
-    setName(inputType === 'URL' ? '' : '') // URL 타입의 경우 입력 초기화
+    setName(inputType === 'URL' ? '' : '')
 
     if (inputType === 'PDF' || inputType === 'IMAGE') {
       inputRef.current.accept =
@@ -85,11 +85,12 @@ export default function FileInput() {
   const handleUpload = async () => {
     const formData = new FormData()
 
-    formData.append('type', type)
     if (type === 'URL') {
+      formData.append('type', 'url')
       formData.append('url', data)
     } else {
-      formData.append('uploadContent', data)
+      formData.append('type', 'image')
+      formData.append('contentFile', data)
     }
 
     try {
