@@ -3,28 +3,38 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 import styled from '@emotion/styled'
 
+import Player from '../components/Player'
+
 const Container = styled.div`
   margin: auto;
-  padding: 0px 10px;
   max-width: 768px;
+  width: 100%;
   min-width: 320px;
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: ${({ theme }) => theme.color.white};
+`
 
-  @media (min-width: 320px) and (max-width: 480px) {
-    max-width: 100%;
-  }
+const Main = styled.main`
+  padding: 0px 10px;
+  flex: 1;
+  display: flex;
+`
 
-  @media (min-width: 481px) and (max-width: 768px) {
-    /* 스타일 설정 */
-  }
+const PlayerContainer = styled.div`
+  width: 100%;
 `
 
 export default function Layout() {
   return (
-    <div>
-      <Container>
+    <Container>
+      <Main>
         <Outlet />
-      </Container>
-    </div>
+      </Main>
+      <PlayerContainer>
+        <Player />
+      </PlayerContainer>
+    </Container>
   )
 }

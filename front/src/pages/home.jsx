@@ -1,12 +1,9 @@
 import React from 'react'
-
 import styled from '@emotion/styled'
 
 import HomeMenu from '../components/HomeMenu'
-
 import Logo from '../assets/images/logo.svg'
-import { FaBookMedical } from 'react-icons/fa6'
-import { FaEarListen } from "react-icons/fa6";
+import { FaBookMedical, FaEarListen } from 'react-icons/fa6'
 
 const Container = styled.div`
   padding-top: 30px;
@@ -14,6 +11,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 30px;
+  flex: 1;
 `
 
 const Text = styled.p`
@@ -23,14 +21,14 @@ const Text = styled.p`
 
 const Menus = styled.ul`
   width: 100%;
-  min-height: 430px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 10px;
+  flex: 1;
 `
 
-export default function home() {
+export default function Home() {
   return (
     <Container>
       <img src={Logo} alt="logo.svg" width={133} height={72} />
@@ -40,13 +38,13 @@ export default function home() {
           icon={<FaBookMedical size={24} />}
           title="자료 업로드"
           subTitle="학습할 자료를 업로드"
-          url='upload'
+          url="upload"
         />
         <HomeMenu
           icon={<FaEarListen size={24} />}
           title="학습 목록"
           subTitle="학습 목록 보기"
-          url='list'
+          url="list"
         />
       </Menus>
     </Container>
