@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ssafy.a304.shortgong.domain.index.model.dto.request.IndexCreateRequest;
+import com.ssafy.a304.shortgong.domain.index.service.IndexService;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
@@ -46,6 +48,8 @@ public class SummaryFacadeImpl implements SummaryFacade {
 
 	private final SentenceService sentenceService;
 
+	private final IndexService indexService;
+
 	private final SentenceUtil sentenceUtil;
 
 	private final CrawlingServerConnectUtil crawlingServerConnectUtil;
@@ -74,8 +78,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 
 		// TODO : 요약집 제목 수정 (자동 기입) 하기
 		// summaryService.updateTitle(summary);
-
-		// TODO : 목차 생성
+		summary.updateTitle(contentFile.getOriginalFilename());
 
 		// text 를 요약해서 summarizedText 만들고 문장으로 split
 		AtomicInteger orderCounter = new AtomicInteger(1);
@@ -99,7 +102,28 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		log.debug("문장 리스트: {}", sentenceList);
 
 		//  문장들 db에 저장
-		sentenceService.saveSentences(sentenceList);
+		List<Sentence> savedSentences = sentenceService.saveSentences(sentenceList);
+
+		// TODO : 목차 분류해서 저장
+		for (Sentence sentence : savedSentences) {
+			String sentenceContent = sentence.getSentenceContent();
+			// sentenceContent의 시작이, 대제목은 !@####@!로, 소제목은 !@#####@!으로 시작. 저장할 땐 시작부분 제외.
+			if (sentenceContent.startsWith("!@####@!")) {
+				indexService.createIndex(summary, sentence, IndexCreateRequest.builder()
+					.titleLevel(true)
+					.indexTitle(sentenceContent.substring(8))
+					.build());
+				sentence.setSentenceContent(sentenceContent.substring(8));
+				sentenceService.saveSentence(sentence);
+			} else if (sentenceContent.startsWith("!@#####@!")) {
+				indexService.createIndex(summary, sentence, IndexCreateRequest.builder()
+					.titleLevel(true)
+					.indexTitle(sentenceContent.substring(9))
+					.build());
+				sentence.setSentenceContent(sentenceContent.substring(9));
+				sentenceService.saveSentence(sentence);
+			}
+		}
 
 		// 문장들을 TTS 요청하여 S3에 업로드하기
 		sentenceList.forEach(sentenceService::uploadSentenceVoice);

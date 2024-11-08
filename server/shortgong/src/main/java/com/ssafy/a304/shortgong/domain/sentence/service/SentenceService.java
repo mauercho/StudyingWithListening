@@ -32,6 +32,8 @@ public interface SentenceService {
 	 * */
 	List<Sentence> selectAllSentenceBySummaryId(Long summaryId);
 
+	Sentence saveSentence(Sentence sentence);
+
 	/**
 	 * 문장 객체 리스트 저장
 	 * @return List<Sentence> (저장된 문장 객체 리스트)
