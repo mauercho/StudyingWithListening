@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceModifyRequest;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceUpdateOpenStatusRequest;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
@@ -73,10 +72,16 @@ public class SentenceFacadeImpl implements SentenceFacade {
 
 	@Override
 	@Transactional
-	public void updateSentenceOpenStatus(Long sentenceId,
-		SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest) {
+	public void changeSentenceStatusToOpen(Long sentenceId) {
 
-		sentenceService.updateSentenceOpenStatus(sentenceId, sentenceUpdateOpenStatusRequest.getOpenStatus());
+		sentenceService.updateSentenceOpenStatus(sentenceId, true);
+	}
+
+	@Override
+	@Transactional
+	public void changeSentenceStatusToClose(Long sentenceId) {
+
+		sentenceService.updateSentenceOpenStatus(sentenceId, false);
 	}
 
 	@Override

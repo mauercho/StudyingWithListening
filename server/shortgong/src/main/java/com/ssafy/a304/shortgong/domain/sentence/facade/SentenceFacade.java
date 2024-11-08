@@ -1,7 +1,6 @@
 package com.ssafy.a304.shortgong.domain.sentence.facade;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceModifyRequest;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceUpdateOpenStatusRequest;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 
 public interface SentenceFacade {
@@ -17,7 +16,13 @@ public interface SentenceFacade {
 	 * 문장의 접힙/펼침 상태를 변경하는 메서드
 	 * @author 이주형
 	 */
-	void updateSentenceOpenStatus(Long sentenceId, SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest);
+	void changeSentenceStatusToOpen(Long sentenceId);
+
+	/**
+	 * 문장의 접힙/펼침 상태를 변경하는 메서드
+	 * @author 이주형
+	 */
+	void changeSentenceStatusToClose(Long sentenceId);
 
 	/**
 	 * 문장 삭제
