@@ -97,6 +97,13 @@ public class SentenceServiceImpl implements SentenceService {
 
 	@Override
 	@Transactional
+	public Sentence saveSentence(Sentence sentence) {
+
+		return sentenceRepository.save(sentence);
+	}
+
+	@Override
+	@Transactional
 	public List<Sentence> saveSentences(List<Sentence> sentences) {
 
 		return sentenceRepository.saveAll(sentences);

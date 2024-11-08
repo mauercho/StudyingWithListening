@@ -138,7 +138,7 @@ public class FileUtil {
 	}
 
 	public static String getExtensionStringFromPreSignedUrl(String s3Url) throws CustomException {
-		
+
 		FileValidator.checkFileNonEmpty(s3Url);
 		int dotIndex = s3Url.lastIndexOf(".");
 		int questionMarkIndex = s3Url.indexOf("?", dotIndex);
@@ -245,8 +245,13 @@ public class FileUtil {
 
 		try {
 			if (convertFile.exists()) {
-				log.debug("파일이 이미 존재합니다: {}", convertFile.getName());
-			} else if (!convertFile.createNewFile()) {
+				// log.debug("파일이 이미 존재합니다: {}", convertFile.getName());
+				if (!convertFile.delete()) {
+					throw new CustomException(FILE_CREATE_FAILED);
+				}
+				log.debug("삭제 완료");
+			}
+			if (!convertFile.createNewFile()) {
 				throw new CustomException(FILE_CREATE_FAILED);
 			}
 		} catch (IOException e) {
