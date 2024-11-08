@@ -49,6 +49,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 	private final SentenceUtil sentenceUtil;
 
 	private final CrawlingServerConnectUtil crawlingServerConnectUtil;
+	private final AtomicInteger orderCounter = new AtomicInteger(1);
 
 	@Override
 	@Transactional
@@ -78,7 +79,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		// TODO : 목차 생성
 
 		// text 를 요약해서 summarizedText 만들고 문장으로 split
-		AtomicInteger orderCounter = new AtomicInteger(1);
+		orderCounter.set(1);
 
 		List<ClaudeResponseMessage> claudeResponseMessageList = sentenceService.getSummarizedText(text);
 		List<Sentence> sentenceList = claudeResponseMessageList.stream()
@@ -152,8 +153,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		// TODO : 목차 생성
 
 		// text 를 요약해서 summarizedText 만들고 문장으로 split
-		AtomicInteger orderCounter = new AtomicInteger(1);
-
+		orderCounter.set(1);
 		List<ClaudeResponseMessage> claudeResponseMessageList = sentenceService.getSummarizedTextFromUrl(text);
 		List<Sentence> sentenceList = claudeResponseMessageList.stream()
 			.flatMap(claudeResponseMessage -> {
