@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.a304.shortgong.domain.sentence.facade.SentenceFacade;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceModifyRequest;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceUpdateOpenStatusRequest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,22 +23,38 @@ public class SentenceController {
 	private final SentenceFacade sentenceFacade;
 
 	@PatchMapping("/{sentence-id}")
-	private ResponseEntity<?> modifySentence(@PathVariable("sentence-id") Long sentenceId,
+	public ResponseEntity<?> modifySentence(@PathVariable("sentence-id") Long sentenceId,
 		@Valid @RequestBody SentenceModifyRequest sentenceModifyRequest) {
 
 		return ResponseEntity.ok(sentenceFacade.modifySentence(sentenceId, sentenceModifyRequest));
 	}
 
-	@PostMapping("/{sentence-id}")
-	private ResponseEntity<?> updateSentenceOpenStatus(@PathVariable("sentence-id") Long sentenceId,
-		@Valid @RequestBody SentenceUpdateOpenStatusRequest sentenceUpdateOpenStatusRequest) {
+	/**
+	 * 문장 펼치기
+	 * @param sentenceId (문장 id)
+	 * @return None
+	 */
+	@PostMapping("/{sentence-id}/open-status")
+	public ResponseEntity<?> updateSentenceOpenStatusToOpen(@PathVariable("sentence-id") Long sentenceId) {
 
-		sentenceFacade.updateSentenceOpenStatus(sentenceId, sentenceUpdateOpenStatusRequest);
+		sentenceFacade.changeSentenceStatusToOpen(sentenceId);
+		return ResponseEntity.ok().build();
+	}
+
+	/**
+	 * 문장 접기
+	 * @param sentenceId (문장 id)
+	 * @return None
+	 */
+	@DeleteMapping("/{sentence-id}/open-status")
+	public ResponseEntity<?> updateSentenceOpenStatusToClose(@PathVariable("sentence-id") Long sentenceId) {
+
+		sentenceFacade.changeSentenceStatusToClose(sentenceId);
 		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping("/{sentence-id}")
-	private ResponseEntity<?> deleteSentence(@PathVariable("sentence-id") Long sentenceId) {
+	public ResponseEntity<?> deleteSentence(@PathVariable("sentence-id") Long sentenceId) {
 
 		sentenceFacade.deleteSentence(sentenceId);
 		return ResponseEntity.ok().build();
