@@ -3,6 +3,7 @@ import React from 'react'
 import styled from '@emotion/styled'
 
 import useLongPress from '../hooks/useLongPress'
+import usePlayerStore from '../stores/usePlayerStore'
 
 const Container = styled.li`
   width: 100%;
@@ -39,8 +40,21 @@ const Text = styled.p`
     `}
 `
 
-export default function Sentence({ text, status, onShortPress, onLongPress }) {
-  const { ...longPressHandler } = useLongPress(onLongPress, onShortPress)
+export default function Sentence({
+  text,
+  status,
+  index,
+  onShortPress,
+  onLongPress,
+}) {
+  const { setCurrentIndex } = usePlayerStore()
+
+  const handleShortPress = () => {
+    onShortPress() // 순서 변경: onShortPress를 먼저 호출
+    setCurrentIndex(index)
+  }
+
+  const { ...longPressHandler } = useLongPress(onLongPress, handleShortPress)
 
   return (
     <Container {...longPressHandler}>

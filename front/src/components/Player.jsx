@@ -65,10 +65,23 @@ const Title = styled.div`
 
 export default function Player() {
   const audioRef = useRef(null)
-  const { summaryTitle, voiceUrl } = usePlayerStore()
+  const {
+    summaryTitle,
+    voiceUrls,
+    currentIndex,
+    currentVoiceUrl,
+    setCurrentIndex,
+  } = usePlayerStore()
   const [isPlaying, setIsPlaying] = useState(false)
 
   const handlePlayPause = () => {
+    if (!currentVoiceUrl && voiceUrls.length > 0) {
+      // 재생 중인 음성이 없고 음성 URL이 있으면 첫 번째 음성부터 재생
+      setCurrentIndex(0)
+      setIsPlaying(true)
+      return
+    }
+
     if (audioRef.current.paused) {
       audioRef.current.play()
       setIsPlaying(true)
@@ -79,23 +92,33 @@ export default function Player() {
   }
 
   const handleSkipForward = () => {
-    // 이후 구현될 기능에 맞춰 인덱스 변경 로직 추가 가능
-    console.log('Skip forward')
+    if (currentIndex < voiceUrls.length - 1) {
+      setCurrentIndex(currentIndex + 1)
+    }
   }
 
   const handleSkipBackward = () => {
-    // 이전 구현될 기능에 맞춰 인덱스 변경 로직 추가 가능
-    console.log('Skip backward')
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1)
+    }
   }
-
   useEffect(() => {
-    if (audioRef.current && voiceUrl) {
-      audioRef.current.src = voiceUrl
+    if (audioRef.current) {
+      audioRef.current.onended = () => {
+        if (currentIndex < voiceUrls.length - 1) {
+          setCurrentIndex(currentIndex + 1)
+        }
+      }
+    }
+  }, [currentIndex, voiceUrls.length, setCurrentIndex])
+  useEffect(() => {
+    if (audioRef.current && currentVoiceUrl) {
+      audioRef.current.src = currentVoiceUrl
       audioRef.current.load()
-      audioRef.current.play()
+      audioRef.current.play() // 항상 재생
       setIsPlaying(true)
     }
-  }, [voiceUrl])
+  }, [currentVoiceUrl])
 
   return (
     <Container>

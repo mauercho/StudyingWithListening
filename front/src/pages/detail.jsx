@@ -45,12 +45,14 @@ const ContentArea = styled.ul`
 
 export default function Detail() {
   const { summaryId } = useParams()
-  const [indexes, setIndexes] = useState([
+  const [indexes] = useState([
+    // setIndexes 제거
     { indexId: 1, indexTitle: '컴퓨터와 이진수', sentenceId: 1 },
     { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
   ])
 
-  const { setSummaryTitle, setVoiceUrl } = usePlayerStore()
+  const { setSummaryTitle, setVoiceUrls, setCurrentIndex, voiceUrls } =
+    usePlayerStore()
 
   const [sentences, setSentences] = useState([
     {
@@ -67,28 +69,51 @@ export default function Detail() {
   ])
 
   useEffect(() => {
-    const fetchSentences = async () => {
+    const fetchSummaryDetail = async () => {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
         setSentences(data.sentenceResponseList)
-        setSummaryTitle(data.summaryTitle)
+
+        // 새로운 디테일 페이지일 때만 초기화
+        if (voiceUrls.length === 0 || data.summaryId !== summaryId) {
+          setSummaryTitle(data.summaryTitle)
+          const urls = data.sentenceResponseList.map(
+            (sentence) => sentence.voiceUrl
+          )
+          setVoiceUrls(urls)
+          // setCurrentIndex(0) // 이 부분을 제거하거나 조건부로 실행
+        }
       } catch (error) {
-        console.error('Error fetching user:', error)
+        console.error('Error:', error)
       }
     }
 
-    // const fetchIndexes = async () => {
-    //   try {
-    //     const data = await summariesApi.getSummariesIndexes(summaryId)
-    //     setIndexes(data.indexes)
-    //   } catch (error) {
-    //     console.error('Error fetching user:', error)
-    //   }
-    // }
+    fetchSummaryDetail()
+  }, [summaryId, setSummaryTitle, setVoiceUrls, voiceUrls])
 
-    fetchSentences()
-    // fetchIndexes()
-  }, [summaryId])
+  // useEffect(() => {
+  //   const fetchSentences = async () => {
+  //     try {
+  //       const data = await summariesApi.getSummariesDetail(summaryId)
+  //       setSentences(data.sentenceResponseList)
+  //       setSummaryTitle(data.summaryTitle)
+  //     } catch (error) {
+  //       console.error('Error fetching user:', error)
+  //     }
+  //   }
+
+  // const fetchIndexes = async () => {
+  //   try {
+  //     const data = await summariesApi.getSummariesIndexes(summaryId)
+  //     setIndexes(data.indexes)
+  //   } catch (error) {
+  //     console.error('Error fetching user:', error)
+  //   }
+  // }
+
+  // fetchSentences()
+  // fetchIndexes()
+  // }, [summaryId])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
@@ -164,8 +189,8 @@ export default function Detail() {
       return
     }
     if (sentenceURL) {
-      console.log(sentenceURL, '실행해줘잉')
-      setVoiceUrl(sentenceURL)
+      // 여기서 setCurrentIndex를 사용하고 있습니다
+      setCurrentIndex(sentenceId - 1)
     }
   }
 
@@ -194,24 +219,24 @@ export default function Detail() {
     setIsModalOpen(false)
   }
 
-  const downloadAudioFile = async (url) => {
-    try {
-      const response = await fetch(url)
+  // const downloadAudioFile = async (url) => {
+  //   try {
+  //     const response = await fetch(url)
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`)
+  //     }
 
-      const blob = await response.blob()
+  //     const blob = await response.blob()
 
-      // Blob 데이터를 Audio 태그나 로컬스토리지에 저장하기 위해 변환
-      const audioURL = URL.createObjectURL(blob) // 오디오 재생용 URL 생성
-      return audioURL
-    } catch (error) {
-      console.error('Failed to download audio:', error)
-      return null
-    }
-  }
+  //     // Blob 데이터를 Audio 태그나 로컬스토리지에 저장하기 위해 변환
+  //     const audioURL = URL.createObjectURL(blob) // 오디오 재생용 URL 생성
+  //     return audioURL
+  //   } catch (error) {
+  //     console.error('Failed to download audio:', error)
+  //     return null
+  //   }
+  // }
 
   return (
     <Container>
@@ -224,25 +249,31 @@ export default function Detail() {
         />
       </HeaderWrapper>
       <ContentArea id="content-area">
-        {sentences.map((sentence) => (
-          <Element name={`sentence-${sentence.id}`} key={sentence.id}>
-            <Sentence
-              text={sentence.content}
-              status={sentence.openStatus}
-              onShortPress={() =>
-                handleShortPress(
-                  sentence.id,
-                  sentence.voiceUrl,
-                  sentence.openStatus
-                )
-              }
-              onLongPress={() =>
-                handleLongPress(sentence.id, sentence.openStatus)
-              }
-            />
-            {loadingSentenceId === sentence.id && <Loading />}
-          </Element>
-        ))}
+        {sentences.map(
+          (
+            sentence,
+            index // index 파라미터 추가
+          ) => (
+            <Element name={`sentence-${sentence.id}`} key={sentence.id}>
+              <Sentence
+                text={sentence.content}
+                status={sentence.openStatus}
+                index={index}
+                onShortPress={() =>
+                  handleShortPress(
+                    sentence.id,
+                    sentence.voiceUrl,
+                    sentence.openStatus
+                  )
+                }
+                onLongPress={() =>
+                  handleLongPress(sentence.id, sentence.openStatus)
+                }
+              />
+              {loadingSentenceId === sentence.id && <Loading />}
+            </Element>
+          )
+        )}
       </ContentArea>
       <Modal
         isOpen={isModalOpen}
