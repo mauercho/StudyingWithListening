@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import styled from '@emotion/styled'
 
 const Container = styled.ul`
@@ -45,7 +45,7 @@ export default function PopUpMenu({
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const menuRef = useRef(null)
 
-  const updatePosition = () => {
+  const updatePosition = useCallback(() => {
     if (triggerRef.current && menuRef.current) {
       const rect = triggerRef.current.getBoundingClientRect()
       const top = rect.top + window.scrollY - menuRef.current.offsetHeight
@@ -56,7 +56,7 @@ export default function PopUpMenu({
 
       setPosition({ top, left })
     }
-  }
+  }, [triggerRef, location])
 
   useEffect(() => {
     if (isOpen) {
@@ -64,7 +64,7 @@ export default function PopUpMenu({
       window.addEventListener('resize', updatePosition) // 창 크기 변경 시 위치 업데이트
       return () => window.removeEventListener('resize', updatePosition)
     }
-  }, [isOpen, triggerRef, location])
+  }, [isOpen, updatePosition])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
