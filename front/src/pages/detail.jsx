@@ -222,9 +222,9 @@ export default function Detail() {
   const [summaryMode, setSummaryMode] = useState('normal')
 
   const modeMenuItems = [
-    { title: '일반', mode: 'normal' },
     { title: '상세', mode: 'detail' },
     { title: '키워드', mode: 'keyword' },
+    { title: '일반', mode: 'normal' },
   ]
 
   const handleSummaryMode = (mode) => {
