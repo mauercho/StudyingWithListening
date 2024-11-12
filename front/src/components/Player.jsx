@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect } from 'react'
+
 import styled from '@emotion/styled'
 import {
   MdOutlinePause,
@@ -6,6 +7,7 @@ import {
   MdOutlineSkipNext,
   MdOutlineSkipPrevious,
 } from 'react-icons/md'
+
 import usePlayerStore from '../stores/usePlayerStore'
 
 const Container = styled.div`
@@ -71,8 +73,10 @@ export default function Player() {
     currentIndex,
     currentVoiceUrl,
     setCurrentIndex,
+    isPlaying,
+    setIsPlaying,
   } = usePlayerStore()
-  const [isPlaying, setIsPlaying] = useState(false)
+  // const [isPlaying, setIsPlaying] = useState(false)
 
   const handlePlayPause = () => {
     if (!currentVoiceUrl && voiceUrls.length > 0) {
@@ -118,7 +122,14 @@ export default function Player() {
       audioRef.current.play() // 항상 재생
       setIsPlaying(true)
     }
-  }, [currentVoiceUrl])
+  }, [currentVoiceUrl, setIsPlaying])
+  useEffect(() => {
+    if (audioRef.current) {
+      if (!isPlaying) {
+        audioRef.current.pause()
+      }
+    }
+  }, [isPlaying])
 
   return (
     <Container>
