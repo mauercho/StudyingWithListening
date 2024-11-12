@@ -16,8 +16,8 @@ const Menu = styled.button`
   border-bottom: 0;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
-  ${({ theme, isThisMode }) =>
-    isThisMode &&
+  ${({ theme, isActive }) =>
+    isActive &&
     `
       background: ${theme.color.primary_dark};
       color: ${theme.color.primary_light};
@@ -27,33 +27,19 @@ const Menu = styled.button`
 export default function BookmarkMenu({
   summaryMode = 'normal',
   onButtonClick,
-  menuItems = [
-    {
-      title: '일반',
-      mode: 'normal',
-    },
-  ],
+  menuItems,
 }) {
   return (
     <Container>
-      <Menu
-        onClick={() => onButtonClick('keyword')}
-        isThisMode={summaryMode === 'keyword'}
-      >
-        키워드
-      </Menu>
-      <Menu
-        onClick={() => onButtonClick('detail')}
-        isThisMode={summaryMode === 'detail'}
-      >
-        상세
-      </Menu>
-      <Menu
-        onClick={() => onButtonClick('normal')}
-        isThisMode={summaryMode === 'normal'}
-      >
-        일반
-      </Menu>
+      {menuItems.map(({ title, mode }) => (
+        <Menu
+          key={mode}
+          isActive={summaryMode === mode}
+          onClick={() => onButtonClick(mode)}
+        >
+          {title}
+        </Menu>
+      ))}
     </Container>
   )
 }
