@@ -14,12 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionAnswerResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
-import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponseMessage;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
@@ -51,7 +50,7 @@ public class SentenceServiceImpl implements SentenceService {
 	@Override
 	public void uploadSentenceVoice(Sentence sentence) {
 
-		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(sentence.getSentenceContent(),
+		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(sentence.getSentenceContentNormal(),
 			DSINU_MATT.getName());
 
 		// TODO : 이미 파일이 존재하면 삭제하기
@@ -64,8 +63,12 @@ public class SentenceServiceImpl implements SentenceService {
 		sentence.updateVoiceFileName(fileName);
 	}
 
+	/**
+	 * @param text : 요약할 내용
+	 * @return List<ClaudeResponseMessage> : Claude 가 반환한 body 값
+	 */
 	@Override
-	public List<ClaudeResponseMessage> getSummarizedText(String text) {
+	public List<ClaudeResponseMessage> getSummarizedTextByAI(String text) {
 
 		String prompt = promptUtil.getSummarizedPrompt(text);
 
@@ -74,6 +77,10 @@ public class SentenceServiceImpl implements SentenceService {
 		return claudeResponse.getContent();
 	}
 
+	/**
+	 * URL로부터 텍스트를 요약
+	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
+	 */
 	@Override
 	public List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text) {
 
@@ -84,6 +91,11 @@ public class SentenceServiceImpl implements SentenceService {
 		return claudeResponse.getContent();
 	}
 
+	/**
+	 * 문장 객체 반환
+	 * @return Sentence (문장 객체)
+	 * @author 이주형
+	 * */
 	@Override
 	public Sentence selectSentenceById(Long sentenceId) throws CustomException {
 
@@ -91,6 +103,11 @@ public class SentenceServiceImpl implements SentenceService {
 			.orElseThrow(() -> new CustomException(SENTENCE_FIND_FAIL));
 	}
 
+	/**
+	 * 문장 객체 리스트 반환
+	 * @return List<Sentence> (문장 객체 리스트)
+	 * @author 이주형
+	 * */
 	@Override
 	public List<Sentence> selectAllSentenceBySummaryId(Long summaryId) {
 
@@ -137,43 +154,43 @@ public class SentenceServiceImpl implements SentenceService {
 
 		StringBuilder sb = new StringBuilder();
 		for (Sentence sentence : sentenceList) {
-			sb.append(sentence.getSentenceContent());
+			sb.append(sentence.getSentenceContentNormal());
 			sb.append(" ");
 		}
 		return sb.toString();
 	}
 
-	@Override
-	@Transactional
-	public SentencesCreateResponse getModifySentences(Sentence existingSentence, String claudeResponse) {
-
-		List<String> newSentences = sentenceUtil.splitToSentences(claudeResponse);
-		Long summaryId = existingSentence.getSummary().getId();
-		int existingOrder = existingSentence.getOrder();
-
-		// 벌크 연산으로 기존 문장 다음 order들을 newSenteces의 size만큼 증가시킴
-		int increment = newSentences.size() - 1;
-		if (increment > 0)
-			sentenceRepository.bulkUpdateOrder(summaryId, existingOrder, increment);
-
-		// 문장 업데이트
-		existingSentence.setSentenceContent(newSentences.get(0));
-		existingSentence.updateVoiceFileName(
-			createNewSentenceVoice(newSentences.get(0), existingSentence.getSummary().getFolderName()));
-		List<Sentence> newSentenceEntities = new ArrayList<>(List.of(existingSentence));
-		for (int i = 1; i < newSentences.size(); i++) {
-			Sentence newSentence = Sentence.builder()
-				.summary(existingSentence.getSummary())
-				.sentenceContent(newSentences.get(i))
-				.order(existingOrder + i)
-				.voiceFileName(
-					createNewSentenceVoice(newSentences.get(i), existingSentence.getSummary().getFolderName()))
-				.build();
-			uploadSentenceVoice(newSentence);
-			newSentenceEntities.add(newSentence);
-		}
-		return SentencesCreateResponse.of(saveSentences(newSentenceEntities));
-	}
+	// @Override
+	// @Transactional
+	// public SentencesCreateResponse getModifySentences(Sentence existingSentence, String claudeResponse) {
+	//
+	// 	List<String> newSentences = sentenceUtil.splitToSentences(claudeResponse);
+	// 	Long summaryId = existingSentence.getSummary().getId();
+	// 	int existingOrder = existingSentence.getOrder();
+	//
+	// 	// 벌크 연산으로 기존 문장 다음 order들을 newSenteces의 size만큼 증가시킴
+	// 	int increment = newSentences.size() - 1;
+	// 	if (increment > 0)
+	// 		sentenceRepository.bulkUpdateOrder(summaryId, existingOrder, increment);
+	//
+	// 	// 문장 업데이트
+	// 	existingSentence.setSentenceContentNormal(newSentences.get(0));
+	// 	existingSentence.updateVoiceFileName(
+	// 		createNewSentenceVoice(newSentences.get(0), existingSentence.getSummary().getFolderName()));
+	// 	List<Sentence> newSentenceEntities = new ArrayList<>(List.of(existingSentence));
+	// 	for (int i = 1; i < newSentences.size(); i++) {
+	// 		Sentence newSentence = Sentence.builder()
+	// 			.summary(existingSentence.getSummary())
+	// 			.sentenceContentNormal(newSentences.get(i))
+	// 			.order(existingOrder + i)
+	// 			.simpleVoiceFileName(
+	// 				createNewSentenceVoice(newSentences.get(i), existingSentence.getSummary().getFolderName()))
+	// 			.build();
+	// 		uploadSentenceVoice(newSentence);
+	// 		newSentenceEntities.add(newSentence);
+	// 	}
+	// 	return SentencesCreateResponse.of(saveSentences(newSentenceEntities));
+	// }
 
 	/**
 	 * String을 받아서 문장 부호 기준으로 나누어 List로 반환
@@ -198,14 +215,14 @@ public class SentenceServiceImpl implements SentenceService {
 		return sentences;
 	}
 
-	@Override
-	@Transactional
-	public void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus) {
-
-		Sentence sentence = selectSentenceById(sentenceId);
-		sentence.updateOpenStatus(openStatus);
-		sentenceRepository.save(sentence);
-	}
+	// @Override
+	// @Transactional
+	// public void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus) {
+	//
+	// 	Sentence sentence = selectSentenceById(sentenceId);
+	// 	sentence.updateOpenStatus(openStatus);
+	// 	sentenceRepository.save(sentence);
+	// }
 
 	/**
 	 * text를 받아서 clova voice로 변환하여 voice 파일을 생성하고, 파일명을 반환

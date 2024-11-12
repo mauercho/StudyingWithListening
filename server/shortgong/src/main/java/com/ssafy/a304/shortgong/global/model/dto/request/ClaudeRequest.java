@@ -3,7 +3,7 @@ package com.ssafy.a304.shortgong.global.model.dto.request;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ssafy.a304.shortgong.global.model.entity.ClaudeMessage;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeMessage;
 
 import lombok.Builder;
 import lombok.Getter;

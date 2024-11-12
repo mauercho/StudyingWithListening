@@ -43,12 +43,33 @@ public class Sentence extends BaseEntity {
 	@JoinColumn(name = "summary_id", nullable = false)
 	private Summary summary;
 
-	@Setter
-	@Column(name = "sentence_content", nullable = false, columnDefinition = "TEXT")
-	private String sentenceContent;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "sentence_title_id", nullable = false)
+	private SentenceTitle sentenceTitle;
 
-	@Column(name = "voice_file_name", columnDefinition = "VARCHAR(128)")
-	private String voiceFileName;
+	@Column(name = "sentence_point", nullable = false, columnDefinition = "TEXT")
+	private String sentencePoint;
+
+	@Setter
+	@Column(name = "sentence_content_normal", nullable = false, columnDefinition = "TEXT")
+	private String sentenceContentNormal;
+
+	@Setter
+	@Column(name = "sentence_content_simple", nullable = false, columnDefinition = "TEXT")
+	private String sentenceContentSimple;
+
+	@Setter
+	@Column(name = "sentence_content_detail", nullable = false, columnDefinition = "TEXT")
+	private String sentenceContentDetail;
+
+	@Column(name = "normal_voice_file_name", columnDefinition = "VARCHAR(256)")
+	private String normalVoiceFileName;
+
+	@Column(name = "detail_voice_file_name", columnDefinition = "VARCHAR(256)")
+	private String detailVoiceFileName;
+
+	@Column(name = "simple_voice_file_name", columnDefinition = "VARCHAR(256)")
+	private String simpleVoiceFileName;
 
 	@Column(name = "sentence_order", nullable = false)
 	private Integer order;
@@ -63,7 +84,7 @@ public class Sentence extends BaseEntity {
 
 	public void updateVoiceFileName(String voiceFileName) {
 
-		this.voiceFileName = voiceFileName;
+		this.normalVoiceFileName = voiceFileName;
 	}
 
 	public void updateOpenStatus(Boolean openStatus) {

@@ -23,9 +23,9 @@ public class SentenceResponse {
 	SentenceResponse(Sentence sentence) {
 
 		this.id = sentence.getId();
-		this.content = sentence.getSentenceContent();
+		this.content = sentence.getSentenceContentNormal();
 		this.order = sentence.getOrder();
 		this.openStatus = sentence.getOpenStatus();
-		this.voiceUrl = FileUtil.getSentenceVoiceFileUrl(sentence.getVoiceFileName());
+		this.voiceUrl = FileUtil.getSentenceVoiceFileUrl(sentence.getNormalVoiceFileName());
 	}
 }
