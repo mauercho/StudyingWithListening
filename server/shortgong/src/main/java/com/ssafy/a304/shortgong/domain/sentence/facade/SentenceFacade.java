@@ -1,8 +1,5 @@
 package com.ssafy.a304.shortgong.domain.sentence.facade;
 
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.request.SentenceModifyRequest;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
-
 public interface SentenceFacade {
 
 	/**
@@ -10,24 +7,24 @@ public interface SentenceFacade {
 	 * @return SentencesCreateResponse (재생성된 문장을 리스트로 감싼 Dto)
 	 * @author 이주형
 	 */
-	SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest);
+	// SentencesCreateResponse modifySentence(Long sentenceId, SentenceModifyRequest sentenceModifyRequest);
 
 	/**
 	 * 문장의 접힙/펼침 상태를 변경하는 메서드
 	 * @author 이주형
 	 */
-	void changeSentenceStatusToOpen(Long sentenceId);
+	// void changeSentenceStatusToOpen(Long sentenceId);
 
 	/**
 	 * 문장의 접힙/펼침 상태를 변경하는 메서드
 	 * @author 이주형
 	 */
-	void changeSentenceStatusToClose(Long sentenceId);
+	// void changeSentenceStatusToClose(Long sentenceId);
 
 	/**
 	 * 문장 삭제
 	 * @author 이주형
 	 */
-	void deleteSentence(Long sentenceId);
+	// void deleteSentence(Long sentenceId);
 
 }

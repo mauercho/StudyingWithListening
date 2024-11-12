@@ -23,7 +23,7 @@ import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.uploadContent.service.UploadContentService;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 import com.ssafy.a304.shortgong.domain.user.service.UserService;
-import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponseMessage;
 import com.ssafy.a304.shortgong.global.util.CrawlingServerConnectUtil;
 import com.ssafy.a304.shortgong.global.util.FileUtil;
 import com.ssafy.a304.shortgong.global.util.SentenceUtil;
@@ -84,7 +84,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		// text 를 요약해서 summarizedText 만들고 문장으로 split
 		orderCounter.set(1);
 
-		List<ClaudeResponseMessage> claudeResponseMessageList = sentenceService.getSummarizedText(text);
+		List<ClaudeResponseMessage> claudeResponseMessageList = sentenceService.getSummarizedTextByAI(text);
 		List<Sentence> sentenceList = claudeResponseMessageList.stream()
 			.flatMap(claudeResponseMessage -> {
 				String summarizedText = claudeResponseMessage.getText();
@@ -93,7 +93,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 				return summarizedSentenceList.stream()
 					.map(summarizedSentence ->
 						Sentence.builder()
-							.sentenceContent(summarizedSentence)
+							.sentenceContentNormal(summarizedSentence)
 							.order(orderCounter.getAndIncrement())
 							.summary(summary)
 							.openStatus(true)
@@ -109,21 +109,21 @@ public class SummaryFacadeImpl implements SummaryFacade {
 
 		// TODO : 목차 분류해서 저장
 		for (Sentence sentence : savedSentences) {
-			String sentenceContent = sentence.getSentenceContent();
+			String sentenceContent = sentence.getSentenceContentNormal();
 			// sentenceContent의 시작이, 대제목은 !@####@!로, 소제목은 !@#####@!으로 시작. 저장할 땐 시작부분 제외.
 			if (sentenceContent.startsWith("!@####@!")) {
 				indexService.createIndex(summary, sentence, IndexCreateRequest.builder()
 					.titleLevel(true)
 					.indexTitle(sentenceContent.substring(8))
 					.build());
-				sentence.setSentenceContent(sentenceContent.substring(8));
+				sentence.setSentenceContentNormal(sentenceContent.substring(8));
 				sentenceService.saveSentence(sentence);
 			} else if (sentenceContent.startsWith("!@#####@!")) {
 				indexService.createIndex(summary, sentence, IndexCreateRequest.builder()
 					.titleLevel(true)
 					.indexTitle(sentenceContent.substring(9))
 					.build());
-				sentence.setSentenceContent(sentenceContent.substring(9));
+				sentence.setSentenceContentNormal(sentenceContent.substring(9));
 				sentenceService.saveSentence(sentence);
 			}
 		}
@@ -189,7 +189,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 				return summarizedSentenceList.stream()
 					.map(summarizedSentence ->
 						Sentence.builder()
-							.sentenceContent(summarizedSentence)
+							.sentenceContentNormal(summarizedSentence)
 							.order(orderCounter.getAndIncrement())
 							.summary(summary)
 							.openStatus(true)

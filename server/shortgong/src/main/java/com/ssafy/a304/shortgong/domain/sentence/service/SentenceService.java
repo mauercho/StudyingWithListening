@@ -3,14 +3,23 @@ package com.ssafy.a304.shortgong.domain.sentence.service;
 import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.global.error.CustomException;
-import com.ssafy.a304.shortgong.global.model.entity.ClaudeResponseMessage;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponseMessage;
 
 public interface SentenceService {
 
-	List<ClaudeResponseMessage> getSummarizedText(String text);
+	/**
+	 * 문장에 해당하는 voice 생성 & 저장
+	 * @return 파일명
+	 * */
+	void uploadSentenceVoice(Sentence sentence);
+
+	/**
+	 * @param text : 요약할 내용
+	 * @return List<ClaudeResponseMessage> : Claude 가 반환한 body 값
+	 */
+	List<ClaudeResponseMessage> getSummarizedTextByAI(String text);
 
 	/**
 	 * URL로부터 텍스트를 요약
@@ -53,16 +62,14 @@ public interface SentenceService {
 	 * @return SentencesCreateResponse (업데이트된 문장 객체를 리스트로 감싼 Dto)
 	 * @author 이주형
 	 */
-	SentencesCreateResponse getModifySentences(Sentence existingSentence, String claudeResponse);
+	// SentencesCreateResponse getModifySentences(Sentence existingSentence, String claudeResponse);
 
 	/**
 	 * 접기/펼치기 상태 업데이트
 	 * @return Sentence (업데이트된 문장 객체)
 	 * @auther 이주형
 	 */
-	void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus);
-
-	void uploadSentenceVoice(Sentence sentence);
+	// void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus);
 
 	List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId);
 
