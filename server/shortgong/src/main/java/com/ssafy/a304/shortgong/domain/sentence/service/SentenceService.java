@@ -2,6 +2,7 @@ package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import java.util.List;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
@@ -73,4 +74,11 @@ public interface SentenceService {
 	 * @author 이주형
 	 */
 	void deleteSentence(Long sentenceId);
+
+	/**
+	 * 임시 문장 파싱 결과값 반환
+	 * @return S
+	 * @auther 이주형
+	 */
+	List<QuestionResponse> getQuestions();
 }
