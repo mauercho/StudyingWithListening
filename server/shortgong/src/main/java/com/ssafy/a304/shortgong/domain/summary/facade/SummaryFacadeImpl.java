@@ -100,7 +100,9 @@ public class SummaryFacadeImpl implements SummaryFacade {
 							.build());
 			})
 			.toList();
-		log.debug("문장 리스트: {}", sentenceList);
+		// for(Sentence sentence : sentenceList) {
+		// 	log.info("sentence: {}", sentence.getSentenceContent());
+		// }
 
 		//  문장들 db에 저장
 		List<Sentence> savedSentences = sentenceService.saveSentences(sentenceList);
