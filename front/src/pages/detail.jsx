@@ -221,8 +221,13 @@ export default function Detail() {
 
   const [summaryMode, setSummaryMode] = useState('normal')
 
+  const modeMenuItems = [
+    { title: '일반', mode: 'normal' },
+    { title: '상세', mode: 'detail' },
+    { title: '키워드', mode: 'keyword' },
+  ]
+
   const handleSummaryMode = (mode) => {
-    console.log(mode)
     setSummaryMode(mode)
   }
 
@@ -240,6 +245,7 @@ export default function Detail() {
         <BookmarkMenu
           summaryMode={summaryMode}
           onButtonClick={handleSummaryMode}
+          menuItems={modeMenuItems}
         />
         <ContentArea id="content-area">
           {sentences.map((sentence) => (

@@ -14,6 +14,7 @@ const Menu = styled.button`
   border-radius: 10px 10px 0 0;
   border: 1px solid ${({ theme }) => theme.color.primary_dark};
   border-bottom: 0;
+  cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   ${({ theme, isThisMode }) =>
     isThisMode &&
@@ -26,6 +27,12 @@ const Menu = styled.button`
 export default function BookmarkMenu({
   summaryMode = 'normal',
   onButtonClick,
+  menuItems = [
+    {
+      title: '일반',
+      mode: 'normal',
+    },
+  ],
 }) {
   return (
     <Container>
