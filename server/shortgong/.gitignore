@@ -1,4 +1,5 @@
 private_key.pem
+service-account-key.json
 HELP.md
 .gradle
 build/

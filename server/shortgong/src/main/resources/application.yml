@@ -105,3 +105,9 @@ claude:
     model: claude-3-5-sonnet-20241022
     temperature: 0.7
     max-tokens: 8192
+
+google:
+  cloud:
+    project-id: ${GOOGLE_CLOUD_PROJENT_ID}
+    api-url: https://us-central1-aiplatform.googleapis.com/v1/projects/${GOOGLE_CLOUD_PROJENT_ID}/locations/us-central1/publishers/google/models/text-embedding-004:predict
+    auth-file-path: ${GOOGLE_CLOUD_AUTH_FILE_PATH}
