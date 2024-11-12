@@ -19,7 +19,7 @@ const Container = styled.div`
   justify-content: start;
   align-items: center;
   width: 100%;
-  height: 85vh;
+  height: 80vh;
 `
 
 const HeaderWrapper = styled.div`
@@ -31,6 +31,7 @@ const HeaderWrapper = styled.div`
 `
 
 const Main = styled.div`
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
 `
