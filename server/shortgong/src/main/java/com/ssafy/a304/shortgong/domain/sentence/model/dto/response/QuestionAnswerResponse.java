@@ -15,4 +15,13 @@ public class QuestionAnswerResponse {
 
 	String answer; // 새로운 지식은 기존의 지식을 통해 습득됩니다. 사람은 자신이 이미 가지고 있는 지식을 기반으로 새로운 지식을 이해하고 해석하게 됩니다.
 
+	public static QuestionAnswerResponse of(String point, String question, String answer) {
+
+		return QuestionAnswerResponse.builder()
+			.point(point)
+			.question(question)
+			.answer(answer)
+			.build();
+	}
+
 }
