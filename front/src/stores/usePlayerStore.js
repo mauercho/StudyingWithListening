@@ -16,6 +16,7 @@ const usePlayerStore = create((set) => ({
   voiceUrls: [],
   currentIndex: 0,
   currentVoiceUrl: '',
+  isPlaying: false,
 
   setSummaryTitle: (title) => set({ summaryTitle: title }),
   setVoiceUrls: (urls) => set({ voiceUrls: urls }),
@@ -24,6 +25,15 @@ const usePlayerStore = create((set) => ({
       currentIndex: index,
       currentVoiceUrl: state.voiceUrls[index],
     })),
+  setIsPlaying: (playing) => set({ isPlaying: playing }),
+  reset: () =>
+    set({
+      summaryTitle: '',
+      voiceUrls: [],
+      currentIndex: 0,
+      currentVoiceUrl: '',
+      isPlaying: false,
+    }),
 }))
 
 export default usePlayerStore

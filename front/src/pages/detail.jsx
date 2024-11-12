@@ -51,7 +51,7 @@ export default function Detail() {
     { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
   ])
 
-  const { setSummaryTitle, setVoiceUrls, setCurrentIndex, voiceUrls } =
+  const { setSummaryTitle, setVoiceUrls, setCurrentIndex, voiceUrls, reset } =
     usePlayerStore()
 
   const [sentences, setSentences] = useState([
@@ -68,20 +68,54 @@ export default function Detail() {
     },
   ])
 
+  // useEffect(() => {
+  //   const fetchSummaryDetail = async () => {
+  //     try {
+  //       const data = await summariesApi.getSummariesDetail(summaryId)
+  //       setSentences(data.sentenceResponseList)
+
+  //       // 새로운 디테일 페이지일 때만 초기화
+  //       if (voiceUrls.length === 0 || data.summaryId !== summaryId) {
+  //         reset()
+  //         setSummaryTitle(data.summaryTitle)
+  //         const urls = data.sentenceResponseList.map(
+  //           (sentence) => sentence.voiceUrl
+  //         )
+  //         setVoiceUrls(urls)
+  //       }
+  //     } catch (error) {
+  //       console.error('Error:', error)
+  //     }
+  //   }
+
+  //   fetchSummaryDetail()
+  // }, [summaryId, setSummaryTitle, setVoiceUrls, reset])
+
   useEffect(() => {
     const fetchSummaryDetail = async () => {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
         setSentences(data.sentenceResponseList)
 
-        // 새로운 디테일 페이지일 때만 초기화
-        if (voiceUrls.length === 0 || data.summaryId !== summaryId) {
+        // 현재 페이지의 URL들
+        const newUrls = data.sentenceResponseList.map(
+          (sentence) => sentence.voiceUrl
+        )
+
+        // 완전히 새로운 페이지인 경우에만 초기화
+        if (voiceUrls.length === 0) {
           setSummaryTitle(data.summaryTitle)
-          const urls = data.sentenceResponseList.map(
-            (sentence) => sentence.voiceUrl
-          )
-          setVoiceUrls(urls)
-          // setCurrentIndex(0) // 이 부분을 제거하거나 조건부로 실행
+          setVoiceUrls(newUrls)
+        }
+        // 다른 디테일 페이지로 이동한 경우
+        else if (!newUrls.some((url) => voiceUrls.includes(url))) {
+          reset()
+          setSummaryTitle(data.summaryTitle)
+          setVoiceUrls(newUrls)
+        }
+        // 같은 페이지인 경우 제목만 업데이트
+        else {
+          setSummaryTitle(data.summaryTitle)
         }
       } catch (error) {
         console.error('Error:', error)
@@ -89,31 +123,7 @@ export default function Detail() {
     }
 
     fetchSummaryDetail()
-  }, [summaryId, setSummaryTitle, setVoiceUrls, voiceUrls])
-
-  // useEffect(() => {
-  //   const fetchSentences = async () => {
-  //     try {
-  //       const data = await summariesApi.getSummariesDetail(summaryId)
-  //       setSentences(data.sentenceResponseList)
-  //       setSummaryTitle(data.summaryTitle)
-  //     } catch (error) {
-  //       console.error('Error fetching user:', error)
-  //     }
-  //   }
-
-  // const fetchIndexes = async () => {
-  //   try {
-  //     const data = await summariesApi.getSummariesIndexes(summaryId)
-  //     setIndexes(data.indexes)
-  //   } catch (error) {
-  //     console.error('Error fetching user:', error)
-  //   }
-  // }
-
-  // fetchSentences()
-  // fetchIndexes()
-  // }, [summaryId])
+  }, [summaryId, setSummaryTitle, setVoiceUrls, voiceUrls, reset])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
@@ -189,7 +199,6 @@ export default function Detail() {
       return
     }
     if (sentenceURL) {
-      // 여기서 setCurrentIndex를 사용하고 있습니다
       setCurrentIndex(sentenceId - 1)
     }
   }
@@ -218,25 +227,6 @@ export default function Detail() {
   const closeModal = () => {
     setIsModalOpen(false)
   }
-
-  // const downloadAudioFile = async (url) => {
-  //   try {
-  //     const response = await fetch(url)
-
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`)
-  //     }
-
-  //     const blob = await response.blob()
-
-  //     // Blob 데이터를 Audio 태그나 로컬스토리지에 저장하기 위해 변환
-  //     const audioURL = URL.createObjectURL(blob) // 오디오 재생용 URL 생성
-  //     return audioURL
-  //   } catch (error) {
-  //     console.error('Failed to download audio:', error)
-  //     return null
-  //   }
-  // }
 
   return (
     <Container>
