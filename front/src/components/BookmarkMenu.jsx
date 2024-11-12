@@ -9,7 +9,6 @@ const Container = styled.nav`
 
 const Menu = styled.button`
   width: 64px;
-  margin-top: 30px;
   padding: 4px 10px;
   border-radius: 10px 10px 0 0;
   border: 1px solid ${({ theme }) => theme.color.primary_dark};
