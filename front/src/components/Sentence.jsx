@@ -40,10 +40,10 @@ const Text = styled.p`
 `
 
 export default function Sentence({ text, status, onShortPress, onLongPress }) {
-  const { ...longPressHandler } = useLongPress(onLongPress, onShortPress)
+  const { ...longPressHandler } = useLongPress(onLongPress)
 
   return (
-    <Container {...longPressHandler}>
+    <Container onClick={onShortPress} {...longPressHandler}>
       <Text status={status}>{text}</Text>
     </Container>
   )
