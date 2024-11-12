@@ -48,6 +48,9 @@ dependencies {
     // AWS SDK for CloudFront
     implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.12.777'
 
+    // Google Cloud
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.11.0'
+    
     // Compile, Develop, Runtime, Annotation
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
