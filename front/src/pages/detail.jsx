@@ -33,7 +33,6 @@ const HeaderWrapper = styled.div`
 const Main = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0;
 `
 
 const ContentArea = styled.ul`
