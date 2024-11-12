@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function useLongPress(
-  onLongPress = () => {},
-  onShortPress = () => {},
-  delay = 1000
-) {
+export default function useLongPress(onLongPress = () => {}, delay = 1000) {
   const [isPressing, setIsPressing] = useState(false)
 
   useEffect(() => {
@@ -21,17 +17,10 @@ export default function useLongPress(
   }, [isPressing, delay, onLongPress])
 
   const startPress = () => setIsPressing(true)
-  const endPress = () => {
-    if (isPressing) {
-      onShortPress()
-      setIsPressing(false)
-    }
-  }
+  const endPress = () => setIsPressing(false)
 
   return {
-    onMouseDown: startPress,
     onTouchStart: startPress,
-    onMouseUp: endPress,
     onTouchEnd: endPress,
   }
 }
