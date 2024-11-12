@@ -11,6 +11,7 @@ import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
 import Loading from '../components/Loading'
 import usePlayerStore from '../stores/usePlayerStore'
+import BookmarkMenu from '../components/BookmarkMenu'
 
 const Container = styled.div`
   display: flex;
@@ -29,12 +30,16 @@ const HeaderWrapper = styled.div`
   border-radius: 0 0 16px 16px;
 `
 
+const Main = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
 const ContentArea = styled.ul`
   flex: 1;
   width: 100%;
   max-width: 768px;
   padding: 10px;
-  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -213,6 +218,18 @@ export default function Detail() {
     }
   }
 
+  const [summaryMode, setSummaryMode] = useState('normal')
+
+  const modeMenuItems = [
+    { title: '상세', mode: 'detail' },
+    { title: '키워드', mode: 'keyword' },
+    { title: '일반', mode: 'normal' },
+  ]
+
+  const handleSummaryMode = (mode) => {
+    setSummaryMode(mode)
+  }
+
   return (
     <Container>
       <HeaderWrapper>
@@ -223,27 +240,34 @@ export default function Detail() {
           toggleOpen={toggleTable}
         />
       </HeaderWrapper>
-      <ContentArea id="content-area">
-        {sentences.map((sentence) => (
-          <Element name={`sentence-${sentence.id}`} key={sentence.id}>
-            <Sentence
-              text={sentence.content}
-              status={sentence.openStatus}
-              onShortPress={() =>
-                handleShortPress(
-                  sentence.id,
-                  sentence.voiceUrl,
-                  sentence.openStatus
-                )
-              }
-              onLongPress={() =>
-                handleLongPress(sentence.id, sentence.openStatus)
-              }
-            />
-            {loadingSentenceId === sentence.id && <Loading />}
-          </Element>
-        ))}
-      </ContentArea>
+      <Main>
+        <BookmarkMenu
+          summaryMode={summaryMode}
+          onButtonClick={handleSummaryMode}
+          menuItems={modeMenuItems}
+        />
+        <ContentArea id="content-area">
+          {sentences.map((sentence) => (
+            <Element name={`sentence-${sentence.id}`} key={sentence.id}>
+              <Sentence
+                text={sentence.content}
+                status={sentence.openStatus}
+                onShortPress={() =>
+                  handleShortPress(
+                    sentence.id,
+                    sentence.voiceUrl,
+                    sentence.openStatus
+                  )
+                }
+                onLongPress={() =>
+                  handleLongPress(sentence.id, sentence.openStatus)
+                }
+              />
+              {loadingSentenceId === sentence.id && <Loading />}
+            </Element>
+          ))}
+        </ContentArea>
+      </Main>
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
