@@ -1,7 +1,7 @@
 package com.ssafy.a304.shortgong.domain.sentence.model.dto.response;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
-import com.ssafy.a304.shortgong.global.util.FileUtil;
+import com.ssafy.a304.shortgong.global.util.S3FileUtil;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +26,6 @@ public class SentenceResponse {
 		this.content = sentence.getSentenceContentNormal();
 		this.order = sentence.getOrder();
 		this.openStatus = sentence.getOpenStatus();
-		this.voiceUrl = FileUtil.getSentenceVoiceFileUrl(sentence.getNormalVoiceFileName());
+		this.voiceUrl = S3FileUtil.getPreSignedUrl(sentence.getNormalVoiceFileName());
 	}
 }

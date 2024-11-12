@@ -17,4 +17,6 @@ public interface SummaryService {
 	Summary save(Summary summary);
 
 	List<SummaryOverviewResponse> selectSummaryListByUser(User user);
+
+	String getTextByCrawlingUrl(String url);
 }

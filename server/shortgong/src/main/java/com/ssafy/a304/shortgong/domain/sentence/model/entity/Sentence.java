@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -50,15 +49,12 @@ public class Sentence extends BaseEntity {
 	@Column(name = "sentence_point", nullable = false, columnDefinition = "TEXT")
 	private String sentencePoint;
 
-	@Setter
 	@Column(name = "sentence_content_normal", nullable = false, columnDefinition = "TEXT")
 	private String sentenceContentNormal;
 
-	@Setter
 	@Column(name = "sentence_content_simple", nullable = false, columnDefinition = "TEXT")
 	private String sentenceContentSimple;
 
-	@Setter
 	@Column(name = "sentence_content_detail", nullable = false, columnDefinition = "TEXT")
 	private String sentenceContentDetail;
 
