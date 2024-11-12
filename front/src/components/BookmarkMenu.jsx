@@ -14,6 +14,7 @@ const Menu = styled.button`
   border-radius: 10px 10px 0 0;
   border: 1px solid ${({ theme }) => theme.color.primary_dark};
   border-bottom: 0;
+  box-shadow: 4px 0px 4px rgba(0, 0, 0, 0.25);
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   ${({ theme, isActive }) =>
