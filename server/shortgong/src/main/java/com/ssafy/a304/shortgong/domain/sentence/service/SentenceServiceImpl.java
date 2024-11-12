@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionAnswerResponse;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentencesCreateResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
@@ -222,6 +224,52 @@ public class SentenceServiceImpl implements SentenceService {
 	public void deleteSentence(Long sentenceId) {
 
 		sentenceRepository.delete(selectSentenceById(sentenceId));
+	}
+
+	@Override
+	public List<QuestionResponse> getQuestions() {
+
+		List<QuestionAnswerResponse> list1 = new ArrayList<>();
+		QuestionAnswerResponse questionAnswerResponse1 = new QuestionAnswerResponse(
+			"스키마를 통한 지식 습득",
+			"스키마란 무엇이며, 새로운 지식을 습득하는 과정에서 어떤 역할을 하나요?",
+			"새로운 지식은 기존의 지식을 통해 습득됩니다. 사람은 자신이 이미 가지고 있는 지식을 기반으로 새로운 지식을 이해하고 해석하게 됩니다."
+		);
+		list1.add(questionAnswerResponse1);
+		QuestionAnswerResponse questionAnswerResponse2 = new QuestionAnswerResponse(
+			"스키마의 역할",
+			"스키마는 학습 과정에서 어떤 역할을 하나요?",
+			"스키마는 새로운 경험과 지식을 해석하고 구성하는 틀이 됩니다. 사실적 지식들이 개념화되어 만들어진 개념적 지식이 스키마가 되어, 이를 통해 새로운 경험을 해석하고 구조화하게 됩니다."
+		);
+		list1.add(questionAnswerResponse2);
+
+		List<QuestionAnswerResponse> list2 = new ArrayList<>();
+		QuestionAnswerResponse questionAnswerResponse3 = new QuestionAnswerResponse(
+			"단순 반복학습의 한계",
+			"단순히 반복해서 암기하는 것은 왜 효과적이지 않나요?",
+			"단순 반복 암기만으로는 진정한 이해가 이루어지지 않습니다. 반복학습은 새로운 스키마를 만드는 과정과 함께 이루어져야 효과적인 학습이 될 수 있습니다."
+		);
+		list2.add(questionAnswerResponse3);
+		QuestionAnswerResponse questionAnswerResponse4 = new QuestionAnswerResponse(
+			"효율적인 학습 방법",
+			"새로운 지식을 가장 효율적으로 학습하는 방법은 무엇인가요?",
+			"새로운 지식을 학습할 때는 먼저 자신의 기존 지식을 탐색하여 가장 관련 있는 스키마를 찾고, 이를 통해 새로운 지식을 이해하고 체계화하는 것이 가장 효율적입니다."
+		);
+		list2.add(questionAnswerResponse4);
+
+		List<QuestionResponse> questionResponses = new ArrayList<>();
+		QuestionResponse questionResponse1 = QuestionResponse.builder()
+			.title("공부와 스키마의 관계")
+			.questionAnswerResponseList(list1)
+			.build();
+		questionResponses.add(questionResponse1);
+		QuestionResponse questionResponse2 = QuestionResponse.builder()
+			.title("학습 방법")
+			.questionAnswerResponseList(list2)
+			.build();
+		questionResponses.add(questionResponse2);
+
+		return questionResponses;
 	}
 
 }
