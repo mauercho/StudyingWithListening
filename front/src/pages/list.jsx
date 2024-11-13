@@ -23,6 +23,7 @@ const Item = styled.li`
   width: 100%;
   cursor: pointer;
   border-radius: 8px;
+  box-sizing: border-box;
 
   &:hover {
     background-color: ${({ theme }) => theme.color.grey};
