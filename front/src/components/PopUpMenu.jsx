@@ -4,10 +4,7 @@ import styled from '@emotion/styled'
 const Container = styled.ul`
   position: absolute;
   top: ${({ position }) => position.top}px;
-  ${({ location, position }) =>
-    location === 'r'
-      ? `left: ${position.left}px;`
-      : `right: ${position.left + 20}px;`}
+  left: ${({ position }) => position.left}px;
   background-color: ${({ theme }) => theme.color.white};
   border: 1px solid ${({ theme }) => theme.color.primary};
   border-radius: 8px;
@@ -47,14 +44,28 @@ export default function PopUpMenu({
 
   const updatePosition = useCallback(() => {
     if (triggerRef.current && menuRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      const top = rect.top + window.scrollY - menuRef.current.offsetHeight
-      const left =
-        location === 'r'
-          ? rect.right + window.scrollX
-          : window.innerWidth - rect.left - menuRef.current.offsetWidth
+      const trigger = triggerRef.current
+      const offsetParent = trigger.offsetParent
+      const parentRect = offsetParent.getBoundingClientRect()
+      const triggerRect = trigger.getBoundingClientRect()
 
-      setPosition({ top, left })
+      const relativeTop = triggerRect.top - parentRect.top
+      const relativeLeft = triggerRect.left - parentRect.left
+
+      const menuWidth = menuRef.current.offsetWidth
+      const menuHeight = menuRef.current.offsetHeight
+      const triggerWidth = triggerRect.width
+      const parentWidth = parentRect.width
+
+      const leftPosition =
+        location === 'r'
+          ? relativeLeft + triggerWidth
+          : relativeLeft - menuWidth + triggerWidth
+
+      setPosition({
+        top: relativeTop - menuHeight,
+        left: Math.max(0, Math.min(leftPosition, parentWidth - menuWidth)), // 부모 요소 범위 내로 제한
+      })
     }
   }, [triggerRef, location])
 
