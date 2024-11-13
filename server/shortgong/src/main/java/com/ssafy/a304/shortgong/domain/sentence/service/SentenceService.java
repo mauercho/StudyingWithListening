@@ -93,5 +93,13 @@ public interface SentenceService {
 	 * @return S
 	 * @auther 이주형
 	 */
+
+	/**
+	 * 문장 파싱 결과값 반환
+	 * @return List<QuestionResponse> (문장 파싱 결과값 리스트)
+	 * @auther 이주형
+	 */
+	public List<QuestionResponse> getQuestionList(List<String> texts);
+
 	List<QuestionResponse> getQuestions(String text);
 }

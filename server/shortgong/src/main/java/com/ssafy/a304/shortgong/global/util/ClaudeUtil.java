@@ -65,6 +65,8 @@ public class ClaudeUtil {
 		// API 요청 보내기
 		ResponseEntity<ClaudeResponse> responseEntity = restTemplate.postForEntity(API_URL, requestEntity,
 			ClaudeResponse.class);
+		
+		log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
 
 		return responseEntity.getBody();
 	}

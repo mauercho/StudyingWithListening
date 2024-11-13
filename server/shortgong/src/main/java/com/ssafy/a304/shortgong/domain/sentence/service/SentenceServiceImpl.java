@@ -386,4 +386,45 @@ public class SentenceServiceImpl implements SentenceService {
 		return questionResponses;
 	}
 
+	@Override
+	public List<QuestionResponse> getQuestionList(List<String> texts) {
+
+		List<QuestionResponse> questionResponseList = new ArrayList<>();
+
+		List<QuestionAnswerResponse> questionAnswerResponseList = new ArrayList<>();
+
+		String title = "";
+		String point = "";
+		String question = "";
+		String answer = "";
+
+		for (String text : texts) {
+			switch (text.charAt(0)) {
+				case 'T':
+					if (!title.isEmpty()) {
+						questionResponseList.add(QuestionResponse.of(title, new ArrayList<>(questionAnswerResponseList)));
+						questionAnswerResponseList.clear();
+					}
+					title = text.substring(2).trim();
+					break;
+				case 'P':
+					point = text.substring(2).trim();
+					break;
+				case 'Q':
+					question = text.substring(2).trim();
+					break;
+				case 'A':
+					answer = text.substring(2).trim();
+					questionAnswerResponseList.add(QuestionAnswerResponse.of(point, question, answer));
+					break;
+			}
+		}
+
+		if (!title.isEmpty()) {
+			questionResponseList.add(QuestionResponse.of(title, questionAnswerResponseList));
+		}
+
+		return questionResponseList;
+	}
+
 }
