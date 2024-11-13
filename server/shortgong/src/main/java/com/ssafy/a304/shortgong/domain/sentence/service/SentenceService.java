@@ -102,4 +102,6 @@ public interface SentenceService {
 	public List<QuestionResponse> getQuestionList(List<String> texts);
 
 	List<QuestionResponse> getQuestions(String text);
+
+	Sentence setAnswers(Sentence sentence, String text);
 }

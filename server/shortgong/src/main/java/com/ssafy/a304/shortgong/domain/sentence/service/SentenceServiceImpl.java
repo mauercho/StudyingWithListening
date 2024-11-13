@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionAnswerResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.ThreeAnswerResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.SentenceTitle;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
@@ -138,9 +139,9 @@ public class SentenceServiceImpl implements SentenceService {
 							.order(orderCounter.getAndIncrement())
 							.question(questionAnswerResponse.getQuestion())
 							// TODO : 아직 questionAnswerResponse 에 normal detail simple
-							.sentenceContentNormal(questionAnswerResponse.getAnswer())
-							.sentenceContentDetail(questionAnswerResponse.getAnswer())
-							.sentenceContentSimple(questionAnswerResponse.getAnswer())
+							// .sentenceContentNormal(questionAnswerResponse.getAnswer())
+							// .sentenceContentDetail(questionAnswerResponse.getAnswer())
+							// .sentenceContentSimple(questionAnswerResponse.getAnswer())
 							.build());
 			})
 			.toList();
@@ -386,6 +387,28 @@ public class SentenceServiceImpl implements SentenceService {
 		return questionResponses;
 	}
 
+	/**
+	 * 문장의 NA, SA, DA 다 넣어준 문장 반환
+	 * @param sentence : 요청할 문장
+	 * @param originalText : 원본 텍스트
+	 * @return sentence
+	 * @author 정재영
+	 */
+	@Override
+	public Sentence setAnswers(Sentence sentence, String originalText) {
+		// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
+		String textIncludeAnswers = "DA 디테일한 답변\nNA 일반적인 답변\nSA 간단한 답변\n";
+		// String textIncludeAnswers = promptUtil.answer(
+		// 	sentence.getSentenceTitle().getName(),
+		// 	sentence.getSentencePoint(),
+		// 	sentence.getQuestion(),
+		// 	originalText);
+
+		ThreeAnswerResponse threeAnswerResponse = getAnswersByText(textIncludeAnswers);
+		sentence.updateThreeAnswerResponse(threeAnswerResponse);
+		return sentence;
+	}
+
 	@Override
 	public List<QuestionResponse> getQuestionList(List<String> texts) {
 
@@ -402,7 +425,8 @@ public class SentenceServiceImpl implements SentenceService {
 			switch (text.charAt(0)) {
 				case 'T':
 					if (!title.isEmpty()) {
-						questionResponseList.add(QuestionResponse.of(title, new ArrayList<>(questionAnswerResponseList)));
+						questionResponseList.add(
+							QuestionResponse.of(title, new ArrayList<>(questionAnswerResponseList)));
 						questionAnswerResponseList.clear();
 					}
 					title = text.substring(2).trim();
@@ -425,6 +449,28 @@ public class SentenceServiceImpl implements SentenceService {
 		}
 
 		return questionResponseList;
+	}
+
+	private ThreeAnswerResponse getAnswersByText(String textIncludeAnswers) {
+
+		List<String> sentenceList = sentenceUtil.splitByNewline(textIncludeAnswers);
+
+		ThreeAnswerResponse threeAnswerResponse = new ThreeAnswerResponse();
+
+		sentenceList.forEach(
+			sentenceBeforeParsed -> {
+				String prefix = sentenceBeforeParsed.substring(0, 2);
+				String answer = sentenceBeforeParsed.substring(2).trim();
+
+				if ("NA".equals(prefix)) {
+					threeAnswerResponse.setNormalAnswer(answer);
+				} else if ("SA".equals(prefix)) {
+					threeAnswerResponse.setSimpleAnswer(answer);
+				} else if ("DA".equals(prefix)) {
+					threeAnswerResponse.setDetailAnswer(answer);
+				}
+			});
+		return threeAnswerResponse;
 	}
 
 }
