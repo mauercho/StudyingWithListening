@@ -59,7 +59,7 @@ const ContentArea = styled.ul`
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 310px;
+  gap: 10px;
   overflow-y: auto;
   box-sizing: border-box;
   background: ${({ theme }) => theme.color.grey};
