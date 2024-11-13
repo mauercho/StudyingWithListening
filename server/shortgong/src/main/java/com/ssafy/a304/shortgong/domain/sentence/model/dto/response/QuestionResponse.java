@@ -11,8 +11,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class QuestionResponse {
 
-	String title; // 공부와 스키마의 관계
+	private String title; // 공부와 스키마의 관계
 
-	List<QuestionAnswerResponse> questionAnswerResponseList;
+	private List<QuestionAnswerResponse> questionAnswerResponseList;
 
 }

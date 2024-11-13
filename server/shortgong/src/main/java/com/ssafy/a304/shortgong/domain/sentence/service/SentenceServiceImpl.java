@@ -5,6 +5,7 @@ import static com.ssafy.a304.shortgong.global.model.constant.ClovaVoice.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,16 +16,18 @@ import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionAnswe
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
+import com.ssafy.a304.shortgong.domain.sentence.model.entity.SentenceTitle;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
+import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceTitleRepository;
+import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.global.error.CustomException;
-import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponseMessage;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
-import com.ssafy.a304.shortgong.global.util.FileUtil;
 import com.ssafy.a304.shortgong.global.util.PromptUtil;
 import com.ssafy.a304.shortgong.global.util.RandomUtil;
+import com.ssafy.a304.shortgong.global.util.S3FileUtil;
 import com.ssafy.a304.shortgong.global.util.SentenceUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -37,58 +40,132 @@ import lombok.extern.slf4j.Slf4j;
 public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
+	private final SentenceTitleRepository sentenceTitleRepository;
 	private final ClovaVoiceUtil clovaVoiceUtil;
-	private final ClaudeUtil claudeUtil;
 	private final SentenceUtil sentenceUtil;
 	private final ClovaOCRUtil clovaOCRUtil;
+	private final ClaudeUtil claudeUtil;
 	private final PromptUtil promptUtil;
+
+	private final AtomicInteger orderCounter = new AtomicInteger(1);
 
 	/**
 	 * 문장에 해당하는 voice 생성 & 저장
 	 * @return 파일명
 	 * */
 	@Override
+	@Transactional
 	public void uploadSentenceVoice(Sentence sentence) {
 
-		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(sentence.getSentenceContentNormal(),
+		byte[] normalVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
+			sentence.getSentenceContentNormal(),
+			DSINU_MATT.getName());
+		byte[] simpleVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
+			sentence.getSentenceContentSimple(),
+			DSINU_MATT.getName());
+		byte[] detailVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
+			sentence.getSentenceContentDetail(),
 			DSINU_MATT.getName());
 
 		// TODO : 이미 파일이 존재하면 삭제하기
 
-		String fileName = FileUtil.uploadSentenceVoiceFileByUuid(
-			voiceData,
+		String normalFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
+			normalVoiceData,
+			sentence.getSummary().getFolderName(),
+			RandomUtil.generateUUID());
+		String simpleFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
+			simpleVoiceData,
+			sentence.getSummary().getFolderName(),
+			RandomUtil.generateUUID());
+		String detailFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
+			detailVoiceData,
 			sentence.getSummary().getFolderName(),
 			RandomUtil.generateUUID());
 
-		sentence.updateVoiceFileName(fileName);
+		sentence.updateVoiceFileNames(normalFileName, simpleFileName, detailFileName);
+		sentenceRepository.save(sentence);
+	}
+
+	@Override
+	@Transactional
+	public List<Sentence> parseSummarizedSentenceList(String text, Summary summary) {
+
+		orderCounter.set(1);
+		return getSummarizedTextByAI(text)
+			.stream()
+			.flatMap(claudeResponseMessage -> {
+				String summarizedText = claudeResponseMessage.getText();
+				List<String> summarizedSentenceList = sentenceUtil.splitByNewline(summarizedText);
+
+				return summarizedSentenceList.stream()
+					.map(summarizedSentence ->
+						Sentence.builder()
+							.sentenceContentNormal(summarizedSentence)
+							.order(orderCounter.getAndIncrement())
+							.summary(summary)
+							.openStatus(true)
+							.build());
+			})
+			.toList();
 	}
 
 	/**
-	 * @param text : 요약할 내용
-	 * @return List<ClaudeResponseMessage> : Claude 가 반환한 body 값
+	 * Quiz (TPQA 방식) 형식의 문장 리스트를 db에 저장하는 메서드
+	 * @param text summary
+	 * @return List<Sentence>
 	 */
 	@Override
-	public List<ClaudeResponseMessage> getSummarizedTextByAI(String text) {
+	@Transactional
+	public List<Sentence> parseQuizSentenceList(String text, Summary summary) {
 
-		String prompt = promptUtil.getSummarizedPrompt(text);
+		orderCounter.set(1);
+		return getQuestions(text).stream()
+			.flatMap(questionResponse -> {
+				SentenceTitle sentenceTitle = SentenceTitle.builder()
+					.name(questionResponse.getTitle())
+					.build();
 
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
+				sentenceTitleRepository.save(sentenceTitle);
 
-		return claudeResponse.getContent();
+				return questionResponse.getQuestionAnswerResponseList().stream()
+					.map(questionAnswerResponse ->
+						Sentence.builder()
+							.summary(summary)
+
+							.sentenceTitle(sentenceTitle)
+							.sentencePoint(questionAnswerResponse.getPoint())
+
+							.order(orderCounter.getAndIncrement())
+							.question(questionAnswerResponse.getQuestion())
+							// TODO : 아직 questionAnswerResponse 에 normal detail simple
+							.sentenceContentNormal(questionAnswerResponse.getAnswer())
+							.sentenceContentDetail(questionAnswerResponse.getAnswer())
+							.sentenceContentSimple(questionAnswerResponse.getAnswer())
+							.build());
+			})
+			.toList();
 	}
 
-	/**
-	 * URL로부터 텍스트를 요약
-	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
-	 */
 	@Override
-	public List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text) {
+	@Transactional
+	public List<Sentence> parseSummarizedSentenceListByUrl(String text, Summary summary) {
 
-		String prompt = promptUtil.getUrlSummarizedPrompt(text);
+		orderCounter.set(1);
+		return getSummarizedTextFromUrl(text).stream()
+			.flatMap(claudeResponseMessage -> {
+				String summarizedText = claudeResponseMessage.getText();
+				List<String> summarizedSentenceList = sentenceUtil.splitByNewline(summarizedText);
 
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(prompt);
-
-		return claudeResponse.getContent();
+				return summarizedSentenceList.stream()
+					.map(summarizedSentence ->
+						Sentence.builder()
+							.sentenceContentNormal(summarizedSentence)
+							.order(orderCounter.getAndIncrement())
+							.summary(summary)
+							.openStatus(true)
+							.build());
+			})
+			.toList();
 	}
 
 	/**
@@ -143,7 +220,7 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
-	public String getTextByImgFileNameWithOcr(String savedFilename) {
+	public String getTextByFileUrlWithOcr(String savedFilename) {
 
 		List<String> sentenceStringList = clovaOCRUtil.requestTextByImageUrlOcr(savedFilename);
 		return sentenceUtil.joinStrings(sentenceStringList);
@@ -193,6 +270,26 @@ public class SentenceServiceImpl implements SentenceService {
 	// }
 
 	/**
+	 * @param text : 요약할 내용
+	 * @return List<ClaudeResponseMessage> : Claude 가 반환한 body 값
+	 */
+	private List<ClaudeResponseMessage> getSummarizedTextByAI(String text) {
+
+		String prompt = promptUtil.getSummarizedPrompt(text);
+		return claudeUtil.sendMessage(prompt).getContent();
+	}
+
+	/**
+	 * URL 로부터 텍스트를 요약
+	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
+	 */
+	private List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text) {
+
+		String prompt = promptUtil.getUrlSummarizedPrompt(text);
+		return claudeUtil.sendMessage(prompt).getContent();
+	}
+
+	/**
 	 * String을 받아서 문장 부호 기준으로 나누어 List로 반환
 	 * @return List<String>: 문장 리스트
 	 * @author 이주형
@@ -233,7 +330,7 @@ public class SentenceServiceImpl implements SentenceService {
 	public String createNewSentenceVoice(String content, String folderName) {
 
 		byte[] voiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(content, DSINU_MATT.getName());
-		return FileUtil.uploadSentenceVoiceFileByUuid(voiceData, folderName, RandomUtil.generateUUID());
+		return S3FileUtil.uploadSentenceVoiceFileByUuid(voiceData, folderName, RandomUtil.generateUUID());
 	}
 
 	@Override
@@ -244,7 +341,7 @@ public class SentenceServiceImpl implements SentenceService {
 	}
 
 	@Override
-	public List<QuestionResponse> getQuestions() {
+	public List<QuestionResponse> getQuestions(String text) {
 
 		List<QuestionAnswerResponse> list1 = new ArrayList<>();
 		QuestionAnswerResponse questionAnswerResponse1 = new QuestionAnswerResponse(

@@ -5,8 +5,8 @@ import java.util.List;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
+import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.global.error.CustomException;
-import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponseMessage;
 
 public interface SentenceService {
 
@@ -20,13 +20,19 @@ public interface SentenceService {
 	 * @param text : 요약할 내용
 	 * @return List<ClaudeResponseMessage> : Claude 가 반환한 body 값
 	 */
-	List<ClaudeResponseMessage> getSummarizedTextByAI(String text);
+	// List<ClaudeResponseMessage> getSummarizedTextByAI(String text);
 
 	/**
 	 * URL로부터 텍스트를 요약
 	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
 	 */
-	List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text);
+	// List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text);
+
+	List<Sentence> parseSummarizedSentenceList(String text, Summary summary);
+
+	List<Sentence> parseQuizSentenceList(String text, Summary summary);
+
+	List<Sentence> parseSummarizedSentenceListByUrl(String text, Summary summary);
 
 	/**
 	 * 문장 객체 반환
@@ -74,7 +80,7 @@ public interface SentenceService {
 
 	List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId);
 
-	String getTextByImgFileNameWithOcr(String savedFilename);
+	String getTextByFileUrlWithOcr(String savedFilename);
 
 	/**
 	 * 문장 삭제
@@ -87,5 +93,5 @@ public interface SentenceService {
 	 * @return S
 	 * @auther 이주형
 	 */
-	List<QuestionResponse> getQuestions();
+	List<QuestionResponse> getQuestions(String text);
 }
