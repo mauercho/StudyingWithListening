@@ -17,7 +17,12 @@ public class ClaudeTestController {
 
 	@GetMapping
 	public void testClaudeApi() {
-		claudeTestService.testClaudeApi();
+		claudeTestService.testTPQClaudeApi();
+	}
+
+	@GetMapping("/test")
+	public void testClaudeApi2() {
+		claudeTestService.testAnswerClaudeApi();
 	}
 
 }

@@ -21,13 +21,26 @@ public class ClaudeTestService {
 	private final PromptUtil promptUtil;
 	private final SentenceUtil sentenceUtil;
 
-	public void testClaudeApi() {
-		String testText = promptUtil.TPQSimple(getTestText());
-		// String testText = promptUtil.TPQ(getTestText());
+	public void testTPQClaudeApi() {
+		String testText = promptUtil.TPQ(getTestText());
 		// String testText = promptUtil.complete(getTestText());
 		// String testText = promptUtil.simple(getTestText());
 		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
-		List<String> newSentences = sentenceUtil.splitToSentences(claudeResponse.getContent().get(0).getText());
+		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
+
+		for (String sentence : newSentences) {
+			log.info("sentence: {}", sentence);
+		}
+	}
+
+	public void testAnswerClaudeApi() {
+		String T = "스키마와 지식 습득";
+		String P = "지식 습득의 기본 원리";
+		String Q = "새로운 지식은 어떤 방식으로 습득되나요?";
+
+		String testText = promptUtil.getAnswerPrompt(T, P, Q, getTestText());
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
+		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
 
 		for (String sentence : newSentences) {
 			log.info("sentence: {}", sentence);

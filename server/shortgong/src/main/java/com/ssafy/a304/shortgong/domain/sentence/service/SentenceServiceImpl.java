@@ -21,6 +21,7 @@ import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceTitleRepository;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.global.error.CustomException;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponseMessage;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
@@ -402,7 +403,8 @@ public class SentenceServiceImpl implements SentenceService {
 			switch (text.charAt(0)) {
 				case 'T':
 					if (!title.isEmpty()) {
-						questionResponseList.add(QuestionResponse.of(title, new ArrayList<>(questionAnswerResponseList)));
+						questionResponseList.add(
+							QuestionResponse.of(title, new ArrayList<>(questionAnswerResponseList)));
 						questionAnswerResponseList.clear();
 					}
 					title = text.substring(2).trim();
@@ -425,6 +427,17 @@ public class SentenceServiceImpl implements SentenceService {
 		}
 
 		return questionResponseList;
+	}
+
+	@Override
+	public List<String> getAnswerList(Sentence sentence, String text) {
+
+		String testText = promptUtil.getAnswerPrompt(sentence.getSentenceTitle().getName(), sentence.getSentencePoint(),
+			sentence.getQuestion(), text);
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
+
+		return sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
+
 	}
 
 }
