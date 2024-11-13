@@ -44,7 +44,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
 		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
 		// 요약집에 들어갈 문장 파싱 -> DB에 저장
-		List<Sentence> sentenceList = sentenceService.getSummarizedSentenceList(text, summary);
+		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
 		List<Sentence> savedSentences = sentenceService.saveSentences(sentenceList);
 		// 저장된 문장들을 TTS 요청하여 S3에 업로드하기
 		savedSentences.forEach(sentenceService::uploadSentenceVoice);
@@ -63,7 +63,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
 		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
 		// 요약집에 들어갈 문장 파싱 -> DB에 저장
-		List<Sentence> sentenceList = sentenceService.getSummarizedSentenceListByUrl(text, summary);
+		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
 		List<Sentence> savedSentences = sentenceService.saveSentences(sentenceList);
 		// 문장들을 TTS 요청하여 S3에 업로드하기
 		savedSentences.forEach(sentenceService::uploadSentenceVoice);

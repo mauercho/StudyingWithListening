@@ -1,0 +1,107 @@
+server:
+  port: ${BACK_PORT}
+
+fast-api:
+  base-url: ${PROTOCOL}://${DOMAIN}:${FAST_API_PORT}/crawling
+
+logging:
+  level:
+    root: ${ROOT_LOG_LEVEL}
+    com.ssafy.a304.shortgong.domain: ${DOMAIN_LOG_LEVEL}
+    com.ssafy.a304.shortgong.global: ${GLOBAL_LOG_LEVEL}
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  application:
+    name: shortgong
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DOMAIN}:3306/${SCHEMA_NAME}?serverTimezone=Asia/Seoul
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          time_zone: Asia/Seoul
+        ddl-auto: ${JPA_DDL_AUTO_OPTION}
+        format_sql: true
+    defer-datasource-initialization: true
+    generate-ddl: true
+    show-sql: ${JPA_SHOW_SQL_OPTION}
+    open-in-view: false
+
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE}
+
+  data:
+    redis:
+      host: ${DOMAIN}
+      port: ${REDIS_PORT}
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  naver:
+    tts:
+      url: https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts
+      client-id: ${NAVER_SHORTGONG_CLIENT_ID}
+      client-secret: ${NAVER_SHORTGONG_CLIENT_SECRET}
+    ocr:
+      url: ${NAVER_OCR_URL}
+      secret-key: ${NAVER_OCR_SECRET}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+cors:
+  allowedOrigins: ${PROTOCOL}://${DOMAIN}:${FRONT_PORT}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+expire-time:
+  redis-access-token: 14400
+  jwt-access-token: 36000000
+  jwt-refresh-token: 604800000
+
+cloud:
+  aws:
+    s3:
+      bucket: ${S3_BUCKET_NAME}
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+    region:
+      static: us-east-1
+      auto: false
+    stack:
+      auto: false
+    cloudfront:
+      domain: ${CLOUDFRONT_DOMAIN}
+      key-pair-id: ${CLOUDFRONT_KEY_PAIR_ID}
+      private-key: ${CLOUDFRONT_KEY_FILE_PATH}
+
+file:
+  path:
+    user-profile-folder: user
+    summary-folder: summary
+    upload-content-folder: upload-content
+
+claude:
+  api:
+    key: ${CLAUDE_API_SECRET_KEY}
+    url: https://api.anthropic.com/v1/messages
+    model: claude-3-5-sonnet-20241022
+    temperature: 0.7
+    max-tokens: 8192

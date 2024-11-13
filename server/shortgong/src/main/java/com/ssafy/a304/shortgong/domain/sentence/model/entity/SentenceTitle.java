@@ -27,5 +27,5 @@ public class SentenceTitle {
 	private Long id;
 
 	@Column(name = "sentence_title_name", columnDefinition = "VARCHAR(128)")
-	private String sentenceTitleName;
+	private String name;
 }

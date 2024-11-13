@@ -49,6 +49,9 @@ public class Sentence extends BaseEntity {
 	@Column(name = "sentence_point", nullable = false, columnDefinition = "TEXT")
 	private String sentencePoint;
 
+	@Column(name = "sentence_question", nullable = false, columnDefinition = "TEXT")
+	private String question;
+
 	@Column(name = "sentence_content_normal", nullable = false, columnDefinition = "TEXT")
 	private String sentenceContentNormal;
 
@@ -78,9 +81,12 @@ public class Sentence extends BaseEntity {
 	@OneToMany(mappedBy = "sentence", cascade = ALL, orphanRemoval = true, fetch = LAZY)
 	private List<Index> indexes = new ArrayList<>();
 
-	public void updateVoiceFileName(String voiceFileName) {
+	public void updateVoiceFileNames(String normalVoiceFileName, String simpleVoiceFileName,
+		String detailVoiceFileName) {
 
-		this.normalVoiceFileName = voiceFileName;
+		this.normalVoiceFileName = normalVoiceFileName;
+		this.simpleVoiceFileName = simpleVoiceFileName;
+		this.detailVoiceFileName = detailVoiceFileName;
 	}
 
 	public void updateOpenStatus(Boolean openStatus) {

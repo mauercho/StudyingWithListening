@@ -28,9 +28,11 @@ public interface SentenceService {
 	 */
 	// List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text);
 
-	List<Sentence> getSummarizedSentenceList(String text, Summary summary);
+	List<Sentence> parseSummarizedSentenceList(String text, Summary summary);
 
-	List<Sentence> getSummarizedSentenceListByUrl(String text, Summary summary);
+	List<Sentence> parseQuizSentenceList(String text, Summary summary);
+
+	List<Sentence> parseSummarizedSentenceListByUrl(String text, Summary summary);
 
 	/**
 	 * 문장 객체 반환
@@ -91,5 +93,5 @@ public interface SentenceService {
 	 * @return S
 	 * @auther 이주형
 	 */
-	List<QuestionResponse> getQuestions();
+	List<QuestionResponse> getQuestions(String text);
 }
