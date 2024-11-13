@@ -13,6 +13,7 @@ const Container = styled.header`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid ${({ theme }) => theme.color.primary};
+  box-sizing: border-box;
 `
 
 const Space = styled.div`
