@@ -1,18 +1,19 @@
 package com.ssafy.a304.shortgong.global.util;
 
-import static com.ssafy.a304.shortgong.global.errorCode.ClovaErrorCode.*;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 
 import lombok.RequiredArgsConstructor;
@@ -25,11 +26,43 @@ public class EmbeddingUtil {
 
 	private final RestTemplate restTemplate;
 
+	private final ObjectMapper objectMapper = new ObjectMapper();
+
 	@Value("${google.cloud.api-url}")
 	private String apiUrl;
 
 	@Value("${google.cloud.auth-file-path}")
 	private String authFilePath;
+
+	// Embedding 결과 값 리턴
+	public double[] getTextEmbedding(String content) throws IOException {
+
+		Map<String, Object> instance = new HashMap<>();
+		instance.put("task_type", "SEMANTIC_SIMILARITY");
+		instance.put("content", content);
+
+		Map<String, Object> requestBody = new HashMap<>();
+		requestBody.put("instances", new Map[] {instance});
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + getAccessToken());
+
+		HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+		String response = restTemplate.postForObject(apiUrl, request, String.class);
+
+		// JSON 응답에서 values 배열만 추출
+		JsonNode rootNode = objectMapper.readTree(response);
+		JsonNode valuesNode = rootNode.path("predictions").get(0).path("embeddings").path("values");
+
+		// values 배열을 double[]로 변환하여 반환
+		double[] values = new double[valuesNode.size()];
+		for (int i = 0; i < valuesNode.size(); i++) {
+			values[i] = valuesNode.get(i).asDouble();
+		}
+
+		return values;
+	}
 
 	// 구글 클라우드 access token 발급
 	private String getAccessToken() throws IOException {
@@ -40,37 +73,4 @@ public class EmbeddingUtil {
 		credentials.refreshIfExpired();
 		return credentials.getAccessToken().getTokenValue();
 	}
-
-	// Embedding 결과 값 리턴
-	public String getTextEmbedding(String content) {
-
-		Map<String, Object> instance = new HashMap<>();
-		instance.put("task_type", "SEMANTIC_SIMILARITY");
-		instance.put("content", content);
-
-		Map<String, Object> requestBody = new HashMap<>();
-		requestBody.put("instances", new Map[] {instance});
-
-
-	// 	try {
-	// 		String response = restTemplate.exchange(
-	// 			naverOCRConfig.getNaverOCRUrl(),
-	// 			HttpMethod.POST,
-	// 			request,
-	// 			String.class
-	// 		).getBody();
-	//
-	// 		return parseSentencesFromResponse(response);
-	// 	} catch (RestClientException e) {
-	// 		log.debug("{} : {}", NAVER_CLOVA_OCR_REQUEST_FAIL.getMessage(), e.getMessage());
-	// 		// TODO: 커스텀 Exception 변경하기
-	// 		throw new IllegalArgumentException(e.getMessage());
-	// 	}
-	// 	return webClient.post()
-	// 		.uri(apiUrl)
-	// 		.header("Authorization", "Bearer " + getAccessToken())
-	// 		.bodyValue(requestBody)
-	// 		.retrieve()
-	// 		.bodyToMono(Map.class);
-	// }
 }
