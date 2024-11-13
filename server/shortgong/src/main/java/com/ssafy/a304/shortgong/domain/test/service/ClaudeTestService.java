@@ -22,8 +22,10 @@ public class ClaudeTestService {
 	private final SentenceUtil sentenceUtil;
 
 	public void testClaudeApi() {
+		String testText = promptUtil.TPQSimple(getTestText());
+		// String testText = promptUtil.TPQ(getTestText());
 		// String testText = promptUtil.complete(getTestText());
-		String testText = promptUtil.simple(getTestText());
+		// String testText = promptUtil.simple(getTestText());
 		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
 		List<String> newSentences = sentenceUtil.splitToSentences(claudeResponse.getContent().get(0).getText());
 
