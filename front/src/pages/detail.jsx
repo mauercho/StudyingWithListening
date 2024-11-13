@@ -14,26 +14,42 @@ import usePlayerStore from '../stores/usePlayerStore'
 import BookmarkMenu from '../components/BookmarkMenu'
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
   width: 100%;
-  height: 80vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 `
 
 const HeaderWrapper = styled.div`
   width: 100%;
   max-width: 768px;
+  top: 60px;
+  position: fixed;
   background: ${({ theme }) => theme.color.white};
   z-index: 80;
   border-radius: 0 0 16px 16px;
+  padding: 0 10px;
+  box-sizing: border-box;
+`
+
+const ModeSelectWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  top: 95px;
+  position: fixed;
+  padding: 0 10px;
+  box-sizing: border-box;
 `
 
 const Main = styled.div`
-  margin-top: 30px;
+  position: fixed;
+  top: 120px;
+  bottom: 75px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  padding: 0 10px;
+  box-sizing: border-box;
 `
 
 const ContentArea = styled.ul`
@@ -43,7 +59,7 @@ const ContentArea = styled.ul`
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 310px;
   overflow-y: auto;
   box-sizing: border-box;
   background: ${({ theme }) => theme.color.grey};
@@ -58,19 +74,7 @@ export default function Detail() {
 
   const { setSummaryTitle, setVoiceUrl } = usePlayerStore()
 
-  const [sentences, setSentences] = useState([
-    {
-      id: 1,
-      content:
-        '컴퓨터는 이진수로 데이터를 표현하며, 0과 1로 이루어진 비트를 사용합니다.',
-      openStatus: 'normal',
-    },
-    {
-      id: 2,
-      content: '알고리즘은 문제 해결을 위한 명확한 절차 또는 단계입니다.',
-      openStatus: 'hidden',
-    },
-  ])
+  const [sentences, setSentences] = useState([])
 
   useEffect(() => {
     const fetchSentences = async () => {
@@ -241,12 +245,14 @@ export default function Detail() {
           toggleOpen={toggleTable}
         />
       </HeaderWrapper>
-      <Main>
+      <ModeSelectWrapper>
         <BookmarkMenu
           summaryMode={summaryMode}
           onButtonClick={handleSummaryMode}
           menuItems={modeMenuItems}
         />
+      </ModeSelectWrapper>
+      <Main>
         <ContentArea id="content-area">
           {sentences.map((sentence) => (
             <Element name={`sentence-${sentence.id}`} key={sentence.id}>
