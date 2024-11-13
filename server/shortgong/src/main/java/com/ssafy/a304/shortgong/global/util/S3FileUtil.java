@@ -12,6 +12,7 @@ import java.nio.file.StandardOpenOption;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class FileUtil {
+public class S3FileUtil {
 
 	private static AmazonS3 staticAmazonS3Client;
 
@@ -38,7 +39,7 @@ public class FileUtil {
 
 	private static String staticBucket;
 
-	private static CloudFrontSignedUrlUtil staticCloudFrontSignedUrlUtil;
+	private static CloudFrontSignedUrlUtil staticCloudFrontPreSignedUrlUtil;
 
 	private final AmazonS3 amazonS3Client;
 
@@ -53,7 +54,7 @@ public class FileUtil {
 	private final CloudFrontSignedUrlUtil cloudFrontSignedUrlUtil;
 
 	@Autowired
-	public FileUtil(AmazonS3 amazonS3Client,
+	public S3FileUtil(AmazonS3 amazonS3Client,
 		CloudFrontSignedUrlUtil cloudFrontSignedUrlUtil,
 		@Value("${file.path.user-profile-folder}") String userProfileFolderPath,
 		@Value("${file.path.summary-folder}") String summaryListFolderPath,
@@ -67,6 +68,23 @@ public class FileUtil {
 		this.uploadContentFolderPath = uploadContentFolderPath;
 		this.bucket = bucket;
 		this.cloudFrontSignedUrlUtil = cloudFrontSignedUrlUtil;
+	}
+
+	public static MultipartFile getTextFileByText(String text) {
+
+		Path textFilePath = S3FileUtil.createTextFile(text, "upload_content");
+		byte[] textByteData;
+		try {
+			textByteData = Files.readAllBytes(textFilePath);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		}
+		return new MockMultipartFile(
+			"file",
+			textFilePath.getFileName().toString(),
+			"text/plain",
+			textByteData
+		);
 	}
 
 	/**
@@ -115,20 +133,9 @@ public class FileUtil {
 		return upload(convert(file), staticSummaryListFolderPath + "/" + summaryUuid, mp3FileUuid, getExtension(file));
 	}
 
-	// TODO : 세 get 메서드 모두 getFileUrl(String fileName) 로 통일 할 지 고민하기
-	public static String getUserProfileImgUrl(String fileName) throws CustomException {
+	public static String getPreSignedUrl(String fileName) throws CustomException {
 
-		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName);
-	}
-
-	public static String getSentenceVoiceFileUrl(String fileName) throws CustomException {
-
-		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName);
-	}
-
-	public static String getUploadContentUrl(String fileName) throws CustomException {
-
-		return staticCloudFrontSignedUrlUtil.generateSignedUrl(fileName);
+		return staticCloudFrontPreSignedUrlUtil.generateSignedUrl(fileName);
 	}
 
 	public static String getExtension(MultipartFile file) throws CustomException {
@@ -297,7 +304,7 @@ public class FileUtil {
 		staticSummaryListFolderPath = summaryListFolderPath;
 		staticUploadContentFolderPath = uploadContentFolderPath;
 		staticBucket = bucket;
-		staticCloudFrontSignedUrlUtil = cloudFrontSignedUrlUtil;
+		staticCloudFrontPreSignedUrlUtil = cloudFrontSignedUrlUtil;
 	}
 
 }

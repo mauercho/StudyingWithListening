@@ -15,7 +15,7 @@ import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
 import com.ssafy.a304.shortgong.global.util.CrawlingServerConnectUtil;
-import com.ssafy.a304.shortgong.global.util.FileUtil;
+import com.ssafy.a304.shortgong.global.util.S3FileUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +58,7 @@ public class UploadContentServiceImpl implements UploadContentService {
 	@Transactional
 	public UploadContent convertFileToText(UploadContent uploadContent) {
 
-		String fileName = FileUtil.getUploadContentUrl(uploadContent.getFileName());
+		String fileName = S3FileUtil.getPreSignedUrl(uploadContent.getFileName());
 
 		List<String> sentenceList = clovaOCRUtil.requestTextByImageUrlOcr(fileName);
 		for (String sentence : sentenceList) {
@@ -72,7 +72,7 @@ public class UploadContentServiceImpl implements UploadContentService {
 	@Override
 	public String uploadContentFile(MultipartFile contentFile) {
 
-		return FileUtil.uploadContentFileByUuid(contentFile, UUID.randomUUID().toString());
+		return S3FileUtil.uploadContentFileByUuid(contentFile, UUID.randomUUID().toString());
 	}
 
 }

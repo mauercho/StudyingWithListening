@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -50,15 +49,15 @@ public class Sentence extends BaseEntity {
 	@Column(name = "sentence_point", nullable = false, columnDefinition = "TEXT")
 	private String sentencePoint;
 
-	@Setter
+	@Column(name = "sentence_question", nullable = false, columnDefinition = "TEXT")
+	private String question;
+
 	@Column(name = "sentence_content_normal", nullable = false, columnDefinition = "TEXT")
 	private String sentenceContentNormal;
 
-	@Setter
 	@Column(name = "sentence_content_simple", nullable = false, columnDefinition = "TEXT")
 	private String sentenceContentSimple;
 
-	@Setter
 	@Column(name = "sentence_content_detail", nullable = false, columnDefinition = "TEXT")
 	private String sentenceContentDetail;
 
@@ -82,9 +81,12 @@ public class Sentence extends BaseEntity {
 	@OneToMany(mappedBy = "sentence", cascade = ALL, orphanRemoval = true, fetch = LAZY)
 	private List<Index> indexes = new ArrayList<>();
 
-	public void updateVoiceFileName(String voiceFileName) {
+	public void updateVoiceFileNames(String normalVoiceFileName, String simpleVoiceFileName,
+		String detailVoiceFileName) {
 
-		this.normalVoiceFileName = voiceFileName;
+		this.normalVoiceFileName = normalVoiceFileName;
+		this.simpleVoiceFileName = simpleVoiceFileName;
+		this.detailVoiceFileName = detailVoiceFileName;
 	}
 
 	public void updateOpenStatus(Boolean openStatus) {

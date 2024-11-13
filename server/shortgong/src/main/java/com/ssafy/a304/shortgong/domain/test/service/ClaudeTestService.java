@@ -22,7 +22,8 @@ public class ClaudeTestService {
 	private final SentenceUtil sentenceUtil;
 
 	public void testClaudeApi() {
-		String testText = promptUtil.complete(getTestText());
+		// String testText = promptUtil.complete(getTestText());
+		String testText = promptUtil.simple(getTestText());
 		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
 		List<String> newSentences = sentenceUtil.splitToSentences(claudeResponse.getContent().get(0).getText());
 
@@ -30,8 +31,6 @@ public class ClaudeTestService {
 			log.info("sentence: {}", sentence);
 		}
 	}
-
-
 
 	public String getTestText() {
 		return String.join("", "공부란 스키마로 해석‧재구성해 새로운 스키마를 만드는 것\n",

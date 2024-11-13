@@ -3,6 +3,7 @@ package com.ssafy.a304.shortgong.domain.summary.model.dto.response;
 import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
+import com.ssafy.a304.shortgong.domain.sentence.model.entity.SentenceTitle;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,13 +12,17 @@ import lombok.Getter;
 public class SummaryDetailResponse {
 
 	private final String summaryTitle;
-	// TODO : 목차 필드 생성
+	private final List<SentenceTitle> sentenceTitleList; // 목차
 	private final List<SentenceResponse> sentenceResponseList;
 
 	@Builder
-	SummaryDetailResponse(String summaryTitle, List<SentenceResponse> sentenceResponseList) {
+	SummaryDetailResponse(
+		String summaryTitle,
+		List<SentenceTitle> sentenceTitleList,
+		List<SentenceResponse> sentenceResponseList) {
 
 		this.summaryTitle = summaryTitle;
+		this.sentenceTitleList = sentenceTitleList;
 		this.sentenceResponseList = sentenceResponseList;
 	}
 }

@@ -52,7 +52,7 @@ public class SummaryController {
 
 		if (type.equals(UploadContentType.IMAGE.getType())) {
 			// TODO : contentFile 유효성 검사 ?
-			return ResponseEntity.ok(summaryFacade.uploadContent(contentFile));
+			return ResponseEntity.ok(summaryFacade.uploadContentByFile(contentFile));
 		} else if (type.equals(UploadContentType.URL.getType())) {
 			// TODO : url 유효성 검사
 			return ResponseEntity.ok(summaryFacade.uploadTextFileByUrl(url));
