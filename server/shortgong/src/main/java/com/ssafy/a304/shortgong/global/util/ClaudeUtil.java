@@ -13,8 +13,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.ssafy.a304.shortgong.global.model.dto.request.ClaudeRequest;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeMessage;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
-import com.ssafy.a304.shortgong.global.model.entity.ClaudeMessage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +69,8 @@ public class ClaudeUtil {
 		// API 요청 보내기
 		ResponseEntity<ClaudeResponse> responseEntity = restTemplate.postForEntity(API_URL, requestEntity,
 			ClaudeResponse.class);
+		
+		log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
 
 		return responseEntity.getBody();
 	}

@@ -13,6 +13,7 @@ import com.ssafy.a304.shortgong.domain.summary.repository.SummaryRepository;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 import com.ssafy.a304.shortgong.global.error.CustomException;
+import com.ssafy.a304.shortgong.global.util.CrawlingServerConnectUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class SummaryServiceImpl implements SummaryService {
 
+	private final CrawlingServerConnectUtil crawlingServerConnectUtil;
 	private final SummaryRepository summaryRepository;
 
 	@Override
@@ -48,10 +50,16 @@ public class SummaryServiceImpl implements SummaryService {
 	}
 
 	@Override
-	public List<SummaryOverviewResponse> selectSummaryListByUser(User user) {
+	public List<SummaryOverviewResponse> searchSummaryListByUser(User user) {
 
 		return summaryRepository.findAllByWriter(user).stream()
 			.map(SummaryOverviewResponse::new)
 			.toList();
+	}
+
+	@Override
+	public String getTextByCrawlingUrl(String url) {
+
+		return crawlingServerConnectUtil.getBodyTextByUrl(url);
 	}
 }

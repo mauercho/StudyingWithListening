@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.ThreeAnswerResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.global.model.entity.BaseEntity;
 
@@ -24,7 +25,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -43,12 +43,33 @@ public class Sentence extends BaseEntity {
 	@JoinColumn(name = "summary_id", nullable = false)
 	private Summary summary;
 
-	@Setter
-	@Column(name = "sentence_content", nullable = false, columnDefinition = "TEXT")
-	private String sentenceContent;
+	@ManyToOne(fetch = LAZY)
+	@JoinColumn(name = "sentence_title_id", nullable = false)
+	private SentenceTitle sentenceTitle;
 
-	@Column(name = "voice_file_name", columnDefinition = "VARCHAR(128)")
-	private String voiceFileName;
+	@Column(name = "sentence_point", nullable = false, columnDefinition = "TEXT")
+	private String sentencePoint;
+
+	@Column(name = "sentence_question", nullable = false, columnDefinition = "TEXT")
+	private String question;
+
+	@Column(name = "sentence_content_normal", nullable = false, columnDefinition = "TEXT")
+	private String sentenceContentNormal;
+
+	@Column(name = "sentence_content_simple", nullable = false, columnDefinition = "TEXT")
+	private String sentenceContentSimple;
+
+	@Column(name = "sentence_content_detail", nullable = false, columnDefinition = "TEXT")
+	private String sentenceContentDetail;
+
+	@Column(name = "normal_voice_file_name", columnDefinition = "VARCHAR(256)")
+	private String normalVoiceFileName;
+
+	@Column(name = "detail_voice_file_name", columnDefinition = "VARCHAR(256)")
+	private String detailVoiceFileName;
+
+	@Column(name = "simple_voice_file_name", columnDefinition = "VARCHAR(256)")
+	private String simpleVoiceFileName;
 
 	@Column(name = "sentence_order", nullable = false)
 	private Integer order;
@@ -61,9 +82,12 @@ public class Sentence extends BaseEntity {
 	@OneToMany(mappedBy = "sentence", cascade = ALL, orphanRemoval = true, fetch = LAZY)
 	private List<Index> indexes = new ArrayList<>();
 
-	public void updateVoiceFileName(String voiceFileName) {
+	public void updateVoiceFileNames(String normalVoiceFileName, String simpleVoiceFileName,
+		String detailVoiceFileName) {
 
-		this.voiceFileName = voiceFileName;
+		this.normalVoiceFileName = normalVoiceFileName;
+		this.simpleVoiceFileName = simpleVoiceFileName;
+		this.detailVoiceFileName = detailVoiceFileName;
 	}
 
 	public void updateOpenStatus(Boolean openStatus) {
@@ -71,4 +95,16 @@ public class Sentence extends BaseEntity {
 		this.openStatus = openStatus;
 	}
 
+	public void updateThreeAnswerResponse(ThreeAnswerResponse threeAnswerResponse) {
+
+		if (threeAnswerResponse.getDetailAnswer() != null) {
+			this.sentenceContentDetail = threeAnswerResponse.getDetailAnswer();
+		}
+		if (threeAnswerResponse.getSimpleAnswer() != null) {
+			this.sentenceContentSimple = threeAnswerResponse.getSimpleAnswer();
+		}
+		if (threeAnswerResponse.getNormalAnswer() != null) {
+			this.sentenceContentNormal = threeAnswerResponse.getNormalAnswer();
+		}
+	}
 }
