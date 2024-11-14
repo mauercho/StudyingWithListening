@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.core.task.TaskRejectedException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+// @Transactional(readOnly = true) : async 를 위해 클래스 단위의 적용 취소
 public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
@@ -54,9 +56,10 @@ public class SentenceServiceImpl implements SentenceService {
 	 * 문장에 해당하는 voice 생성 & 저장
 	 * @return 파일명
 	 * */
+	@Async
 	@Override
-	@Transactional
-	public void uploadSentenceVoice(Sentence sentence) {
+	// @Transactional
+	public void uploadSentenceVoice(Sentence sentence) throws TaskRejectedException {
 
 		byte[] normalVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
 			sentence.getSentenceContentNormal(),
