@@ -55,7 +55,7 @@ export default function FileInput() {
   const navigate = useNavigate()
   const [type, setType] = useState('PDF')
   const [data, setData] = useState('')
-  const [name, setName] = useState('원하시는 학습 자료를 업로드해주세요!')
+  const [name, setName] = useState('왼쪽 + 버튼을 눌러 업로드해주세요!')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const buttonRef = useRef(null)
   const inputRef = useRef(null)
@@ -64,7 +64,7 @@ export default function FileInput() {
 
   const handleInput = (inputType) => {
     setType(inputType)
-    setName('원하시는 학습 자료를 업로드해주세요!')
+    setName('왼쪽 + 버튼을 눌러 업로드해주세요!')
     setData('')
 
     if (inputType === 'PDF' || inputType === 'IMAGE') {
