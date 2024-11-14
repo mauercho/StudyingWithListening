@@ -12,6 +12,7 @@ public class SentenceResponse {
 	private final Long id;
 	private final Long sentenceTitleId;
 	private final String sentencePoint;
+	private final String question;
 
 	private final Integer order;
 	private final boolean openStatus;
@@ -30,7 +31,7 @@ public class SentenceResponse {
 		this.id = sentence.getId();
 		this.sentenceTitleId = sentence.getSentenceTitle().getId();
 		this.sentencePoint = sentence.getSentencePoint();
-
+		this.question = sentence.getQuestion();
 		this.order = sentence.getOrder();
 		this.openStatus = sentence.getOpenStatus();
 

@@ -6,16 +6,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.ssafy.a304.shortgong.global.model.dto.request.ClaudeRequest;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeMessage;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,10 +25,7 @@ public class ClaudeUtil {
 	private final RestTemplate restTemplate;
 
 	@Value("${claude.api.url}")
-	private String API_URL;
-
-	@Value("${claude.api.key}")
-	private String apiKey;
+	private String apiUrl;
 
 	@Value("${claude.api.model}")
 	private String model;
@@ -41,7 +36,39 @@ public class ClaudeUtil {
 	@Value("${claude.api.max-tokens}")
 	private Integer maxTokens;
 
-	@Retryable(value = HttpServerErrorException.class, maxAttempts = 5, backoff = @Backoff(delay = 3000))
+	@Value("${claude.api.keys.key-1}")
+	private String apiKey1;
+
+	@Value("${claude.api.keys.key-2}")
+	private String apiKey2;
+	@Value("${claude.api.keys.key-3}")
+	private String apiKey3;
+	@Value("${claude.api.keys.key-4}")
+	private String apiKey4;
+	@Value("${claude.api.keys.key-5}")
+	private String apiKey5;
+	@Value("${claude.api.keys.key-6}")
+	private String apiKey6;
+	@Value("${claude.api.keys.key-7}")
+	private String apiKey7;
+	@Value("${claude.api.keys.key-8}")
+	private String apiKey8;
+	@Value("${claude.api.keys.key-9}")
+	private String apiKey9;
+	@Value("${claude.api.keys.key-10}")
+	private String apiKey10;
+
+	private String[] apiKeys;
+
+	private int apiKeyIndex = 0;
+
+	@PostConstruct
+	private void initializeApiKeys() {
+
+		apiKeys = new String[] {apiKey1, apiKey2, apiKey3, apiKey4, apiKey5, apiKey6, apiKey7, apiKey8, apiKey9,
+			apiKey10};
+	}
+
 	public ClaudeResponse sendMessage(String userMessage) {
 
 		// 요청 데이터 설정
@@ -60,18 +87,24 @@ public class ClaudeUtil {
 		// HTTP 헤더 설정
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
-		headers.set("x-api-key", apiKey);
+		headers.set("x-api-key", getApiKey());
 		headers.set("anthropic-version", "2023-06-01");
 
 		// HTTP 요청 생성
 		HttpEntity<ClaudeRequest> requestEntity = new HttpEntity<>(requestPayload, headers);
 
 		// API 요청 보내기
-		ResponseEntity<ClaudeResponse> responseEntity = restTemplate.postForEntity(API_URL, requestEntity,
+		ResponseEntity<ClaudeResponse> responseEntity = restTemplate.postForEntity(apiUrl, requestEntity,
 			ClaudeResponse.class);
-		
+
 		log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
 
 		return responseEntity.getBody();
+	}
+
+	private String getApiKey() {
+
+		apiKeyIndex = (apiKeyIndex + 1) % apiKeys.length;
+		return apiKeys[apiKeyIndex];
 	}
 }

@@ -106,26 +106,21 @@ public class SentenceServiceImpl implements SentenceService {
 		orderCounter.set(1);
 		return getQuestions(text).stream()
 			.flatMap(questionResponse -> {
-				SentenceTitle sentenceTitle = SentenceTitle.builder()
-					.name(questionResponse.getTitle())
-					.build();
-
-				sentenceTitleRepository.save(sentenceTitle);
+				SentenceTitle sentenceTitle;
+				sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
+					.orElseGet(() -> sentenceTitleRepository.save(
+						SentenceTitle.builder()
+							.name(questionResponse.getTitle())
+							.build()));
 
 				return questionResponse.getQuestionAnswerResponseList().stream()
 					.map(questionAnswerResponse ->
 						Sentence.builder()
 							.summary(summary)
-
 							.sentenceTitle(sentenceTitle)
 							.sentencePoint(questionAnswerResponse.getPoint())
-
-							.order(orderCounter.getAndIncrement())
 							.question(questionAnswerResponse.getQuestion())
-							// TODO : 아직 questionAnswerResponse 에 normal detail simple
-							// .sentenceContentNormal(questionAnswerResponse.getAnswer())
-							// .sentenceContentDetail(questionAnswerResponse.getAnswer())
-							// .sentenceContentSimple(questionAnswerResponse.getAnswer())
+							.order(orderCounter.getAndIncrement())
 							.build());
 			})
 			.toList();
@@ -202,7 +197,6 @@ public class SentenceServiceImpl implements SentenceService {
 	@Override
 	public Sentence setAnswers(Sentence sentence, String originalText) {
 
-		log.info("setAnswers 진입");
 		// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
 		List<String> sentenceList = getAnswerList(sentence, originalText);
 		ThreeAnswerResponse threeAnswerResponse = getAnswersByText(sentenceList);
@@ -227,27 +221,6 @@ public class SentenceServiceImpl implements SentenceService {
 		return sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
 	}
 
-	private ThreeAnswerResponse getAnswersByText(List<String> sentenceList) {
-
-		ThreeAnswerResponse threeAnswerResponse = new ThreeAnswerResponse();
-
-		sentenceList.forEach(
-			sentenceBeforeParsed -> {
-				log.info("sentenceBeforeParsed: {}", sentenceBeforeParsed);
-				String prefix = sentenceBeforeParsed.substring(0, 2);
-				String answer = sentenceBeforeParsed.substring(2).trim();
-
-				if ("NA".equals(prefix)) {
-					threeAnswerResponse.setNormalAnswer(answer);
-				} else if ("SA".equals(prefix)) {
-					threeAnswerResponse.setSimpleAnswer(answer);
-				} else if ("DA".equals(prefix)) {
-					threeAnswerResponse.setDetailAnswer(answer);
-				}
-			});
-		return threeAnswerResponse;
-	}
-
 	private List<QuestionResponse> getQuestionList(List<String> texts) {
 
 		int count = 0;
@@ -260,6 +233,7 @@ public class SentenceServiceImpl implements SentenceService {
 			String sentence = text.substring(2).trim();
 			switch (text.charAt(0)) {
 				case 'T':
+					log.info("Title: {}", sentence);
 					questionResponse.setTitle(sentence);
 					break;
 				case 'P':
@@ -278,6 +252,26 @@ public class SentenceServiceImpl implements SentenceService {
 			}
 		}
 		return questionResponseList;
+	}
+
+	private ThreeAnswerResponse getAnswersByText(List<String> sentenceList) {
+
+		ThreeAnswerResponse threeAnswerResponse = new ThreeAnswerResponse();
+
+		sentenceList.forEach(
+			sentenceBeforeParsed -> {
+				String prefix = sentenceBeforeParsed.substring(0, 2);
+				String answer = sentenceBeforeParsed.substring(4).trim();  // 2 -> 4로 변경함
+
+				if ("NA".equals(prefix)) {
+					threeAnswerResponse.setNormalAnswer(answer);
+				} else if ("SA".equals(prefix)) {
+					threeAnswerResponse.setSimpleAnswer(answer);
+				} else if ("DA".equals(prefix)) {
+					threeAnswerResponse.setDetailAnswer(answer);
+				}
+			});
+		return threeAnswerResponse;
 	}
 
 	/**
