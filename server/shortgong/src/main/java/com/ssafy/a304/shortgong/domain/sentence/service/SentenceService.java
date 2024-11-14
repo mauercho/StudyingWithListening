@@ -103,12 +103,5 @@ public interface SentenceService {
 
 	List<QuestionResponse> getQuestions(String text);
 
-	/**
-	 * TPQ에 해당하는 3가지 Answer를 반환
-	 * @return List<String> (TPQ에 해당하는 3가지 Answer)
-	 * @auther 이주형
-	 */
-	List<String> getAnswerList(Sentence sentence, String text);
-	
 	Sentence setAnswers(Sentence sentence, String text);
 }

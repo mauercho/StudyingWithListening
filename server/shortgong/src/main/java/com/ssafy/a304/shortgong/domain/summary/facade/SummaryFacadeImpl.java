@@ -67,7 +67,7 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
 		sentenceList = sentenceService.saveSentences(sentenceList);
 
-		// Answer 들만 따로 요청 & 저장
+		// Answer 들만 따로 요청 & 일괄 저장
 		List<Sentence> sentenceListContainAnswers = sentenceList.stream().map(
 			// sentence 에 빈 부분 (NA, SA, DA) 채우기
 			sentence -> sentenceService.setAnswers(sentence, text)).toList();

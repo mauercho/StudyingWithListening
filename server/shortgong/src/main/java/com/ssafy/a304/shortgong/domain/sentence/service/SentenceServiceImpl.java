@@ -401,14 +401,8 @@ public class SentenceServiceImpl implements SentenceService {
 	@Override
 	public Sentence setAnswers(Sentence sentence, String originalText) {
 		// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
-		String textIncludeAnswers = "DA 디테일한 답변\nNA 일반적인 답변\nSA 간단한 답변\n";
-		// String textIncludeAnswers = promptUtil.answer(
-		// 	sentence.getSentenceTitle().getName(),
-		// 	sentence.getSentencePoint(),
-		// 	sentence.getQuestion(),
-		// 	originalText);
-
-		ThreeAnswerResponse threeAnswerResponse = getAnswersByText(textIncludeAnswers);
+		List<String> sentenceList = getAnswerList(sentence, originalText);
+		ThreeAnswerResponse threeAnswerResponse = getAnswersByText(sentenceList);
 		sentence.updateThreeAnswerResponse(threeAnswerResponse);
 		return sentence;
 	}
@@ -455,19 +449,24 @@ public class SentenceServiceImpl implements SentenceService {
 		return questionResponseList;
 	}
 
-	@Override
-	public List<String> getAnswerList(Sentence sentence, String text) {
+	/**
+	 * TPQ에 해당하는 3가지 Answer를 반환
+	 * @return List<String> (TPQ에 해당하는 3가지 Answer)
+	 * @auther 이주형
+	 */
+	private List<String> getAnswerList(Sentence sentence, String text) {
 
-		String testText = promptUtil.getAnswerPrompt(sentence.getSentenceTitle().getName(), sentence.getSentencePoint(),
-				sentence.getQuestion(), text);
+		String testText = promptUtil.getAnswerPrompt(
+			sentence.getSentenceTitle().getName(),
+			sentence.getSentencePoint(),
+			sentence.getQuestion(),
+			text);
 		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
 
 		return sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
 	}
-	
-	private ThreeAnswerResponse getAnswersByText(String textIncludeAnswers) {
 
-		List<String> sentenceList = sentenceUtil.splitByNewline(textIncludeAnswers);
+	private ThreeAnswerResponse getAnswersByText(List<String> sentenceList) {
 
 		ThreeAnswerResponse threeAnswerResponse = new ThreeAnswerResponse();
 
