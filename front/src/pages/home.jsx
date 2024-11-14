@@ -46,7 +46,8 @@ const EmptyContainer = styled.div`
   justify-content: center;
   width: 100%;
   height: 250px;
-  border: 1px solid ${({ theme }) => theme.color.primary_dark};
+  border-top: 1px solid ${({ theme }) => theme.color.primary_dark};
+  border-bottom: 1px solid ${({ theme }) => theme.color.primary_dark};
 `;
 
 const Item = styled.li`
