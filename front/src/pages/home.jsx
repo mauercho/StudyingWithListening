@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom'
 import styled from '@emotion/styled'
 
 import Logo from '../assets/images/logo.svg'
-import { FaBookMedical, FaEarListen } from 'react-icons/fa6'
 
 import FileInput from '../components/FileInput'
 import summariesApi from '../api/summariesApi'
