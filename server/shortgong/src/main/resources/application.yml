@@ -100,7 +100,17 @@ file:
 
 claude:
   api:
-    key: ${CLAUDE_API_SECRET_KEY}
+    keys:
+      key-1: ${CLAUDE_API_SECRET_KEY_1}
+      key-2: ${CLAUDE_API_SECRET_KEY_2}
+      key-3: ${CLAUDE_API_SECRET_KEY_3}
+      key-4: ${CLAUDE_API_SECRET_KEY_4}
+      key-5: ${CLAUDE_API_SECRET_KEY_5}
+      key-6: ${CLAUDE_API_SECRET_KEY_6}
+      key-7: ${CLAUDE_API_SECRET_KEY_7}
+      key-8: ${CLAUDE_API_SECRET_KEY_8}
+      key-9: ${CLAUDE_API_SECRET_KEY_9}
+      key-10: ${CLAUDE_API_SECRET_KEY_10}
     url: https://api.anthropic.com/v1/messages
     model: claude-3-5-sonnet-20241022
     temperature: 0.7
