@@ -34,16 +34,17 @@ const ListContainer = styled.ul`
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  margin-top: 10px;
   width: 100%;
   overflow-y: auto;
   border-top: 1px solid ${({ theme }) => theme.color.primary_dark};
 `
 
 const Item = styled.li`
-  height: 72px;
-  padding: 0px 10px;
+  height: 50px;
+  padding: 10px;
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   cursor: pointer;
@@ -53,6 +54,11 @@ const Item = styled.li`
   &:hover {
     background-color: ${({ theme }) => theme.color.grey};
   }
+`
+
+const ItemText = styled.p`
+  font-size: ${({ theme }) => theme.font.size.base};
+  font-weight: ${({ theme }) => theme.font.weight.medium};
 `
 
 export default function Home() {
@@ -67,7 +73,6 @@ export default function Home() {
     const fetchSummaries = async () => {
       try {
         const data = await summariesApi.getSummaries()
-        console.log('1,2, 3,4,')
         setList(data)
       } catch (error) {
         console.error('Error fetching user:', error)
@@ -87,7 +92,7 @@ export default function Home() {
         {list.map((v, index) => {
           return (
             <Item key={index} onClick={() => handleLinkClick(v.id)}>
-              {v.title ? v.title : '제목 없음'}
+              <ItemText>{v.title ? v.title : '제목 없음'}</ItemText>
             </Item>
           )
         })}
