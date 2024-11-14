@@ -59,7 +59,7 @@ export default function Sentence({
     setCurrentIndex(index)
   }
 
-  const { ...longPressHandler } = useLongPress(onLongPress, handleShortPress)
+  const { ...longPressHandler } = useLongPress(onLongPress)
 
   return (
     <Container onClick={onShortPress} {...longPressHandler}>
