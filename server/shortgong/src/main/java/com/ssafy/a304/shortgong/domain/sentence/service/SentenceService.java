@@ -109,4 +109,6 @@ public interface SentenceService {
 	 * @auther 이주형
 	 */
 	List<String> getAnswerList(Sentence sentence, String text);
+	
+	Sentence setAnswers(Sentence sentence, String text);
 }

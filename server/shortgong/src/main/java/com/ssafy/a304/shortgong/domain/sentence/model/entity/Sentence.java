@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.ThreeAnswerResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.global.model.entity.BaseEntity;
 
@@ -94,4 +95,16 @@ public class Sentence extends BaseEntity {
 		this.openStatus = openStatus;
 	}
 
+	public void updateThreeAnswerResponse(ThreeAnswerResponse threeAnswerResponse) {
+
+		if (threeAnswerResponse.getDetailAnswer() != null) {
+			this.sentenceContentDetail = threeAnswerResponse.getDetailAnswer();
+		}
+		if (threeAnswerResponse.getSimpleAnswer() != null) {
+			this.sentenceContentSimple = threeAnswerResponse.getSimpleAnswer();
+		}
+		if (threeAnswerResponse.getNormalAnswer() != null) {
+			this.sentenceContentNormal = threeAnswerResponse.getNormalAnswer();
+		}
+	}
 }

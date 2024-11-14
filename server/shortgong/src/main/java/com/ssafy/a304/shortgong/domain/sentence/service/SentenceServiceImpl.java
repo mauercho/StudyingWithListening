@@ -9,12 +9,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.core.task.TaskRejectedException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionAnswerResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.ThreeAnswerResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.SentenceTitle;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
@@ -37,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+// @Transactional(readOnly = true) : async 를 위해 클래스 단위의 적용 취소
 public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
@@ -54,9 +57,10 @@ public class SentenceServiceImpl implements SentenceService {
 	 * 문장에 해당하는 voice 생성 & 저장
 	 * @return 파일명
 	 * */
+	@Async
 	@Override
-	@Transactional
-	public void uploadSentenceVoice(Sentence sentence) {
+	// @Transactional
+	public void uploadSentenceVoice(Sentence sentence) throws TaskRejectedException {
 
 		byte[] normalVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
 			sentence.getSentenceContentNormal(),
@@ -139,9 +143,9 @@ public class SentenceServiceImpl implements SentenceService {
 							.order(orderCounter.getAndIncrement())
 							.question(questionAnswerResponse.getQuestion())
 							// TODO : 아직 questionAnswerResponse 에 normal detail simple
-							.sentenceContentNormal(questionAnswerResponse.getAnswer())
-							.sentenceContentDetail(questionAnswerResponse.getAnswer())
-							.sentenceContentSimple(questionAnswerResponse.getAnswer())
+							// .sentenceContentNormal(questionAnswerResponse.getAnswer())
+							// .sentenceContentDetail(questionAnswerResponse.getAnswer())
+							// .sentenceContentSimple(questionAnswerResponse.getAnswer())
 							.build());
 			})
 			.toList();
@@ -387,6 +391,28 @@ public class SentenceServiceImpl implements SentenceService {
 		return questionResponses;
 	}
 
+	/**
+	 * 문장의 NA, SA, DA 다 넣어준 문장 반환
+	 * @param sentence : 요청할 문장
+	 * @param originalText : 원본 텍스트
+	 * @return sentence
+	 * @author 정재영
+	 */
+	@Override
+	public Sentence setAnswers(Sentence sentence, String originalText) {
+		// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
+		String textIncludeAnswers = "DA 디테일한 답변\nNA 일반적인 답변\nSA 간단한 답변\n";
+		// String textIncludeAnswers = promptUtil.answer(
+		// 	sentence.getSentenceTitle().getName(),
+		// 	sentence.getSentencePoint(),
+		// 	sentence.getQuestion(),
+		// 	originalText);
+
+		ThreeAnswerResponse threeAnswerResponse = getAnswersByText(textIncludeAnswers);
+		sentence.updateThreeAnswerResponse(threeAnswerResponse);
+		return sentence;
+	}
+
 	@Override
 	public List<QuestionResponse> getQuestionList(List<String> texts) {
 
@@ -433,11 +459,32 @@ public class SentenceServiceImpl implements SentenceService {
 	public List<String> getAnswerList(Sentence sentence, String text) {
 
 		String testText = promptUtil.getAnswerPrompt(sentence.getSentenceTitle().getName(), sentence.getSentencePoint(),
-			sentence.getQuestion(), text);
+				sentence.getQuestion(), text);
 		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
 
 		return sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
+	}
+	
+	private ThreeAnswerResponse getAnswersByText(String textIncludeAnswers) {
 
+		List<String> sentenceList = sentenceUtil.splitByNewline(textIncludeAnswers);
+
+		ThreeAnswerResponse threeAnswerResponse = new ThreeAnswerResponse();
+
+		sentenceList.forEach(
+			sentenceBeforeParsed -> {
+				String prefix = sentenceBeforeParsed.substring(0, 2);
+				String answer = sentenceBeforeParsed.substring(2).trim();
+
+				if ("NA".equals(prefix)) {
+					threeAnswerResponse.setNormalAnswer(answer);
+				} else if ("SA".equals(prefix)) {
+					threeAnswerResponse.setSimpleAnswer(answer);
+				} else if ("DA".equals(prefix)) {
+					threeAnswerResponse.setDetailAnswer(answer);
+				}
+			});
+		return threeAnswerResponse;
 	}
 
 }
