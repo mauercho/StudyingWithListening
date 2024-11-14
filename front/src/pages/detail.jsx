@@ -11,22 +11,45 @@ import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
 import Loading from '../components/Loading'
 import usePlayerStore from '../stores/usePlayerStore'
+import BookmarkMenu from '../components/BookmarkMenu'
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
   width: 100%;
-  height: 85vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 `
 
 const HeaderWrapper = styled.div`
   width: 100%;
   max-width: 768px;
+  top: 60px;
+  position: fixed;
   background: ${({ theme }) => theme.color.white};
   z-index: 80;
   border-radius: 0 0 16px 16px;
+  padding: 0 10px;
+  box-sizing: border-box;
+`
+
+const ModeSelectWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  top: 95px;
+  position: fixed;
+  padding: 0 10px;
+  box-sizing: border-box;
+`
+
+const Main = styled.div`
+  position: fixed;
+  top: 120px;
+  bottom: 75px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+  box-sizing: border-box;
 `
 
 const ContentArea = styled.ul`
@@ -34,7 +57,6 @@ const ContentArea = styled.ul`
   width: 100%;
   max-width: 768px;
   padding: 10px;
-  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -54,42 +76,7 @@ export default function Detail() {
   const { setSummaryTitle, setVoiceUrls, setCurrentIndex, voiceUrls, reset } =
     usePlayerStore()
 
-  const [sentences, setSentences] = useState([
-    {
-      id: 1,
-      content:
-        '컴퓨터는 이진수로 데이터를 표현하며, 0과 1로 이루어진 비트를 사용합니다.',
-      openStatus: 'normal',
-    },
-    {
-      id: 2,
-      content: '알고리즘은 문제 해결을 위한 명확한 절차 또는 단계입니다.',
-      openStatus: 'hidden',
-    },
-  ])
-
-  // useEffect(() => {
-  //   const fetchSummaryDetail = async () => {
-  //     try {
-  //       const data = await summariesApi.getSummariesDetail(summaryId)
-  //       setSentences(data.sentenceResponseList)
-
-  //       // 새로운 디테일 페이지일 때만 초기화
-  //       if (voiceUrls.length === 0 || data.summaryId !== summaryId) {
-  //         reset()
-  //         setSummaryTitle(data.summaryTitle)
-  //         const urls = data.sentenceResponseList.map(
-  //           (sentence) => sentence.voiceUrl
-  //         )
-  //         setVoiceUrls(urls)
-  //       }
-  //     } catch (error) {
-  //       console.error('Error:', error)
-  //     }
-  //   }
-
-  //   fetchSummaryDetail()
-  // }, [summaryId, setSummaryTitle, setVoiceUrls, reset])
+  const [sentences, setSentences] = useState([])
 
   useEffect(() => {
     const fetchSummaryDetail = async () => {
@@ -228,6 +215,37 @@ export default function Detail() {
     setIsModalOpen(false)
   }
 
+  const downloadAudioFile = async (url) => {
+    try {
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const blob = await response.blob()
+
+      // Blob 데이터를 Audio 태그나 로컬스토리지에 저장하기 위해 변환
+      const audioURL = URL.createObjectURL(blob) // 오디오 재생용 URL 생성
+      return audioURL
+    } catch (error) {
+      console.error('Failed to download audio:', error)
+      return null
+    }
+  }
+
+  const [summaryMode, setSummaryMode] = useState('normal')
+
+  const modeMenuItems = [
+    { title: '상세', mode: 'detail' },
+    { title: '키워드', mode: 'keyword' },
+    { title: '일반', mode: 'normal' },
+  ]
+
+  const handleSummaryMode = (mode) => {
+    setSummaryMode(mode)
+  }
+
   return (
     <Container>
       <HeaderWrapper>
@@ -238,17 +256,20 @@ export default function Detail() {
           toggleOpen={toggleTable}
         />
       </HeaderWrapper>
-      <ContentArea id="content-area">
-        {sentences.map(
-          (
-            sentence,
-            index // index 파라미터 추가
-          ) => (
+      <ModeSelectWrapper>
+        <BookmarkMenu
+          summaryMode={summaryMode}
+          onButtonClick={handleSummaryMode}
+          menuItems={modeMenuItems}
+        />
+      </ModeSelectWrapper>
+      <Main>
+        <ContentArea id="content-area">
+          {sentences.map((sentence) => (
             <Element name={`sentence-${sentence.id}`} key={sentence.id}>
               <Sentence
                 text={sentence.content}
                 status={sentence.openStatus}
-                index={index}
                 onShortPress={() =>
                   handleShortPress(
                     sentence.id,
@@ -262,9 +283,9 @@ export default function Detail() {
               />
               {loadingSentenceId === sentence.id && <Loading />}
             </Element>
-          )
-        )}
-      </ContentArea>
+          ))}
+        </ContentArea>
+      </Main>
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
