@@ -1,24 +1,36 @@
 package com.ssafy.a304.shortgong.domain.sentence.model.dto.response;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@Builder
+@Setter
+@NoArgsConstructor
 public class QuestionResponse {
 
 	private String title; // 공부와 스키마의 관계
 
-	private List<QuestionAnswerResponse> questionAnswerResponseList;
+	private List<QuestionAnswerResponse> questionAnswerResponseList = new ArrayList<>();
 
-	public static QuestionResponse of(String title, List<QuestionAnswerResponse> questionAnswerResponseList) {
+	// QuestionResponse(String title) {
+	//
+	// 	this.title = title;
+	// }
+	//
+	// QuestionResponse(String title, List<QuestionAnswerResponse> questionAnswerResponseList) {
+	//
+	// 	this.title = title;
+	// 	this.questionAnswerResponseList = questionAnswerResponseList;
+	//
+	// }
 
-		return QuestionResponse.builder()
-			.title(title)
-			.questionAnswerResponseList(questionAnswerResponseList)
-			.build();
+	public void addAnswerResponse(QuestionAnswerResponse questionAnswerResponse) {
+
+		questionAnswerResponseList.add(questionAnswerResponse);
 	}
 
 }
