@@ -59,7 +59,7 @@ const ContentArea = styled.ul`
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 410px;
   overflow-y: auto;
   box-sizing: border-box;
   background: ${({ theme }) => theme.color.grey};
@@ -67,51 +67,88 @@ const ContentArea = styled.ul`
 
 export default function Detail() {
   const { summaryId } = useParams()
-  const [indexes] = useState([
-    // setIndexes 제거
-    { indexId: 1, indexTitle: '컴퓨터와 이진수', sentenceId: 1 },
-    { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
-  ])
+  const [indexes, setIndexes] = useState([])
 
-  const { setSummaryTitle, setVoiceUrls, setCurrentIndex, voiceUrls, reset } =
-    usePlayerStore()
+  const {
+    setSummaryTitle,
+    setVoiceUrls,
+    setCurrentIndex,
+    setIsPlaying,
+    voiceUrls,
+    reset,
+  } = usePlayerStore()
 
   const [sentences, setSentences] = useState([])
+  const [summaryMode, setSummaryMode] = useState('normal')
+
+  const modeMenuItems = [
+    { title: '상세', mode: 'detail' },
+    { title: '키워드', mode: 'keyword' },
+    { title: '일반', mode: 'normal' },
+  ]
 
   useEffect(() => {
     const fetchSummaryDetail = async () => {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
-        setSentences(data.sentenceResponseList)
+        console.log(data)
+
+        // summaryMode에 따라 맞는 content와 voiceUrl을 선택
+        const updatedSentences = data.sentenceResponseList.map((sentence) => {
+          let content, voiceUrl
+          switch (summaryMode) {
+            case 'detail':
+              content = sentence.contentDetail
+              voiceUrl = sentence.detailVoiceFileName
+              break
+            case 'keyword':
+              content = sentence.contentSimple
+              voiceUrl = sentence.simpleVoiceFileName
+              break
+            default:
+              content = sentence.contentNormal
+              voiceUrl = sentence.normalVoiceFileName
+              break
+          }
+          return { ...sentence, content, voiceUrl }
+        })
+
+        const updatedIndexes = data.sentenceResponseList.map((sentence) => ({
+          indexTitle: sentence.sentencePoint,
+          sentenceId: sentence.id,
+        }))
 
         // 현재 페이지의 URL들
-        const newUrls = data.sentenceResponseList.map(
-          (sentence) => sentence.voiceUrl
-        )
+        const newUrls = updatedSentences.map((sentence) => sentence.voiceUrl)
 
-        // 완전히 새로운 페이지인 경우에만 초기화
+        // 페이지 데이터 업데이트 조건에 따른 처리
         if (voiceUrls.length === 0) {
           setSummaryTitle(data.summaryTitle)
           setVoiceUrls(newUrls)
-        }
-        // 다른 디테일 페이지로 이동한 경우
-        else if (!newUrls.some((url) => voiceUrls.includes(url))) {
+        } else if (!newUrls.some((url) => voiceUrls.includes(url))) {
           reset()
           setSummaryTitle(data.summaryTitle)
           setVoiceUrls(newUrls)
-        }
-        // 같은 페이지인 경우 제목만 업데이트
-        else {
+        } else {
           setSummaryTitle(data.summaryTitle)
         }
+
+        setSentences(updatedSentences)
+        setIndexes(updatedIndexes)
       } catch (error) {
         console.error('Error:', error)
       }
     }
 
     fetchSummaryDetail()
-  }, [summaryId, setSummaryTitle, setVoiceUrls, voiceUrls, reset])
-
+  }, [
+    summaryId,
+    summaryMode, // summaryMode 변경 시에도 실행되도록 의존성에 추가
+    setSummaryTitle,
+    setVoiceUrls,
+    voiceUrls,
+    reset,
+  ])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
   const [isTableOpen, setIsTableOpen] = useState(false)
@@ -179,6 +216,8 @@ export default function Detail() {
   }
 
   const handleShortPress = (sentenceId, sentenceURL, status) => {
+    console.log(`Sentence ${sentenceId}`)
+
     if (!status) {
       setModalFlag(false)
       setSelectedSentenceId(sentenceId)
@@ -187,6 +226,7 @@ export default function Detail() {
     }
     if (sentenceURL) {
       setCurrentIndex(sentenceId - 1)
+      setIsPlaying(true)
     }
   }
 
@@ -198,12 +238,16 @@ export default function Detail() {
   }
 
   const handleTableTouch = (sentenceId) => {
+    if (sentenceId && sentenceId > 0) {
+      setCurrentIndex(sentenceId - 1)
+      setIsPlaying(true)
+    }
     scroller.scrollTo(`sentence-${sentenceId}`, {
       containerId: 'content-area',
       duration: 500,
       delay: 0,
       smooth: 'easeInOutQuart',
-      offset: -20,
+      offset: -244,
     })
   }
 
@@ -214,33 +258,6 @@ export default function Detail() {
   const closeModal = () => {
     setIsModalOpen(false)
   }
-
-  const downloadAudioFile = async (url) => {
-    try {
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const blob = await response.blob()
-
-      // Blob 데이터를 Audio 태그나 로컬스토리지에 저장하기 위해 변환
-      const audioURL = URL.createObjectURL(blob) // 오디오 재생용 URL 생성
-      return audioURL
-    } catch (error) {
-      console.error('Failed to download audio:', error)
-      return null
-    }
-  }
-
-  const [summaryMode, setSummaryMode] = useState('normal')
-
-  const modeMenuItems = [
-    { title: '상세', mode: 'detail' },
-    { title: '키워드', mode: 'keyword' },
-    { title: '일반', mode: 'normal' },
-  ]
 
   const handleSummaryMode = (mode) => {
     setSummaryMode(mode)
