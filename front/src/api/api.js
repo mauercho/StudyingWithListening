@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: 'https://k11a304.p.ssafy.io/api/',
-  timeout: 20000,
+  timeout: 60000,
 })
 
 api.interceptors.request.use(

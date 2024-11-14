@@ -51,6 +51,7 @@ const ModeSelectWrapper = styled.div`
 
 const Main = styled.div`
   position: fixed;
+  width: 100%;
   top: 120px;
   bottom: 75px;
   overflow-y: auto;
@@ -67,7 +68,7 @@ const ContentArea = styled.ul`
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 410px;
+  gap: 10px;
   overflow-y: auto;
   box-sizing: border-box;
   background: ${({ theme }) => theme.color.grey};

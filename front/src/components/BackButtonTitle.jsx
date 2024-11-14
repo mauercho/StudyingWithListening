@@ -29,7 +29,7 @@ const BackButton = styled.button`
 `
 
 const Title = styled.span`
-  font-size: ${({ theme }) => theme.font.size['2xl']};
+  font-size: ${({ theme }) => theme.font.size['lg']};
   font-weight: ${({ theme }) => theme.font.weight.bold};
   white-space: nowrap;
   overflow: hidden;
