@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import styled from '@emotion/styled'
 
 import Logo from '../assets/images/logo.svg'
@@ -22,7 +22,9 @@ const Text = styled.p`
   font-weight: ${({ theme }) => theme.font.weight.regular};
 `
 
-const SubTitle = styled.p`
+const ListTitle = styled(Link)`
+  text-decoration: none;
+  color: ${({ theme }) => theme.color.black};
   width: 100%;
   font-size: ${({ theme }) => theme.font.size.xl};
   font-weight: ${({ theme }) => theme.font.weight.medium};
@@ -80,7 +82,7 @@ export default function Home() {
       <img src={Logo} alt="logo.svg" width={133} height={72} />
       <Text>듣는 것만으로 암기가 되는 학습</Text>
       <FileInput />
-      <SubTitle>이전 학습</SubTitle>
+      <ListTitle to={'list'}>이전 학습</ListTitle>
       <ListContainer>
         {list.map((v, index) => {
           return (
