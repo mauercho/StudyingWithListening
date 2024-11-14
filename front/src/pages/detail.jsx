@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { scroller, Element } from 'react-scroll'
+import { BsQuestionSquareFill } from 'react-icons/bs'
 
 import TableOfContents from '../components/TableOfContents'
 import Sentence from '../components/Sentence'
@@ -12,11 +13,17 @@ import summariesApi from '../api/summariesApi'
 import Loading from '../components/Loading'
 import usePlayerStore from '../stores/usePlayerStore'
 import BookmarkMenu from '../components/BookmarkMenu'
+import HelpModal from '../components/HelpModal'
 
 const Container = styled.div`
   width: 100%;
   overflow-y: auto;
   box-sizing: border-box;
+`
+const QuetionIcon = styled.div`
+  color: ${({ theme }) => theme.color.primary_dark};
+  /* padding-left: 10px; */
+  font-size: 20px;
 `
 
 const HeaderWrapper = styled.div`
@@ -34,11 +41,12 @@ const HeaderWrapper = styled.div`
 const ModeSelectWrapper = styled.div`
   width: 100%;
   display: flex;
-  flex-direction: row-reverse;
+  /* flex-direction: row-reverse; */
   top: 95px;
   position: fixed;
   padding: 0 10px;
   box-sizing: border-box;
+  justify-content: space-between;
 `
 
 const Main = styled.div`
@@ -155,7 +163,7 @@ export default function Detail() {
   const [isTableOpen, setIsTableOpen] = useState(false)
   const [selectedSentenceId, setSelectedSentenceId] = useState(null)
   const [loadingSentenceId, setLoadingSentenceId] = useState(null)
-
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
   const handleDelete = async (sentenceId) => {
     try {
       await sentencesApi.deleteSentence(sentenceId)
@@ -266,6 +274,10 @@ export default function Detail() {
 
   return (
     <Container>
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+      />
       <HeaderWrapper>
         <TableOfContents
           indexes={indexes}
@@ -275,6 +287,9 @@ export default function Detail() {
         />
       </HeaderWrapper>
       <ModeSelectWrapper>
+        <QuetionIcon>
+          <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} />
+        </QuetionIcon>
         <BookmarkMenu
           summaryMode={summaryMode}
           onButtonClick={handleSummaryMode}
