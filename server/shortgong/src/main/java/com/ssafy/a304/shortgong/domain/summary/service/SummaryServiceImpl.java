@@ -50,7 +50,7 @@ public class SummaryServiceImpl implements SummaryService {
 	}
 
 	@Override
-	public List<SummaryOverviewResponse> selectSummaryListByUser(User user) {
+	public List<SummaryOverviewResponse> searchSummaryListByUser(User user) {
 
 		return summaryRepository.findAllByWriter(user).stream()
 			.map(SummaryOverviewResponse::new)

@@ -105,6 +105,6 @@ public class SummaryFacadeImpl implements SummaryFacade {
 	public List<SummaryOverviewResponse> getSummaryList() {
 
 		User loginUser = userService.selectLoginUser();
-		return summaryService.selectSummaryListByUser(loginUser);
+		return summaryService.searchSummaryListByUser(loginUser);
 	}
 }
