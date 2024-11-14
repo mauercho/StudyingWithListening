@@ -4,6 +4,7 @@ import styled from '@emotion/styled'
 import { FaHeadphones } from 'react-icons/fa'
 
 import useLongPress from '../hooks/useLongPress'
+import usePlayerStore from '../stores/usePlayerStore'
 
 const Container = styled.li`
   display: flex;
@@ -43,11 +44,23 @@ const Text = styled.p`
       font-weight: ${theme.font.weight.regular};
     `}
 `
-// Q 코드 { color: ${theme.color.secondary} } A 코드 { color: ${theme.color.primary_dark} }
 
-export default function Sentence({ text, status, onShortPress, onLongPress }) {
-  const { ...longPressHandler } = useLongPress(onLongPress)
-  // TODO: player 코드랑 usePlayerStore 업데이트 되면 헤드폰 조건 변경해주기, API 업데이트 후 스타일 적용하기
+export default function Sentence({
+  text,
+  status,
+  index,
+  onShortPress,
+  onLongPress,
+}) {
+  const { setCurrentIndex } = usePlayerStore()
+
+  const handleShortPress = () => {
+    onShortPress() // 순서 변경: onShortPress를 먼저 호출
+    setCurrentIndex(index)
+  }
+
+  const { ...longPressHandler } = useLongPress(onLongPress, handleShortPress)
+
   return (
     <Container onClick={onShortPress} {...longPressHandler}>
       {false && <FaHeadphones size={16} />}

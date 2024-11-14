@@ -67,38 +67,50 @@ const ContentArea = styled.ul`
 
 export default function Detail() {
   const { summaryId } = useParams()
-  const [indexes, setIndexes] = useState([
+  const [indexes] = useState([
+    // setIndexes 제거
     { indexId: 1, indexTitle: '컴퓨터와 이진수', sentenceId: 1 },
     { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
   ])
 
-  const { setSummaryTitle, setVoiceUrl } = usePlayerStore()
+  const { setSummaryTitle, setVoiceUrls, setCurrentIndex, voiceUrls, reset } =
+    usePlayerStore()
 
   const [sentences, setSentences] = useState([])
 
   useEffect(() => {
-    const fetchSentences = async () => {
+    const fetchSummaryDetail = async () => {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
         setSentences(data.sentenceResponseList)
-        setSummaryTitle(data.summaryTitle)
+
+        // 현재 페이지의 URL들
+        const newUrls = data.sentenceResponseList.map(
+          (sentence) => sentence.voiceUrl
+        )
+
+        // 완전히 새로운 페이지인 경우에만 초기화
+        if (voiceUrls.length === 0) {
+          setSummaryTitle(data.summaryTitle)
+          setVoiceUrls(newUrls)
+        }
+        // 다른 디테일 페이지로 이동한 경우
+        else if (!newUrls.some((url) => voiceUrls.includes(url))) {
+          reset()
+          setSummaryTitle(data.summaryTitle)
+          setVoiceUrls(newUrls)
+        }
+        // 같은 페이지인 경우 제목만 업데이트
+        else {
+          setSummaryTitle(data.summaryTitle)
+        }
       } catch (error) {
-        console.error('Error fetching user:', error)
+        console.error('Error:', error)
       }
     }
 
-    // const fetchIndexes = async () => {
-    //   try {
-    //     const data = await summariesApi.getSummariesIndexes(summaryId)
-    //     setIndexes(data.indexes)
-    //   } catch (error) {
-    //     console.error('Error fetching user:', error)
-    //   }
-    // }
-
-    fetchSentences()
-    // fetchIndexes()
-  }, [summaryId])
+    fetchSummaryDetail()
+  }, [summaryId, setSummaryTitle, setVoiceUrls, voiceUrls, reset])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
@@ -174,8 +186,7 @@ export default function Detail() {
       return
     }
     if (sentenceURL) {
-      console.log(sentenceURL, '실행해줘잉')
-      setVoiceUrl(sentenceURL)
+      setCurrentIndex(sentenceId - 1)
     }
   }
 
