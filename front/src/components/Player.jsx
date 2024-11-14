@@ -149,7 +149,7 @@ export default function Player() {
     if ('mediaSession' in navigator && 'MediaMetadata' in window) {
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: summaryTitle,
-        artist: `숏공`,
+        artist: `듣공`,
         album: '',
       })
     }
