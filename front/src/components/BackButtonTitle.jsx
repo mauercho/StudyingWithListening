@@ -31,6 +31,9 @@ const BackButton = styled.button`
 const Title = styled.span`
   font-size: ${({ theme }) => theme.font.size['2xl']};
   font-weight: ${({ theme }) => theme.font.weight.bold};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 export default function BackButtonTitle({ title = '제목', ...props }) {

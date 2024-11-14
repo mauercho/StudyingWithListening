@@ -5,6 +5,7 @@ import { Outlet, useLocation, matchPath } from 'react-router-dom'
 import routes from '../routes'
 import BackButtonTitle from '../components/BackButtonTitle'
 import Player from '../components/Player'
+import usePlayerStore from '../stores/usePlayerStore'
 
 const Container = styled.main`
   margin: auto;
@@ -28,11 +29,15 @@ const PlayerContainer = styled.div`
 
 export default function TitleLayout() {
   const location = useLocation()
-
   const currentRoute = routes.find((route) =>
     matchPath(route.path, location.pathname)
   )
-  const title = currentRoute ? currentRoute.title : ''
+
+  const { summaryTitle } = usePlayerStore()
+  const title =
+    currentRoute && currentRoute.path === '/detail/:summaryId'
+      ? summaryTitle
+      : currentRoute?.title || ''
 
   return (
     <Container>

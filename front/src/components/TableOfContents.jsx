@@ -114,7 +114,7 @@ export default function TableOfContents({ indexes, onButtonClick }) {
       <Navigation isOpen={isOpen}>
         <ul>
           {indexes.map((item) => (
-            <li key={item.indexId}>
+            <li key={item.sentenceId}>
               <TableButton
                 onClick={() => onButtonClick(item.sentenceId)}
                 isPlaying={item.sentenceId === currentSentenceId}
