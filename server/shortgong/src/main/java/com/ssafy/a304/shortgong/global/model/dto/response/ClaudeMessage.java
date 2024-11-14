@@ -1,4 +1,4 @@
-package com.ssafy.a304.shortgong.global.model.entity;
+package com.ssafy.a304.shortgong.global.model.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

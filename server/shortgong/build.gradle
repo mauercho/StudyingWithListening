@@ -31,22 +31,19 @@ ext {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
-//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-//    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
-//    implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
     // AWS S3
-//    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
     implementation 'org.springframework:spring-test'
     // AWS SDK for CloudFront
     implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.12.777'
+    implementation group: 'software.amazon.awssdk', name: 'bom', version: '2.20.62'
+    implementation platform('software.amazon.awssdk:bom:2.20.62')
+    implementation 'software.amazon.awssdk:s3'
     implementation 'com.amazonaws:aws-java-sdk-cloudfront:1.12.440'
     // Compile, Develop, Runtime, Annotation
     compileOnly 'org.projectlombok:lombok'
@@ -55,13 +52,10 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
-
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

@@ -12,11 +12,14 @@ import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
+import com.ssafy.a304.shortgong.global.model.constant.ClovaVoice;
 import com.ssafy.a304.shortgong.global.model.entity.BaseEntity;
 import com.ssafy.a304.shortgong.global.util.RandomUtil;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -56,6 +59,10 @@ public class Summary extends BaseEntity {
 
 	@Column(name = "folder_name", columnDefinition = "VARCHAR(64)")
 	private String folderName;
+
+	@Column(name = "clova_voice", columnDefinition = "VARCHAR(64)")
+	@Enumerated(EnumType.STRING)
+	private ClovaVoice clovaVoice;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "summary", cascade = ALL, orphanRemoval = true, fetch = LAZY)

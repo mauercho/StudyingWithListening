@@ -14,7 +14,7 @@ public interface SummaryFacade {
 	 * @return summaryId (요약본 pk)
 	 * @author 정재영
 	 * */
-	long uploadContent(MultipartFile contentFile);
+	long uploadContentByFile(MultipartFile contentFile);
 
 	/**
 	 * 요약을 위한 컨텐츠 업로드 (url text)
