@@ -21,7 +21,20 @@ public class ClaudeTestService {
 	private final PromptUtil promptUtil;
 	private final SentenceUtil sentenceUtil;
 
+	public void testPdf() throws Exception {
+
+		String pdfUrl = "https://shortgong.s3.us-east-1.amazonaws.com/test-upload-content/%ED%95%80%ED%85%8C%ED%81%AC_%ED%8A%B9%EA%B0%95.pdf?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEFwaCXVzLWVhc3QtMSJHMEUCIFupT33I9%2BWHKe8bA%2FeAQCdG9s8tMcVpnC19bmbWT50SAiEAwDinJR3ydOSZmSmbmWwKAUwovyh%2FJO%2Bjg4jrXIbicQkq0AMI5f%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgwyMDI1MzM1MDYxMTQiDCaRl%2FuCz3dowFqqLyqkA96dtj0tORNaMqbNHnyvzewHHNyQCNKDM9VFEMxZU0J56SEYlGsodfPF6bw78gVEiDEazNX6C%2BeJ8LJrVJb1Z42svv4gDAZutZo3wxkNiVeAIwUmJJSo5iJAUnWRoXZgnAcM5WXWBUkSxqE6pLT8rNbIzM9mUNnzgXhUki3hzBA%2FwO3%2BXuo7mWlnc3QepMYm9fM%2Bszu3MFWEeq3xR3U4C%2BdJ1q%2FFEjtjYSdJudeCMF6NIK0BNWAa8jwj0y6rbQiaROB5girr1eFLXYOmOxVqsu6dFsQIuJRADk%2BhPguQczTN7iqMEG0yU339rTEysR4m8uP6JavpvL2%2BYElZrVDwEq7nk7YpWO9XPZX65jDTFpkY8vMhG5EsgAutgFmas4BxC1GRFTJO6toP3VLjkUkSuq7J0us%2Fl6UAOLzGB4%2BOj57LF%2FS%2BiIii%2BtpN9XEYDueRBgbdZY5y%2B%2FFSpwkuNtl%2FY4RwNV7auebRx%2BD9tYhU86wuC9KYGlfw%2BYHOG7b3KDW8DoBFPXjWLwlhpx0KIwE7kqmL4aP3DsBUEQeJN%2FMuJbDZ60v90jCu5NW5BjrkAqPaQ1i1p044jNSkMvGdFtDLHxYOB07WLZfVAqD5fvIOxGQGMyUZzL7wEM5aN8es27gfAk7q%2BiYokU38%2Bg7VRHL6l0qydjGsOGbHzb4J8g4t9lIcdu6cNbJcLw8k5dvzTEalIb1nNSkEFeeZFFI2mADRd7b%2BC9erN%2FMv49IqbtbC1yD5VtNIKFexTArgUBh8Xo9rlKRoZHD2%2B3FMmSbU15%2BQSU25Gp0Nhqu7x%2FmBYlkCRgp5q3EieTAeL3MVVzouZjTS7W8e6LzTyOmic8H3KVHDa7QJ24bHabR7h4%2FHh0oTtmdzOE8i8X40cfj2FEwLs7UG7uupL3b%2F4JkVTI1lqR%2Bg8t0zI%2FzkqCQrv6wpfkl5z8RozSWhvF0HDVcWR2LzptgWmOfHnEzqPJGYguhvkih6W6ok8Ba6lLa6SBahqSh%2BKi9NnpzyZtWbC0Kgr%2But8mMNI0reHD1qd%2FwGYDy1QqMz4hRK&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAS6J7QBRBJTD7RFXR%2F20241114%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241114T034911Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=751bb4408cad9753b86ce4791ed1b6877de34b9ffecfcfcff85f7483d06f16bd";
+		String userMessage = promptUtil.getPdfTPQPrompt();
+		ClaudeResponse claudeResponse = claudeUtil.sendPdfMessages(pdfUrl, userMessage);
+		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
+
+		for (String sentence : newSentences) {
+			log.info("sentence: {}", sentence);
+		}
+	}
+
 	public void testTPQClaudeApi() {
+
 		String testText = promptUtil.TPQ(getTestText());
 		// String testText = promptUtil.complete(getTestText());
 		// String testText = promptUtil.simple(getTestText());
@@ -34,6 +47,7 @@ public class ClaudeTestService {
 	}
 
 	public void testAnswerClaudeApi() {
+
 		String T = "스키마와 지식 습득";
 		String P = "지식 습득의 기본 원리";
 		String Q = "새로운 지식은 어떤 방식으로 습득되나요?";
@@ -48,6 +62,7 @@ public class ClaudeTestService {
 	}
 
 	public String getTestText() {
+
 		return String.join("", "공부란 스키마로 해석‧재구성해 새로운 스키마를 만드는 것\n",
 			"새로운 지식은 기존의 지식을 통해 습득된다. 사람은 기존의 지식을 근거로 새로운 지식을 이해하고 해석한다. 사실적 지식들이 개념화돼 개념적 지식을 만들게 되면, 이 개념 지식은 새로운 경험들을 해석하고 구성해 스키마 체계에 넣게 된다.\n",
 			"만약 지식이 없다면 새로운 지식은 매우 낯설어, 이해하기 어려울 것이다. 이 지식을 기억하기 위한 유일한 방법은 반복일 것이다. 하지만 반복해서 기억하는 것으로는 부족하다. 반복 학습을 통해 새로운 스키마를 만들어야 제대로 공부를 했다고 할 수 있는 것이다.\n",

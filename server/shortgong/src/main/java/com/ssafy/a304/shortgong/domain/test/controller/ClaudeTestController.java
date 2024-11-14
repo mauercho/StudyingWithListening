@@ -17,12 +17,20 @@ public class ClaudeTestController {
 
 	@GetMapping
 	public void testClaudeApi() {
+
 		claudeTestService.testTPQClaudeApi();
 	}
 
 	@GetMapping("/test")
 	public void testClaudeApi2() {
+
 		claudeTestService.testAnswerClaudeApi();
+	}
+
+	@GetMapping("/pdf")
+	public void testPdf() throws Exception {
+
+		claudeTestService.testPdf();
 	}
 
 }
