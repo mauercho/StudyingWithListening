@@ -39,7 +39,7 @@ public class Sentence extends BaseEntity {
 	@Column(name = "sentence_id", columnDefinition = "BIGINT(20)")
 	private Long id;
 
-	@ManyToOne(fetch = LAZY)
+	@ManyToOne(fetch = EAGER) // TODO : Lazy로 변경해야 함
 	@JoinColumn(name = "summary_id", nullable = false)
 	private Summary summary;
 
@@ -53,13 +53,13 @@ public class Sentence extends BaseEntity {
 	@Column(name = "sentence_question", nullable = false, columnDefinition = "TEXT")
 	private String question;
 
-	@Column(name = "sentence_content_normal", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "sentence_content_normal", columnDefinition = "TEXT")
 	private String sentenceContentNormal;
 
-	@Column(name = "sentence_content_simple", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "sentence_content_simple", columnDefinition = "TEXT")
 	private String sentenceContentSimple;
 
-	@Column(name = "sentence_content_detail", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "sentence_content_detail", columnDefinition = "TEXT")
 	private String sentenceContentDetail;
 
 	@Column(name = "normal_voice_file_name", columnDefinition = "VARCHAR(256)")

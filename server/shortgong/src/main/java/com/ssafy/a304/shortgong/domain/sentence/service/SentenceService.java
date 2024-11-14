@@ -16,23 +16,7 @@ public interface SentenceService {
 	 * */
 	void uploadSentenceVoice(Sentence sentence);
 
-	/**
-	 * @param text : 요약할 내용
-	 * @return List<ClaudeResponseMessage> : Claude 가 반환한 body 값
-	 */
-	// List<ClaudeResponseMessage> getSummarizedTextByAI(String text);
-
-	/**
-	 * URL로부터 텍스트를 요약
-	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
-	 */
-	// List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text);
-
-	List<Sentence> parseSummarizedSentenceList(String text, Summary summary);
-
 	List<Sentence> parseQuizSentenceList(String text, Summary summary);
-
-	List<Sentence> parseSummarizedSentenceListByUrl(String text, Summary summary);
 
 	/**
 	 * 문장 객체 반환
@@ -48,8 +32,6 @@ public interface SentenceService {
 	 * */
 	List<Sentence> selectAllSentenceBySummaryId(Long summaryId);
 
-	Sentence saveSentence(Sentence sentence);
-
 	/**
 	 * 문장 객체 리스트 저장
 	 * @return List<Sentence> (저장된 문장 객체 리스트)
@@ -57,12 +39,38 @@ public interface SentenceService {
 	 */
 	List<Sentence> saveSentences(List<Sentence> sentences);
 
+	List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId);
+
+	String getTextByFileUrlWithOcr(String savedFilename);
+
+	List<QuestionResponse> getQuestions(String text);
+
+	Sentence setAnswers(Sentence sentence, String text);
+
+	/**
+	 * @param text : 요약할 내용
+	 * @return List<ClaudeResponseMessage> : Claude 가 반환한 body 값
+	 */
+	// List<ClaudeResponseMessage> getSummarizedTextByAI(String text);
+
+	/**
+	 * URL로부터 텍스트를 요약
+	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
+	 */
+	// List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text);
+
+	// List<Sentence> parseSummarizedSentenceList(String text, Summary summary);
+
+	// List<Sentence> parseSummarizedSentenceListByUrl(String text, Summary summary);
+
+	// Sentence saveSentence(Sentence sentence);
+
 	/**
 	 * 문장 객체 리스트를 문자열로 변환
 	 * @return String (문장 객체 리스트를 문자열로 변환한 결과)
 	 * @author 이주형
 	 * */
-	String convertSentenceListToString(List<Sentence> sentenceList);
+	// String convertSentenceListToString(List<Sentence> sentenceList);
 
 	/**
 	 * 특정 문장을 claudeResponse로 업데이트
@@ -78,15 +86,11 @@ public interface SentenceService {
 	 */
 	// void updateSentenceOpenStatus(Long sentenceId, Boolean openStatus);
 
-	List<SentenceResponse> searchAllSentenceResponseBySummaryId(Long summaryId);
-
-	String getTextByFileUrlWithOcr(String savedFilename);
-
 	/**
 	 * 문장 삭제
 	 * @author 이주형
 	 */
-	void deleteSentence(Long sentenceId);
+	// void deleteSentence(Long sentenceId);
 
 	/**
 	 * 임시 문장 파싱 결과값 반환
@@ -99,9 +103,5 @@ public interface SentenceService {
 	 * @return List<QuestionResponse> (문장 파싱 결과값 리스트)
 	 * @auther 이주형
 	 */
-	public List<QuestionResponse> getQuestionList(List<String> texts);
-
-	List<QuestionResponse> getQuestions(String text);
-
-	Sentence setAnswers(Sentence sentence, String text);
+	// List<QuestionResponse> getQuestionList(List<String> texts);
 }
