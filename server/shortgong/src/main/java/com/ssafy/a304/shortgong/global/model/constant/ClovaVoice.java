@@ -7,8 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ClovaVoice {
 
-	DSINU_MATT("dsinu-matt");
+	DSINU_MATT("dsinu-matt"),
+	GOEUN("vgoeun"),
+	DONGHYUN("vdonghyun");
 
 	private final String name;
-	
+
 }
