@@ -24,24 +24,15 @@ const Container = styled.li`
 
 const Text = styled.p`
   width: 100%;
-  opacity: 0.6;
+  opacity: 1;
   font-size: 16px;
+  color: ${({ theme }) => theme.color.primary_dark};
   font-weight: ${({ theme }) => theme.font.weight.light};
-  ${({ status }) =>
-    !status &&
+  ${({ theme, status }) =>
+    status === 'question' &&
     `
-      opacity: 0.3;
-      text-decoration: line-through;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    `}
-  ${({ theme }) =>
-    false && // '현재 진행중인 id가 저장된 id와 같다면 == 진행상태면'
-    `
-      color: ${theme.color.primary_dark};
+      color: ${theme.color.secondary};
       opacity: 1;
-      font-weight: ${theme.font.weight.regular};
     `}
 `
 
@@ -52,19 +43,14 @@ export default function Sentence({
   onShortPress,
   onLongPress,
 }) {
-  const { setCurrentIndex } = usePlayerStore()
-
-  const handleShortPress = () => {
-    onShortPress() // 순서 변경: onShortPress를 먼저 호출
-    setCurrentIndex(index)
-  }
+  const { currentIndex } = usePlayerStore()
 
   const { ...longPressHandler } = useLongPress(onLongPress)
 
   return (
     <Container onClick={onShortPress} {...longPressHandler}>
-      {false && <FaHeadphones size={16} />}
-      <Text status={status}>{text}</Text>
+      {index === currentIndex && <FaHeadphones size={16} />}
+      <Text status={status}>{status === 'question' ? 'Q: ' : 'A: '}{text}</Text>
     </Container>
   )
 }
