@@ -13,6 +13,7 @@ const Container = styled.header`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid ${({ theme }) => theme.color.primary};
+  box-sizing: border-box;
 `
 
 const Space = styled.div`
@@ -28,8 +29,11 @@ const BackButton = styled.button`
 `
 
 const Title = styled.span`
-  font-size: ${({ theme }) => theme.font.size['2xl']};
+  font-size: ${({ theme }) => theme.font.size['lg']};
   font-weight: ${({ theme }) => theme.font.weight.bold};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 export default function BackButtonTitle({ title = '제목', ...props }) {

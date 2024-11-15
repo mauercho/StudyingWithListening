@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { scroller, Element } from 'react-scroll'
+import { BsQuestionSquareFill } from 'react-icons/bs'
 
 import TableOfContents from '../components/TableOfContents'
 import Sentence from '../components/Sentence'
@@ -11,22 +12,53 @@ import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
 import Loading from '../components/Loading'
 import usePlayerStore from '../stores/usePlayerStore'
+import BookmarkMenu from '../components/BookmarkMenu'
+import HelpModal from '../components/HelpModal'
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
   width: 100%;
-  height: 85vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+`
+const QuestionIcon = styled.div`
+  color: ${({ theme }) => theme.color.primary_dark};
+  /* padding-left: 10px; */
+  font-size: 20px;
 `
 
 const HeaderWrapper = styled.div`
   width: 100%;
   max-width: 768px;
+  top: 60px;
+  position: fixed;
   background: ${({ theme }) => theme.color.white};
   z-index: 80;
   border-radius: 0 0 16px 16px;
+  padding: 0 10px;
+  box-sizing: border-box;
+`
+
+const ModeSelectWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  /* flex-direction: row-reverse; */
+  top: 95px;
+  position: fixed;
+  padding: 0 10px;
+  box-sizing: border-box;
+  justify-content: space-between;
+`
+
+const Main = styled.div`
+  position: fixed;
+  width: 100%;
+  top: 120px;
+  bottom: 75px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+  box-sizing: border-box;
 `
 
 const ContentArea = styled.ul`
@@ -34,7 +66,6 @@ const ContentArea = styled.ul`
   width: 100%;
   max-width: 768px;
   padding: 10px;
-  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -45,57 +76,96 @@ const ContentArea = styled.ul`
 
 export default function Detail() {
   const { summaryId } = useParams()
-  const [indexes, setIndexes] = useState([
-    { indexId: 1, indexTitle: '컴퓨터와 이진수', sentenceId: 1 },
-    { indexId: 2, indexTitle: '알고리즘이란?', sentenceId: 2 },
-  ])
+  const [indexes, setIndexes] = useState([])
 
-  const { setSummaryTitle, setVoiceUrl } = usePlayerStore()
+  const {
+    setSummaryTitle,
+    setVoiceUrls,
+    setCurrentIndex,
+    setIsPlaying,
+    voiceUrls,
+    reset,
+  } = usePlayerStore()
 
-  const [sentences, setSentences] = useState([
-    {
-      id: 1,
-      content:
-        '컴퓨터는 이진수로 데이터를 표현하며, 0과 1로 이루어진 비트를 사용합니다.',
-      openStatus: 'normal',
-    },
-    {
-      id: 2,
-      content: '알고리즘은 문제 해결을 위한 명확한 절차 또는 단계입니다.',
-      openStatus: 'hidden',
-    },
-  ])
+  const [sentences, setSentences] = useState([])
+  const [summaryMode, setSummaryMode] = useState('normal')
+
+  const modeMenuItems = [
+    { title: '상세', mode: 'detail' },
+    { title: '키워드', mode: 'keyword' },
+    { title: '일반', mode: 'normal' },
+  ]
 
   useEffect(() => {
-    const fetchSentences = async () => {
+    const fetchSummaryDetail = async () => {
       try {
-        const data = await summariesApi.getSummariesDetail(summaryId)
-        setSentences(data.sentenceResponseList)
-        setSummaryTitle(data.summaryTitle)
+        const data = await summariesApi.getSummariesDetail(summaryId);
+        console.log(data);
+
+        // summaryMode에 따라 맞는 content와 voiceUrl을 선택
+        const updatedSentences = data.sentenceResponseList.map((sentence) => {
+          let content, voiceUrl;
+          switch (summaryMode) {
+            case 'detail':
+              content = sentence.detailAnswer;
+              voiceUrl = sentence.detailAnswerVoiceUrl;
+              break;
+            case 'keyword':
+              content = sentence.simpleAnswer;
+              voiceUrl = sentence.simpleAnswerVoiceUrl;
+              break;
+            default:
+              content = sentence.normalAnswer;
+              voiceUrl = sentence.normalAnswerVoiceUrl;
+              break;
+          }
+          return { ...sentence, content, voiceUrl, questionVoiceUrl: sentence.questionVoiceUrl };
+        });
+
+        const updatedIndexes = data.sentenceResponseList.map((sentence) => ({
+          indexTitle: sentence.sentencePoint,
+          sentenceOrder: sentence.order,
+        }));
+
+        const newUrls = updatedSentences.flatMap((sentence) => [
+          sentence.questionVoiceUrl,
+          sentence.voiceUrl,
+        ]);
+
+        if (voiceUrls.length === 0) {
+          setSummaryTitle(data.summaryTitle);
+          setVoiceUrls(newUrls);
+        } else if (!newUrls.some((url) => voiceUrls.includes(url))) {
+          reset();
+          setSummaryTitle(data.summaryTitle);
+          setVoiceUrls(newUrls);
+        } else {
+          setSummaryTitle(data.summaryTitle);
+        }
+        setSentences(updatedSentences);
+        setIndexes(updatedIndexes);
       } catch (error) {
-        console.error('Error fetching user:', error)
+        console.error('Error:', error);
       }
-    }
+    };
 
-    // const fetchIndexes = async () => {
-    //   try {
-    //     const data = await summariesApi.getSummariesIndexes(summaryId)
-    //     setIndexes(data.indexes)
-    //   } catch (error) {
-    //     console.error('Error fetching user:', error)
-    //   }
-    // }
-
-    fetchSentences()
-    // fetchIndexes()
-  }, [summaryId])
+    setCurrentIndex(null);
+    fetchSummaryDetail();
+  }, [
+    summaryId,
+    summaryMode, // summaryMode 변경 시에도 실행되도록 의존성에 추가
+    setSummaryTitle,
+    setVoiceUrls,
+    voiceUrls,
+    reset,
+  ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
   const [isTableOpen, setIsTableOpen] = useState(false)
   const [selectedSentenceId, setSelectedSentenceId] = useState(null)
   const [loadingSentenceId, setLoadingSentenceId] = useState(null)
-
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
   const handleDelete = async (sentenceId) => {
     try {
       await sentencesApi.deleteSentence(sentenceId)
@@ -156,16 +226,20 @@ export default function Detail() {
     }
   }
 
-  const handleShortPress = (sentenceId, sentenceURL, status) => {
+  const handleShortPress = (sentenceOrder, sentenceURL, status) => {
+    console.log(`Sentence ${sentenceOrder}`)
+
     if (!status) {
       setModalFlag(false)
-      setSelectedSentenceId(sentenceId)
+      setSelectedSentenceId(sentenceOrder)
       setTimeout(() => setIsModalOpen(true), 50)
       return
     }
     if (sentenceURL) {
-      console.log(sentenceURL, '실행해줘잉')
-      setVoiceUrl(sentenceURL)
+      const index = status === 'question' ? (sentenceOrder - 1) * 2 : (sentenceOrder - 1) * 2 + 1;
+      console.log(index)
+      setCurrentIndex(index)
+      setIsPlaying(true)
     }
   }
 
@@ -176,13 +250,17 @@ export default function Detail() {
     console.log(`Sentence ${sentenceId}`)
   }
 
-  const handleTableTouch = (sentenceId) => {
-    scroller.scrollTo(`sentence-${sentenceId}`, {
+  const handleTableTouch = (sentenceOrder) => {
+    if (sentenceOrder && sentenceOrder > 0) {
+      setCurrentIndex((sentenceOrder - 1) * 2)
+      setIsPlaying(true)
+    }
+    scroller.scrollTo(`sentence-${sentenceOrder}`, {
       containerId: 'content-area',
       duration: 500,
       delay: 0,
       smooth: 'easeInOutQuart',
-      offset: -20,
+      offset: -244,
     })
   }
 
@@ -194,27 +272,16 @@ export default function Detail() {
     setIsModalOpen(false)
   }
 
-  const downloadAudioFile = async (url) => {
-    try {
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const blob = await response.blob()
-
-      // Blob 데이터를 Audio 태그나 로컬스토리지에 저장하기 위해 변환
-      const audioURL = URL.createObjectURL(blob) // 오디오 재생용 URL 생성
-      return audioURL
-    } catch (error) {
-      console.error('Failed to download audio:', error)
-      return null
-    }
+  const handleSummaryMode = (mode) => {
+    setSummaryMode(mode)
   }
 
   return (
     <Container>
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+      />
       <HeaderWrapper>
         <TableOfContents
           indexes={indexes}
@@ -223,27 +290,55 @@ export default function Detail() {
           toggleOpen={toggleTable}
         />
       </HeaderWrapper>
-      <ContentArea id="content-area">
-        {sentences.map((sentence) => (
-          <Element name={`sentence-${sentence.id}`} key={sentence.id}>
-            <Sentence
-              text={sentence.content}
-              status={sentence.openStatus}
-              onShortPress={() =>
-                handleShortPress(
-                  sentence.id,
-                  sentence.voiceUrl,
-                  sentence.openStatus
-                )
-              }
-              onLongPress={() =>
-                handleLongPress(sentence.id, sentence.openStatus)
-              }
-            />
-            {loadingSentenceId === sentence.id && <Loading />}
-          </Element>
-        ))}
-      </ContentArea>
+      <ModeSelectWrapper>
+        <QuestionIcon>
+          <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} />
+        </QuestionIcon>
+        <BookmarkMenu
+          summaryMode={summaryMode}
+          onButtonClick={handleSummaryMode}
+          menuItems={modeMenuItems}
+        />
+      </ModeSelectWrapper>
+      <Main>
+        <ContentArea id="content-area">
+          {sentences.map((sentence) => (
+            <Element name={`sentence-${sentence.order}`} key={sentence.id}>
+              <Sentence
+                text={sentence.question}
+                status={'question'}
+                index={(sentence.order - 1) * 2}
+                onShortPress={() =>
+                  handleShortPress(
+                    sentence.order,
+                    sentence.voiceUrl,
+                    'question'
+                  )
+                }
+                onLongPress={() =>
+                  handleLongPress(sentence.id, sentence.openStatus)
+                }
+              />
+              <Sentence
+                text={sentence.content}
+                status={'answer'}
+                index={(sentence.order - 1) * 2 + 1}
+                onShortPress={() =>
+                  handleShortPress(
+                    sentence.order,
+                    sentence.voiceUrl,
+                    'answer'
+                  )
+                }
+                onLongPress={() =>
+                  handleLongPress(sentence.id, sentence.openStatus)
+                }
+              />
+              {loadingSentenceId === sentence.id && <Loading />}
+            </Element>
+          ))}
+        </ContentArea>
+      </Main>
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
