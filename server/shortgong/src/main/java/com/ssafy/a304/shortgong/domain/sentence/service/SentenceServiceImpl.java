@@ -66,7 +66,7 @@ public class SentenceServiceImpl implements SentenceService {
 		if (sentence.getQuestion() != null) {
 			byte[] questionVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
 				sentence.getQuestion(),
-				DSINU_MATT.getName());
+				DONGHYUN.getName());
 			questionFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
 				questionVoiceData,
 				summaryFolderName,
@@ -75,7 +75,7 @@ public class SentenceServiceImpl implements SentenceService {
 		if (sentence.getSentenceContentNormal() != null) {
 			byte[] normalVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
 				sentence.getSentenceContentNormal(),
-				DSINU_MATT.getName());
+				GOEUN.getName());
 			normalFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
 				normalVoiceData,
 				summaryFolderName,
@@ -84,7 +84,7 @@ public class SentenceServiceImpl implements SentenceService {
 		if (sentence.getSentenceContentSimple() != null) {
 			byte[] simpleVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
 				sentence.getSentenceContentSimple(),
-				DSINU_MATT.getName());
+				GOEUN.getName());
 			simpleFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
 				simpleVoiceData,
 				summaryFolderName,
@@ -93,7 +93,7 @@ public class SentenceServiceImpl implements SentenceService {
 		if (sentence.getSentenceContentDetail() != null) {
 			byte[] detailVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
 				sentence.getSentenceContentDetail(),
-				DSINU_MATT.getName());
+				GOEUN.getName());
 			detailFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
 				detailVoiceData,
 				summaryFolderName,
