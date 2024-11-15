@@ -62,6 +62,9 @@ public class Sentence extends BaseEntity {
 	@Column(name = "sentence_content_detail", columnDefinition = "TEXT")
 	private String sentenceContentDetail;
 
+	@Column(name = "question_file_name", columnDefinition = "TEXT")
+	private String questionFileName;
+
 	@Column(name = "normal_voice_file_name", columnDefinition = "VARCHAR(256)")
 	private String normalVoiceFileName;
 
@@ -82,9 +85,11 @@ public class Sentence extends BaseEntity {
 	@OneToMany(mappedBy = "sentence", cascade = ALL, orphanRemoval = true, fetch = LAZY)
 	private List<Index> indexes = new ArrayList<>();
 
-	public void updateVoiceFileNames(String normalVoiceFileName, String simpleVoiceFileName,
+	public void updateVoiceFileNames(String questionFileName,
+		String normalVoiceFileName, String simpleVoiceFileName,
 		String detailVoiceFileName) {
 
+		this.questionFileName = questionFileName;
 		this.normalVoiceFileName = normalVoiceFileName;
 		this.simpleVoiceFileName = simpleVoiceFileName;
 		this.detailVoiceFileName = detailVoiceFileName;
