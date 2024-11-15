@@ -10,12 +10,6 @@ import com.ssafy.a304.shortgong.global.error.CustomException;
 
 public interface SentenceService {
 
-	/**
-	 * 문장에 해당하는 voice 생성 & 저장
-	 * @return 파일명
-	 * */
-	void uploadSentenceVoice(Sentence sentence);
-
 	List<Sentence> parseQuizSentenceList(String text, Summary summary);
 
 	/**
@@ -45,7 +39,9 @@ public interface SentenceService {
 
 	List<QuestionResponse> getQuestions(String text);
 
-	Sentence setAnswers(Sentence sentence, String text);
+	void setAnswersAndGetVoice(Sentence sentence, String text);
+
+	void uploadAllSentenceVoices(List<Sentence> sentenceListContainAnswers);
 
 	/**
 	 * @param text : 요약할 내용

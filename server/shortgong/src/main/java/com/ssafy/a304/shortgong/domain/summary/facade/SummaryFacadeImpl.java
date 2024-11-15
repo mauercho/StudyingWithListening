@@ -46,16 +46,8 @@ public class SummaryFacadeImpl implements SummaryFacade {
 
 		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장
 		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
-		sentenceList = sentenceService.saveSentences(sentenceList);
-
-		// Answer 들만 따로 요청 & 일괄 저장
-		List<Sentence> sentenceListContainAnswers = sentenceList.stream().map(
-			// sentence 에 빈 부분 (NA, SA, DA) 채우기
-			sentence -> sentenceService.setAnswers(sentence, text)).toList();
-		sentenceListContainAnswers = sentenceService.saveSentences(sentenceListContainAnswers);
-
-		// 문장들을 TTS 요청하여 S3에 업로드하기
-		sentenceListContainAnswers.forEach(sentenceService::uploadSentenceVoice);
+		// Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+		sentenceList.forEach(sentence -> sentenceService.setAnswersAndGetVoice(sentence, text));
 		return summary.getId();
 	}
 
@@ -73,16 +65,8 @@ public class SummaryFacadeImpl implements SummaryFacade {
 
 		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장
 		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
-		sentenceList = sentenceService.saveSentences(sentenceList);
-
 		// Answer 들만 따로 요청 & 일괄 저장
-		List<Sentence> sentenceListContainAnswers = sentenceList.stream().map(
-			// sentence 에 빈 부분 (NA, SA, DA) 채우기
-			sentence -> sentenceService.setAnswers(sentence, text)).toList();
-		sentenceListContainAnswers = sentenceService.saveSentences(sentenceListContainAnswers);
-
-		// 문장들을 TTS 요청하여 S3에 업로드하기
-		sentenceListContainAnswers.forEach(sentenceService::uploadSentenceVoice);
+		sentenceList.forEach(sentence -> sentenceService.setAnswersAndGetVoice(sentence, text));
 		return summary.getId();
 	}
 

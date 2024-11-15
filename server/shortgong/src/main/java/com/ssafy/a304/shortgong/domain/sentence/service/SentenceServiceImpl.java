@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.core.task.TaskRejectedException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true) // async 를 위해 클래스 단위의 적용 취소
+// @Transactional(readOnly = true) // async 를 위해 클래스 단위의 적용 취소
 public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
@@ -48,14 +50,19 @@ public class SentenceServiceImpl implements SentenceService {
 
 	private final AtomicInteger orderCounter = new AtomicInteger(1);
 
+	@Async
+	@Override
+	public void uploadAllSentenceVoices(List<Sentence> sentenceListContainAnswers) {
+
+		sentenceListContainAnswers.forEach(this::uploadSentenceVoice);
+	}
+
 	/**
 	 * 문장에 해당하는 voice 생성 & 저장
 	 * @return 파일명
 	 * */
-	// @Async
-	@Override
-	@Transactional
-	public void uploadSentenceVoice(Sentence sentence) /* throws TaskRejectedException */ {
+	@Async
+	public void uploadSentenceVoice(Sentence sentence) throws TaskRejectedException {
 
 		String questionFileName = null;
 		String normalFileName = null;
@@ -116,6 +123,7 @@ public class SentenceServiceImpl implements SentenceService {
 		orderCounter.set(1);
 		return getQuestions(text).stream()
 			.flatMap(questionResponse -> {
+				// 기존 sentenceTitle 엔티티 있으면 가져오고 없으면 엔티티 생성하기
 				SentenceTitle sentenceTitle;
 				sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
 					.orElseGet(() -> sentenceTitleRepository.save(
@@ -125,13 +133,13 @@ public class SentenceServiceImpl implements SentenceService {
 
 				return questionResponse.getQuestionAnswerResponseList().stream()
 					.map(questionAnswerResponse ->
-						Sentence.builder()
+						sentenceRepository.save(Sentence.builder()
 							.summary(summary)
 							.sentenceTitle(sentenceTitle)
 							.sentencePoint(questionAnswerResponse.getPoint())
 							.question(questionAnswerResponse.getQuestion())
 							.order(orderCounter.getAndIncrement())
-							.build());
+							.build()));
 			})
 			.toList();
 	}
@@ -190,11 +198,12 @@ public class SentenceServiceImpl implements SentenceService {
 	@Override
 	public List<QuestionResponse> getQuestions(String text) {
 
-		String testText = promptUtil.TPQ(text);
-		log.info("testText ; {}", testText);
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
-		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
-		return getQuestionList(newSentences);
+		String tpqTexts = promptUtil.TPQ(text);
+		ClaudeResponse claudeResponse = claudeUtil.sendMessage(tpqTexts);
+		List<String> tpqTextList = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
+		log.info("[TPQs]");
+		tpqTextList.forEach(s -> log.info("TPQ: {}", s));
+		return getQuestionListByTPQTextList(tpqTextList);
 	}
 
 	/**
@@ -204,14 +213,17 @@ public class SentenceServiceImpl implements SentenceService {
 	 * @return sentence
 	 * @author 정재영
 	 */
+	@Async
 	@Override
-	public Sentence setAnswers(Sentence sentence, String originalText) {
+	public void setAnswersAndGetVoice(Sentence sentence, String originalText) {
 
 		// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
 		List<String> sentenceList = getAnswerList(sentence, originalText);
 		ThreeAnswerResponse threeAnswerResponse = getAnswersByText(sentenceList);
 		sentence.updateThreeAnswerResponse(threeAnswerResponse);
-		return sentence;
+		// TTS 요청하기
+		uploadSentenceVoice(sentence);
+		sentenceRepository.save(sentence);
 	}
 
 	/**
@@ -231,7 +243,7 @@ public class SentenceServiceImpl implements SentenceService {
 		return sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
 	}
 
-	private List<QuestionResponse> getQuestionList(List<String> texts) {
+	private List<QuestionResponse> getQuestionListByTPQTextList(List<String> texts) {
 
 		int count = 0;
 		List<QuestionResponse> questionResponseList = new ArrayList<>();
@@ -243,14 +255,14 @@ public class SentenceServiceImpl implements SentenceService {
 			String sentence = text.substring(2).trim();
 			switch (text.charAt(0)) {
 				case 'T':
-					log.info("Title: {}", sentence);
+					log.info("T: {}", sentence);
 					questionResponse.setTitle(sentence);
 					break;
 				case 'P':
 					questionAnswerResponse.setPoint(sentence);
 					break;
 				case 'Q': // 완성 될 때
-					if (count == 3) {
+					if (count == 5) {
 						return questionResponseList;
 					}
 					count++;
