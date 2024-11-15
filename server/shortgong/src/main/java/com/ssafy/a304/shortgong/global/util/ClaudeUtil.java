@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import com.ssafy.a304.shortgong.global.model.dto.ClaudeMessage;
 import com.ssafy.a304.shortgong.global.model.dto.MessageContent;
 import com.ssafy.a304.shortgong.global.model.dto.MessageContentDetail;
 import com.ssafy.a304.shortgong.global.model.dto.MessageContentInterface;
-import com.ssafy.a304.shortgong.global.model.dto.MessagePdfContentDetail;
+import com.ssafy.a304.shortgong.global.model.dto.MessagePdfImageContentDetail;
 import com.ssafy.a304.shortgong.global.model.dto.MessageSource;
 import com.ssafy.a304.shortgong.global.model.dto.request.ClaudePdfRequest;
 import com.ssafy.a304.shortgong.global.model.dto.request.ClaudeRequest;
@@ -50,6 +51,75 @@ public class ClaudeUtil {
 	@Value("${claude.api.max-tokens}")
 	private Integer maxTokens;
 
+	public ClaudeResponse sendImageMessages(String imageUrl, String userMessage) throws IOException {
+
+		URL url = new URL(imageUrl);
+		try (InputStream inputStream = url.openStream(); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+			byte[] buffer = new byte[8192];
+			int bytesRead;
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				outputStream.write(buffer, 0, bytesRead);
+			}
+
+			// 확장자를 기반으로 이미지 MIME 타입 설정
+			String ext = S3FileUtil.getExtensionStringFromPreSignedUrl(imageUrl).toLowerCase();
+			String imageType = String.join("/", Arrays.asList("image", ext));
+			// log.info("imageType: {}", imageType);
+
+			// 이미지 데이터를 Base64로 인코딩
+			String imageBase64 = Base64.getEncoder().encodeToString(outputStream.toByteArray()).replaceAll("[\r\n]", "");
+			// log.info("imageBase64: {}", imageBase64);
+
+			MessageSource source = MessageSource.builder()
+				.type("base64")
+				.mediaType(imageType)
+				.data(imageBase64)
+				.build();
+			CacheControl cacheControl = CacheControl.builder()
+				.type("ephemeral")
+				.build();
+			MessageContentInterface imageContent = MessagePdfImageContentDetail.builder()
+				.type("image")
+				.source(source)
+				.cacheControl(cacheControl)
+				.build();
+			MessageContentInterface textContent = MessageContentDetail.builder()
+				.type("text")
+				.text(userMessage)
+				.build();
+
+			// 메시지 내용 생성
+			MessageContent message = MessageContent.builder()
+				.role("user")
+				.content(List.of(imageContent, textContent))
+				.build();
+
+			// DTO 생성
+			ClaudePdfRequest requestPayload = ClaudePdfRequest.builder()
+				.model(model)
+				.maxTokens(maxTokens)
+				.messages(List.of(message))
+				.build();
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("content-type", "application/json");
+			headers.set("x-api-key", apiKey);
+			headers.set("anthropic-version", "2023-06-01");
+			headers.set("anthropic-beta", "prompt-caching-2024-07-31");
+
+			// HTTP 요청 엔티티 생성
+			HttpEntity<ClaudePdfRequest> requestEntity = new HttpEntity<>(requestPayload, headers);
+
+			// API 요청 보내기
+			ResponseEntity<ClaudeResponse> responseEntity = restTemplate.postForEntity(API_URL, requestEntity,
+				ClaudeResponse.class);
+
+			// log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
+
+			return responseEntity.getBody();
+		}
+	}
+
 	public ClaudeResponse sendPdfMessages(String pdfUrl, String userMessage) throws IOException {
 
 		URL url = new URL(pdfUrl);
@@ -69,7 +139,7 @@ public class ClaudeUtil {
 			CacheControl cacheControl = CacheControl.builder()
 				.type("ephemeral")
 				.build();
-			MessageContentInterface documentContent = MessagePdfContentDetail.builder()
+			MessageContentInterface documentContent = MessagePdfImageContentDetail.builder()
 				.type("document")
 				.source(source)
 				.cacheControl(cacheControl)
@@ -79,13 +149,11 @@ public class ClaudeUtil {
 				.text(userMessage)
 				.build();
 
-			// 메시지 내용 생성
 			MessageContent message = MessageContent.builder()
 				.role("user")
 				.content(List.of(documentContent, textContent))
 				.build();
 
-			// DTO 생성
 			ClaudePdfRequest requestPayload = ClaudePdfRequest.builder()
 				.model(model)
 				.maxTokens(maxTokens)

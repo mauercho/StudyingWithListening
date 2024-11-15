@@ -21,7 +21,7 @@ public class ClaudeTestController {
 		claudeTestService.testTPQClaudeApi();
 	}
 
-	@GetMapping("/test")
+	@GetMapping("/answer")
 	public void testClaudeApi2() {
 
 		claudeTestService.testAnswerClaudeApi();
@@ -31,6 +31,12 @@ public class ClaudeTestController {
 	public void testPdf() throws Exception {
 
 		claudeTestService.testPdf();
+	}
+
+	@GetMapping("/image")
+	public void testImage() throws Exception {
+
+		claudeTestService.testImage();
 	}
 
 }

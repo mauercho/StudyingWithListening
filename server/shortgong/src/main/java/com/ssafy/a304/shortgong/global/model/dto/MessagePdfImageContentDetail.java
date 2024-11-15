@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MessagePdfContentDetail implements MessageContentInterface {
+public class MessagePdfImageContentDetail implements MessageContentInterface {
 
 	private String type;
 
