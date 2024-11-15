@@ -110,7 +110,7 @@ export default function Home() {
     const fetchSummaries = async () => {
       try {
         const data = await summariesApi.getSummaries();
-        setList(data);
+        setList(data.slice().reverse().slice(0, 5));
       } catch (error) {
         console.error('Error fetching summaries:', error);
       }

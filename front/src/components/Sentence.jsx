@@ -8,9 +8,8 @@ import usePlayerStore from '../stores/usePlayerStore'
 
 const Container = styled.li`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
+  align-items: top;
+  position: relative;
   width: 100%;
   cursor: pointer;
   padding: 10px;
@@ -20,6 +19,11 @@ const Container = styled.li`
   &:active {
     background-color: ${({ theme }) => theme.color.grey_dark};
   }
+`
+
+const Icon = styled(FaHeadphones)`
+  position: absolute;
+  left: -10px; /* 아이콘을 왼쪽에 고정 */
 `
 
 const Text = styled.p`
@@ -49,7 +53,7 @@ export default function Sentence({
 
   return (
     <Container onClick={onShortPress} {...longPressHandler}>
-      {index === currentIndex && <FaHeadphones size={16} />}
+      {index === currentIndex && <Icon size={16} />}
       <Text status={status}>{status === 'question' ? 'Q: ' : 'A: '}{text}</Text>
     </Container>
   )
