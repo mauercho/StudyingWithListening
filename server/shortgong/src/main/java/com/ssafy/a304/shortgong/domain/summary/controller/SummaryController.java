@@ -2,7 +2,6 @@ package com.ssafy.a304.shortgong.domain.summary.controller;
 
 import static com.ssafy.a304.shortgong.global.errorCode.UploadContentErrorCode.*;
 
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -42,7 +41,7 @@ public class SummaryController {
 	/**
 	 * 파일 업로드 및 요약본 생성
 	 * */
-	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, "multipart/form-data"})
+	@PostMapping(consumes = "multipart/form-data")
 	@Operation(summary = "create summary by File", description = "Create a Summary By File With Ocr")
 	public ResponseEntity<?> createSummary(
 		@RequestPart(value = "type") String type,
