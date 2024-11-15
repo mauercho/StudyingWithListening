@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
+
 import styled from '@emotion/styled'
+
 import { FaGripLines } from 'react-icons/fa'
+import usePlayerStore from '../stores/usePlayerStore'
+
 
 const Container = styled.div`
   width: 100%;
@@ -76,6 +80,7 @@ export default function TableOfContents({ indexes, onButtonClick }) {
   const [isOpen, setIsOpen] = useState(false)
   const startY = useRef(null)
   const toggleButtonRef = useRef(null)
+  const { currentIndex } = usePlayerStore()
 
   const handleTouchStart = (e) => {
     startY.current = e.touches[0].clientY
@@ -114,10 +119,10 @@ export default function TableOfContents({ indexes, onButtonClick }) {
       <Navigation isOpen={isOpen}>
         <ul>
           {indexes.map((item) => (
-            <li key={item.sentenceId}>
+            <li key={item.sentenceOrder}>
               <TableButton
-                onClick={() => onButtonClick(item.sentenceId)}
-                isPlaying={item.sentenceId === currentSentenceId}
+                onClick={() => onButtonClick(item.sentenceOrder)}
+                isPlaying={item.sentenceOrder * 2 - 1 === currentIndex || item.sentenceOrder * 2 - 1 === currentIndex + 1}
               >
                 <p>{item.indexTitle}</p>
               </TableButton>
