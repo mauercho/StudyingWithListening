@@ -1,10 +1,16 @@
 import React from 'react'
 
 import styled from '@emotion/styled'
+import { FaHeadphones } from 'react-icons/fa'
 
 import useLongPress from '../hooks/useLongPress'
+import usePlayerStore from '../stores/usePlayerStore'
 
 const Container = styled.li`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   cursor: pointer;
   padding: 10px;
@@ -17,34 +23,34 @@ const Container = styled.li`
 `
 
 const Text = styled.p`
-  opacity: 0.6;
+  width: 100%;
+  opacity: 1;
   font-size: 16px;
+  color: ${({ theme }) => theme.color.primary_dark};
   font-weight: ${({ theme }) => theme.font.weight.light};
-  ${({ status }) =>
-    !status &&
-    `
-      opacity: 0.3;
-      text-decoration: line-through;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    `}
-
   ${({ theme, status }) =>
-    status === 'playing' &&
+    status === 'question' &&
     `
-      color: ${theme.color.primary_dark};
+      color: ${theme.color.secondary};
       opacity: 1;
-      font-weight: ${theme.font.weight.regular};
     `}
 `
 
-export default function Sentence({ text, status, onShortPress, onLongPress }) {
-  const { ...longPressHandler } = useLongPress(onLongPress, onShortPress)
+export default function Sentence({
+  text,
+  status,
+  index,
+  onShortPress,
+  onLongPress,
+}) {
+  const { currentIndex } = usePlayerStore()
+
+  const { ...longPressHandler } = useLongPress(onLongPress)
 
   return (
-    <Container {...longPressHandler}>
-      <Text status={status}>{text}</Text>
+    <Container onClick={onShortPress} {...longPressHandler}>
+      {index === currentIndex && <FaHeadphones size={16} />}
+      <Text status={status}>{status === 'question' ? 'Q: ' : 'A: '}{text}</Text>
     </Container>
   )
 }

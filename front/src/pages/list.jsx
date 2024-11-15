@@ -23,6 +23,7 @@ const Item = styled.li`
   width: 100%;
   cursor: pointer;
   border-radius: 8px;
+  box-sizing: border-box;
 
   &:hover {
     background-color: ${({ theme }) => theme.color.grey};
@@ -30,15 +31,7 @@ const Item = styled.li`
 `
 
 export default function List() {
-  const [list, setList] = useState([
-    { title: 'CS 면접 스터디 - 디자인 패턴', id: 1 },
-    { title: 'CS 면접 스터디 - 디자인 패턴', id: 2 },
-    { title: 'CS 면접 스터디 - 디자인 패턴', id: 3 },
-    { title: 'CS 면접 스터디 - 디자인 패턴', id: 4 },
-    { title: 'CS 면접 스터디 - 디자인 패턴', id: 5 },
-    { title: 'CS 면접 스터디 - 디자인 패턴', id: 6 },
-    { title: 'CS 면접 스터디 - 디자인 패턴', id: 7 },
-  ])
+  const [list, setList] = useState([])
   const navigate = useNavigate()
 
   const handleLinkClick = (summariesId) => {
@@ -49,7 +42,6 @@ export default function List() {
     const fetchSummaries = async () => {
       try {
         const data = await summariesApi.getSummaries()
-        console.log('1,2, 3,4,')
         setList(data)
       } catch (error) {
         console.error('Error fetching user:', error)
