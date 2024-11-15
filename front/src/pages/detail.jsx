@@ -20,7 +20,7 @@ const Container = styled.div`
   overflow-y: auto;
   box-sizing: border-box;
 `
-const QuetionIcon = styled.div`
+const QuestionIcon = styled.div`
   color: ${({ theme }) => theme.color.primary_dark};
   /* padding-left: 10px; */
   font-size: 20px;
@@ -99,57 +99,58 @@ export default function Detail() {
   useEffect(() => {
     const fetchSummaryDetail = async () => {
       try {
-        const data = await summariesApi.getSummariesDetail(summaryId)
-        console.log(data)
+        const data = await summariesApi.getSummariesDetail(summaryId);
+        console.log(data);
 
         // summaryMode에 따라 맞는 content와 voiceUrl을 선택
         const updatedSentences = data.sentenceResponseList.map((sentence) => {
-          let content, voiceUrl
+          let content, voiceUrl;
           switch (summaryMode) {
             case 'detail':
-              content = sentence.contentDetail
-              voiceUrl = sentence.detailVoiceFileName
-              break
+              content = sentence.detailAnswer;
+              voiceUrl = sentence.detailAnswerVoiceUrl;
+              break;
             case 'keyword':
-              content = sentence.contentSimple
-              voiceUrl = sentence.simpleVoiceFileName
-              break
+              content = sentence.simpleAnswer;
+              voiceUrl = sentence.simpleAnswerVoiceUrl;
+              break;
             default:
-              content = sentence.contentNormal
-              voiceUrl = sentence.normalVoiceFileName
-              break
+              content = sentence.normalAnswer;
+              voiceUrl = sentence.normalAnswerVoiceUrl;
+              break;
           }
-          return { ...sentence, content, voiceUrl }
-        })
+          return { ...sentence, content, voiceUrl, questionVoiceUrl: sentence.questionVoiceUrl };
+        });
 
         const updatedIndexes = data.sentenceResponseList.map((sentence) => ({
           indexTitle: sentence.sentencePoint,
-          sentenceId: sentence.id,
-        }))
+          sentenceOrder: sentence.order,
+        }));
 
-        // 현재 페이지의 URL들
-        const newUrls = updatedSentences.map((sentence) => sentence.voiceUrl)
+        const newUrls = updatedSentences.flatMap((sentence) => [
+          sentence.questionVoiceUrl,
+          sentence.voiceUrl,
+        ]);
 
-        // 페이지 데이터 업데이트 조건에 따른 처리
         if (voiceUrls.length === 0) {
-          setSummaryTitle(data.summaryTitle)
-          setVoiceUrls(newUrls)
+          setSummaryTitle(data.summaryTitle);
+          setVoiceUrls(newUrls);
         } else if (!newUrls.some((url) => voiceUrls.includes(url))) {
-          reset()
-          setSummaryTitle(data.summaryTitle)
-          setVoiceUrls(newUrls)
+          reset();
+          setSummaryTitle(data.summaryTitle);
+          setVoiceUrls(newUrls);
         } else {
-          setSummaryTitle(data.summaryTitle)
+          setSummaryTitle(data.summaryTitle);
         }
-
-        setSentences(updatedSentences)
-        setIndexes(updatedIndexes)
+        setSentences(updatedSentences);
+        setIndexes(updatedIndexes);
       } catch (error) {
-        console.error('Error:', error)
+        console.error('Error:', error);
       }
-    }
+    };
 
-    fetchSummaryDetail()
+    setCurrentIndex(null);
+    fetchSummaryDetail();
   }, [
     summaryId,
     summaryMode, // summaryMode 변경 시에도 실행되도록 의존성에 추가
@@ -157,7 +158,8 @@ export default function Detail() {
     setVoiceUrls,
     voiceUrls,
     reset,
-  ])
+  ]);
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
   const [isTableOpen, setIsTableOpen] = useState(false)
@@ -224,17 +226,19 @@ export default function Detail() {
     }
   }
 
-  const handleShortPress = (sentenceId, sentenceURL, status) => {
-    console.log(`Sentence ${sentenceId}`)
+  const handleShortPress = (sentenceOrder, sentenceURL, status) => {
+    console.log(`Sentence ${sentenceOrder}`)
 
     if (!status) {
       setModalFlag(false)
-      setSelectedSentenceId(sentenceId)
+      setSelectedSentenceId(sentenceOrder)
       setTimeout(() => setIsModalOpen(true), 50)
       return
     }
     if (sentenceURL) {
-      setCurrentIndex(sentenceId - 1)
+      const index = status === 'question' ? (sentenceOrder - 1) * 2 : (sentenceOrder - 1) * 2 + 1;
+      console.log(index)
+      setCurrentIndex(index)
       setIsPlaying(true)
     }
   }
@@ -246,12 +250,12 @@ export default function Detail() {
     console.log(`Sentence ${sentenceId}`)
   }
 
-  const handleTableTouch = (sentenceId) => {
-    if (sentenceId && sentenceId > 0) {
-      setCurrentIndex(sentenceId - 1)
+  const handleTableTouch = (sentenceOrder) => {
+    if (sentenceOrder && sentenceOrder > 0) {
+      setCurrentIndex((sentenceOrder - 1) * 2)
       setIsPlaying(true)
     }
-    scroller.scrollTo(`sentence-${sentenceId}`, {
+    scroller.scrollTo(`sentence-${sentenceOrder}`, {
       containerId: 'content-area',
       duration: 500,
       delay: 0,
@@ -287,9 +291,9 @@ export default function Detail() {
         />
       </HeaderWrapper>
       <ModeSelectWrapper>
-        <QuetionIcon>
+        <QuestionIcon>
           <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} />
-        </QuetionIcon>
+        </QuestionIcon>
         <BookmarkMenu
           summaryMode={summaryMode}
           onButtonClick={handleSummaryMode}
@@ -299,15 +303,31 @@ export default function Detail() {
       <Main>
         <ContentArea id="content-area">
           {sentences.map((sentence) => (
-            <Element name={`sentence-${sentence.id}`} key={sentence.id}>
+            <Element name={`sentence-${sentence.order}`} key={sentence.id}>
               <Sentence
-                text={sentence.content}
-                status={sentence.openStatus}
+                text={sentence.question}
+                status={'question'}
+                index={(sentence.order - 1) * 2}
                 onShortPress={() =>
                   handleShortPress(
-                    sentence.id,
+                    sentence.order,
                     sentence.voiceUrl,
-                    sentence.openStatus
+                    'question'
+                  )
+                }
+                onLongPress={() =>
+                  handleLongPress(sentence.id, sentence.openStatus)
+                }
+              />
+              <Sentence
+                text={sentence.content}
+                status={'answer'}
+                index={(sentence.order - 1) * 2 + 1}
+                onShortPress={() =>
+                  handleShortPress(
+                    sentence.order,
+                    sentence.voiceUrl,
+                    'answer'
                   )
                 }
                 onLongPress={() =>
