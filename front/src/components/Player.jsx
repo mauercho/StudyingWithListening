@@ -80,6 +80,7 @@ export default function Player() {
     isPlaying,
     setIsPlaying,
   } = usePlayerStore()
+
   const [playbackRate, setPlaybackRate] = useState(1.0)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -250,6 +251,7 @@ export default function Player() {
       }
     }
   }, [isPlaying])
+  if (voiceUrls.length === 0) return null
 
   return (
     <Container>
