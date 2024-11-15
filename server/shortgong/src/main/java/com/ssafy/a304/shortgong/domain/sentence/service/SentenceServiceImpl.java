@@ -65,7 +65,7 @@ public class SentenceServiceImpl implements SentenceService {
 
 		if (sentence.getQuestion() != null) {
 			byte[] questionVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
-				sentence.getSentenceContentNormal(),
+				sentence.getQuestion(),
 				DSINU_MATT.getName());
 			questionFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
 				questionVoiceData,
