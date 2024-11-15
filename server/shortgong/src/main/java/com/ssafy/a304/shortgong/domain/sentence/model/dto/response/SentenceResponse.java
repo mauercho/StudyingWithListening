@@ -12,18 +12,19 @@ public class SentenceResponse {
 	private final Long id;
 	private final Long sentenceTitleId;
 	private final String sentencePoint;
-	private final String question;
 
 	private final Integer order;
 	private final boolean openStatus;
 
-	private final String contentNormal;
-	private final String contentDetail;
-	private final String contentSimple;
+	private final String question;
+	private final String normalAnswer;
+	private final String detailAnswer;
+	private final String simpleAnswer;
 
-	private final String normalVoiceFileName;
-	private final String detailVoiceFileName;
-	private final String simpleVoiceFileName;
+	private final String questionVoiceUrl;
+	private final String normalAnswerVoiceUrl;
+	private final String simpleAnswerVoiceUrl;
+	private final String detailAnswerVoiceUrl;
 
 	@Builder
 	SentenceResponse(Sentence sentence) {
@@ -31,16 +32,17 @@ public class SentenceResponse {
 		this.id = sentence.getId();
 		this.sentenceTitleId = sentence.getSentenceTitle().getId();
 		this.sentencePoint = sentence.getSentencePoint();
-		this.question = sentence.getQuestion();
 		this.order = sentence.getOrder();
 		this.openStatus = sentence.getOpenStatus();
 
-		this.contentNormal = sentence.getSentenceContentNormal();
-		this.contentDetail = sentence.getSentenceContentDetail();
-		this.contentSimple = sentence.getSentenceContentSimple();
+		this.question = sentence.getQuestion();
+		this.normalAnswer = sentence.getSentenceContentNormal();
+		this.detailAnswer = sentence.getSentenceContentDetail();
+		this.simpleAnswer = sentence.getSentenceContentSimple();
 
-		this.normalVoiceFileName = S3FileUtil.getPreSignedUrl(sentence.getNormalVoiceFileName());
-		this.simpleVoiceFileName = S3FileUtil.getPreSignedUrl(sentence.getSimpleVoiceFileName());
-		this.detailVoiceFileName = S3FileUtil.getPreSignedUrl(sentence.getDetailVoiceFileName());
+		this.questionVoiceUrl = S3FileUtil.getPreSignedUrl(sentence.getQuestionFileName());
+		this.normalAnswerVoiceUrl = S3FileUtil.getPreSignedUrl(sentence.getNormalVoiceFileName());
+		this.simpleAnswerVoiceUrl = S3FileUtil.getPreSignedUrl(sentence.getSimpleVoiceFileName());
+		this.detailAnswerVoiceUrl = S3FileUtil.getPreSignedUrl(sentence.getDetailVoiceFileName());
 	}
 }

@@ -57,11 +57,21 @@ public class SentenceServiceImpl implements SentenceService {
 	@Transactional
 	public void uploadSentenceVoice(Sentence sentence) /* throws TaskRejectedException */ {
 
+		String questionFileName = null;
 		String normalFileName = null;
 		String simpleFileName = null;
 		String detailFileName = null;
 		String summaryFolderName = sentence.getSummary().getFolderName();
 
+		if (sentence.getQuestion() != null) {
+			byte[] questionVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
+				sentence.getSentenceContentNormal(),
+				DSINU_MATT.getName());
+			questionFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
+				questionVoiceData,
+				summaryFolderName,
+				RandomUtil.generateUUID());
+		}
 		if (sentence.getSentenceContentNormal() != null) {
 			byte[] normalVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
 				sentence.getSentenceContentNormal(),
@@ -90,7 +100,7 @@ public class SentenceServiceImpl implements SentenceService {
 				RandomUtil.generateUUID());
 		}
 		// TODO : 이미 파일이 존재하면 삭제하기
-		sentence.updateVoiceFileNames(normalFileName, simpleFileName, detailFileName);
+		sentence.updateVoiceFileNames(questionFileName, normalFileName, simpleFileName, detailFileName);
 		sentenceRepository.save(sentence);
 	}
 
