@@ -22,32 +22,55 @@ public class ClaudeTestService {
 	private final SentenceUtil sentenceUtil;
 
 	public void testTPQClaudeApi() {
-		String testText = promptUtil.TPQ(getTestText());
-		// String testText = promptUtil.complete(getTestText());
-		// String testText = promptUtil.simple(getTestText());
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
-		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
 
-		for (String sentence : newSentences) {
-			log.info("sentence: {}", sentence);
-		}
+		String testText = promptUtil.TPQ(getTestText());
+
+		claudeUtil.sendMessageAsync(testText, new ClaudeUtil.Callback() {
+			@Override
+			public void onSuccess(ClaudeResponse response) {
+
+				List<String> newSentences = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+				for (String sentence : newSentences) {
+					log.info("sentence: {}", sentence);
+				}
+			}
+
+			@Override
+			public void onError(Exception e) {
+
+				log.error("Error: {}", e.getMessage());
+			}
+		});
 	}
 
 	public void testAnswerClaudeApi() {
+
 		String T = "스키마와 지식 습득";
 		String P = "지식 습득의 기본 원리";
 		String Q = "새로운 지식은 어떤 방식으로 습득되나요?";
 
 		String testText = promptUtil.getAnswerPrompt(T, P, Q, getTestText());
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
-		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
+		claudeUtil.sendMessageAsync(testText, new ClaudeUtil.Callback() {
+			@Override
+			public void onSuccess(ClaudeResponse response) {
 
-		for (String sentence : newSentences) {
-			log.info("sentence: {}", sentence);
-		}
+				List<String> newSentences = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+
+				for (String sentence : newSentences) {
+					log.info("sentence: {}", sentence);
+				}
+			}
+
+			@Override
+			public void onError(Exception e) {
+
+				log.error("Error: {}", e.getMessage());
+			}
+		});
 	}
 
 	public String getTestText() {
+
 		return String.join("", "공부란 스키마로 해석‧재구성해 새로운 스키마를 만드는 것\n",
 			"새로운 지식은 기존의 지식을 통해 습득된다. 사람은 기존의 지식을 근거로 새로운 지식을 이해하고 해석한다. 사실적 지식들이 개념화돼 개념적 지식을 만들게 되면, 이 개념 지식은 새로운 경험들을 해석하고 구성해 스키마 체계에 넣게 된다.\n",
 			"만약 지식이 없다면 새로운 지식은 매우 낯설어, 이해하기 어려울 것이다. 이 지식을 기억하기 위한 유일한 방법은 반복일 것이다. 하지만 반복해서 기억하는 것으로는 부족하다. 반복 학습을 통해 새로운 스키마를 만들어야 제대로 공부를 했다고 할 수 있는 것이다.\n",

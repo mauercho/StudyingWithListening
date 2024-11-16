@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryOverviewResponse;
@@ -44,10 +43,8 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
 		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
 
-		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장
-		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
-		// Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
-		sentenceList.forEach(sentence -> sentenceService.setAnswersAndGetVoice(sentence, text));
+		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장 & Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+		sentenceService.parseQuizSentenceList(text, summary);
 		return summary.getId();
 	}
 
@@ -63,10 +60,8 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
 		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
 
-		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장
-		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
-		// Answer 들만 따로 요청 & 일괄 저장
-		sentenceList.forEach(sentence -> sentenceService.setAnswersAndGetVoice(sentence, text));
+		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장 & Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+		sentenceService.parseQuizSentenceList(text, summary);
 		return summary.getId();
 	}
 

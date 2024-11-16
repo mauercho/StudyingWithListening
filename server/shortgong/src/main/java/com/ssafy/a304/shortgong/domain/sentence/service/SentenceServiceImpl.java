@@ -59,7 +59,6 @@ public class SentenceServiceImpl implements SentenceService {
 
 	/**
 	 * 문장에 해당하는 voice 생성 & 저장
-	 * @return 파일명
 	 * */
 	@Async
 	public void uploadSentenceVoice(Sentence sentence) throws TaskRejectedException {
@@ -118,30 +117,49 @@ public class SentenceServiceImpl implements SentenceService {
 	 */
 	@Override
 	@Transactional
-	public List<Sentence> parseQuizSentenceList(String text, Summary summary) {
+	public void parseQuizSentenceList(String text, Summary summary) {
 
-		orderCounter.set(1);
-		return getQuestions(text).stream()
-			.flatMap(questionResponse -> {
-				// 기존 sentenceTitle 엔티티 있으면 가져오고 없으면 엔티티 생성하기
-				SentenceTitle sentenceTitle;
-				sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
-					.orElseGet(() -> sentenceTitleRepository.save(
-						SentenceTitle.builder()
-							.name(questionResponse.getTitle())
-							.build()));
+		String tpqTexts = promptUtil.TPQ(text);
 
-				return questionResponse.getQuestionAnswerResponseList().stream()
-					.map(questionAnswerResponse ->
-						sentenceRepository.save(Sentence.builder()
-							.summary(summary)
-							.sentenceTitle(sentenceTitle)
-							.sentencePoint(questionAnswerResponse.getPoint())
-							.question(questionAnswerResponse.getQuestion())
-							.order(orderCounter.getAndIncrement())
-							.build()));
-			})
-			.toList();
+		claudeUtil.sendMessageAsync(tpqTexts, new ClaudeUtil.Callback() {
+			@Override
+			public void onSuccess(ClaudeResponse response) {
+
+				List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+				log.info("[TPQs]");
+				tpqTextList.forEach(s -> log.info("TPQ: {}", s));
+
+				orderCounter.set(1);
+				getQuestionListByTPQTextList(tpqTextList)
+					.forEach(questionResponse -> {
+						// 기존 sentenceTitle 엔티티 있으면 가져오고 없으면 엔티티 생성하기
+						SentenceTitle sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
+							.orElseGet(() -> sentenceTitleRepository.save(
+								SentenceTitle.builder()
+									.name(questionResponse.getTitle())
+									.build()));
+						// Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+						questionResponse.getQuestionAnswerResponseList()
+							.forEach(questionAnswerResponse -> {
+								Sentence sentence = sentenceRepository.save(Sentence.builder()
+									.summary(summary)
+									.sentenceTitle(sentenceTitle)
+									.sentencePoint(questionAnswerResponse.getPoint())
+									.question(questionAnswerResponse.getQuestion())
+									.order(orderCounter.getAndIncrement())
+									.build());
+
+								setAnswersAndGetVoice(sentence, text);
+							});
+					});
+			}
+
+			@Override
+			public void onError(Exception e) {
+
+				log.error("Error: {}", e.getMessage());
+			}
+		});
 	}
 
 	/**
@@ -195,52 +213,42 @@ public class SentenceServiceImpl implements SentenceService {
 		return sentenceUtil.joinStrings(sentenceStringList);
 	}
 
-	@Override
-	public List<QuestionResponse> getQuestions(String text) {
-
-		String tpqTexts = promptUtil.TPQ(text);
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(tpqTexts);
-		List<String> tpqTextList = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
-		log.info("[TPQs]");
-		tpqTextList.forEach(s -> log.info("TPQ: {}", s));
-		return getQuestionListByTPQTextList(tpqTextList);
-	}
-
 	/**
 	 * 문장의 NA, SA, DA 다 넣어준 문장 반환
 	 * @param sentence : 요청할 문장
 	 * @param originalText : 원본 텍스트
-	 * @return sentence
 	 * @author 정재영
 	 */
 	@Async
 	@Override
 	public void setAnswersAndGetVoice(Sentence sentence, String originalText) {
 
-		// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
-		List<String> sentenceList = getAnswerList(sentence, originalText);
-		ThreeAnswerResponse threeAnswerResponse = getAnswersByText(sentenceList);
-		sentence.updateThreeAnswerResponse(threeAnswerResponse);
-		// TTS 요청하기
-		uploadSentenceVoice(sentence);
-		sentenceRepository.save(sentence);
-	}
-
-	/**
-	 * TPQ에 해당하는 3가지 Answer를 반환
-	 * @return List<String> (TPQ에 해당하는 3가지 Answer)
-	 * @auther 이주형
-	 */
-	private List<String> getAnswerList(Sentence sentence, String text) {
-
-		String testText = promptUtil.getAnswerPrompt(
+		String answerPrompt = promptUtil.getAnswerPrompt(
 			sentence.getSentenceTitle().getName(),
 			sentence.getSentencePoint(),
 			sentence.getQuestion(),
-			text);
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
+			originalText);
 
-		return sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
+		claudeUtil.sendMessageAsync(answerPrompt, new ClaudeUtil.Callback() {
+			@Override
+			public void onSuccess(ClaudeResponse response) {
+
+				System.out.println("Success: " + response.getContent().get(0).getText());
+				List<String> answerList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+				// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
+				ThreeAnswerResponse threeAnswerResponse = getAnswersByText(answerList);
+				sentence.updateThreeAnswerResponse(threeAnswerResponse);
+				// TTS 요청하기
+				uploadSentenceVoice(sentence);
+				sentenceRepository.save(sentence);
+			}
+
+			@Override
+			public void onError(Exception e) {
+
+				System.err.println("Error: " + e.getMessage());
+			}
+		});
 	}
 
 	private List<QuestionResponse> getQuestionListByTPQTextList(List<String> texts) {
