@@ -46,35 +46,75 @@ public class VoiceAsyncServiceImpl implements VoiceAsyncService {
 			sentence.updateQuestionVoiceFileName(questionFileName);
 		}
 		if (sentence.getSentenceContentNormal() != null) {
-			byte[] normalVoiceData = elevenLabsVoiceUtil.requestVoiceByTextAndVoice(
+			elevenLabsVoiceUtil.requestVoiceByTextAndVoiceAsync(
 				sentence.getSentenceContentNormal(),
-				ALICE.getVoiceId());
-			String normalFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
-				normalVoiceData,
-				summaryFolderName,
-				RandomUtil.generateUUID());
-			sentence.updateNormalVoiceFileName(normalFileName);
+				ALICE.getVoiceId(),
+				new ElevenLabsVoiceUtil.Callback() {
+					@Override
+					public void onSuccess(byte[] voice) {
+
+						String normalFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
+							voice,
+							summaryFolderName,
+							RandomUtil.generateUUID());
+						sentence.updateNormalVoiceFileName(normalFileName);
+						sentenceRepository.save(sentence);
+					}
+
+					@Override
+					public void onError(Exception e) {
+
+						System.err.println("Error: " + e.getMessage());
+					}
+				});
+
 		}
 		if (sentence.getSentenceContentSimple() != null) {
-			byte[] simpleVoiceData = elevenLabsVoiceUtil.requestVoiceByTextAndVoice(
+			elevenLabsVoiceUtil.requestVoiceByTextAndVoiceAsync(
 				sentence.getSentenceContentSimple(),
-				ALICE.getVoiceId());
-			String simpleFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
-				simpleVoiceData,
-				summaryFolderName,
-				RandomUtil.generateUUID());
-			sentence.updateSimpleVoiceFileName(simpleFileName);
+				ALICE.getVoiceId(),
+				new ElevenLabsVoiceUtil.Callback() {
+					@Override
+					public void onSuccess(byte[] voice) {
+
+						String simpleFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
+							voice,
+							summaryFolderName,
+							RandomUtil.generateUUID());
+						sentence.updateSimpleVoiceFileName(simpleFileName);
+						sentenceRepository.save(sentence);
+					}
+
+					@Override
+					public void onError(Exception e) {
+
+						System.err.println("Error: " + e.getMessage());
+					}
+				});
+
 		}
 		if (sentence.getSentenceContentDetail() != null) {
-			byte[] detailVoiceData = elevenLabsVoiceUtil.requestVoiceByTextAndVoice(
+			elevenLabsVoiceUtil.requestVoiceByTextAndVoiceAsync(
 				sentence.getSentenceContentDetail(),
-				ALICE.getVoiceId());
-			String detailFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
-				detailVoiceData,
-				summaryFolderName,
-				RandomUtil.generateUUID());
-			sentence.updateDetailVoiceFileName(detailFileName);
+				ALICE.getVoiceId(),
+				new ElevenLabsVoiceUtil.Callback() {
+					@Override
+					public void onSuccess(byte[] voice) {
+
+						String detailFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
+							voice,
+							summaryFolderName,
+							RandomUtil.generateUUID());
+						sentence.updateDetailVoiceFileName(detailFileName);
+						sentenceRepository.save(sentence);
+					}
+
+					@Override
+					public void onError(Exception e) {
+
+						System.err.println("Error: " + e.getMessage());
+					}
+				});
 		}
-		sentenceRepository.save(sentence);
 	}
 }

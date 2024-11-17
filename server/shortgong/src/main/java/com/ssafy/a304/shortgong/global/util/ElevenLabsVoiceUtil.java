@@ -2,10 +2,16 @@ package com.ssafy.a304.shortgong.global.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,14 +33,20 @@ public class ElevenLabsVoiceUtil {
 	private int apiKeyIndex = 0;
 	private String[] apiKeys;
 
+	private final Queue<Runnable> requestQueue = new ConcurrentLinkedQueue<>();
+	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+	@Async
 	public void requestVoiceByTextAndVoiceAsync(String text, String voiceId, ElevenLabsVoiceUtil.Callback callback) {
 
-		try {
-			byte[] voice = requestVoiceByTextAndVoice(text, voiceId);
-			callback.onSuccess(voice);
-		} catch (Exception e) {
-			callback.onError(e);
-		}
+		requestQueue.offer(() -> {
+			try {
+				byte[] voice = requestVoiceByTextAndVoice(text, voiceId);
+				callback.onSuccess(voice);
+			} catch (Exception e) {
+				callback.onError(e);
+			}
+		});
 	}
 
 	public byte[] requestVoiceByTextAndVoice(String text, String voiceId) throws CustomException {
@@ -76,15 +88,7 @@ public class ElevenLabsVoiceUtil {
 		bodyMap.put("model_id", "eleven_turbo_v2_5");
 		bodyMap.put("language_code", "ko");
 		bodyMap.put("voice_settings", getVoiceSettings());
-		// bodyMap.put("pronunciation_dictionary_locators", List.of(Map.of(
-		// 	"pronunciation_dictionary_id", "<string>",
-		// 	"version_id", "<string>"
-		// )));
 		bodyMap.put("seed", 123);
-		// bodyMap.put("previous_text", "<string>");
-		// bodyMap.put("next_text", "<string>");
-		// bodyMap.put("previous_request_ids", List.of("<string>"));
-		// bodyMap.put("next_request_ids", List.of("<string>"));
 		bodyMap.put("use_pvc_as_ivc", true);
 		bodyMap.put("apply_text_normalization", "auto");
 
@@ -113,6 +117,15 @@ public class ElevenLabsVoiceUtil {
 			elevenLabsTTSConfig.getApiKey1(),
 			elevenLabsTTSConfig.getApiKey2(),
 			elevenLabsTTSConfig.getApiKey3()};
+
+		scheduler.scheduleAtFixedRate(() -> {
+			for (int i = 0; i < 2 && !requestQueue.isEmpty(); i++) {
+				Runnable requestTask = requestQueue.poll();
+				if (requestTask != null) {
+					requestTask.run();
+				}
+			}
+		}, 0, 1, TimeUnit.SECONDS);
 
 	}
 

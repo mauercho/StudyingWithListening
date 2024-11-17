@@ -17,7 +17,6 @@ import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 import com.ssafy.a304.shortgong.global.util.CrawlingServerConnectUtil;
 import com.ssafy.a304.shortgong.global.util.PromptUtil;
-import com.ssafy.a304.shortgong.global.util.SentenceUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +27,6 @@ public class SummaryServiceImpl implements SummaryService {
 
 	private final CrawlingServerConnectUtil crawlingServerConnectUtil;
 	private final SummaryRepository summaryRepository;
-	private final SentenceUtil sentenceUtil;
 	private final PromptUtil promptUtil;
 	private final ClaudeUtil claudeUtil;
 

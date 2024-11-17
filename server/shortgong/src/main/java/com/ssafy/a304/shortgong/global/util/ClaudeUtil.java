@@ -279,7 +279,6 @@ public class ClaudeUtil {
 			apiKey10};
 
 		scheduler.scheduleAtFixedRate(() -> {
-			// log.debug("Processing queued requests...");
 			for (int i = 0; i < 5 && !requestQueue.isEmpty(); i++) {
 				Runnable requestTask = requestQueue.poll();
 				if (requestTask != null) {

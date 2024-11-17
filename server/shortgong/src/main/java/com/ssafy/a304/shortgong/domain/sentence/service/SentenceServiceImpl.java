@@ -15,14 +15,11 @@ import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionRespo
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
-import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceTitleRepository;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
-import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
-import com.ssafy.a304.shortgong.global.util.ElevenLabsVoiceUtil;
 import com.ssafy.a304.shortgong.global.util.PromptUtil;
 import com.ssafy.a304.shortgong.global.util.SentenceUtil;
 
@@ -35,10 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
-	private final SentenceTitleRepository sentenceTitleRepository;
 	private final SentenceAsyncService sentenceAsyncService;
-	private final ClovaVoiceUtil clovaVoiceUtil;
-	private final ElevenLabsVoiceUtil elevenLabsVoiceUtil;
 	private final SentenceUtil sentenceUtil;
 	private final ClovaOCRUtil clovaOCRUtil;
 	private final ClaudeUtil claudeUtil;
@@ -62,9 +56,7 @@ public class SentenceServiceImpl implements SentenceService {
 
 		orderCounter.set(1);
 		getQuestionListByTPQTextList(tpqTextList).forEach(
-			questionResponse -> {
-				sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary, orderCounter);
-			});
+			questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary, orderCounter));
 	}
 
 	/**
