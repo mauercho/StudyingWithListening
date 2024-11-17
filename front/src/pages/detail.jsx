@@ -12,8 +12,8 @@ import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
 import Loading from '../components/Loading'
 import usePlayerStore from '../stores/usePlayerStore'
-import BookmarkMenu from '../components/BookmarkMenu'
 import HelpModal from '../components/HelpModal'
+import ModeModal from '../components/modeModal'
 
 const Container = styled.div`
   width: 100%;
@@ -88,77 +88,69 @@ export default function Detail() {
   } = usePlayerStore()
 
   const [sentences, setSentences] = useState([])
-  const [summaryMode, setSummaryMode] = useState('normal')
-
-  const modeMenuItems = [
-    { title: '상세', mode: 'detail' },
-    { title: '키워드', mode: 'keyword' },
-    { title: '일반', mode: 'normal' },
-  ]
+  const [summaryMode, setSummaryMode] = useState('detail')
 
   useEffect(() => {
     const fetchSummaryDetail = async () => {
       try {
-        const data = await summariesApi.getSummariesDetail(summaryId);
-        console.log(data);
+        const data = await summariesApi.getSummariesDetail(summaryId)
+        console.log(data)
 
         // summaryMode에 따라 맞는 content와 voiceUrl을 선택
         const updatedSentences = data.sentenceResponseList.map((sentence) => {
-          let content, voiceUrl;
+          let content, voiceUrl
           switch (summaryMode) {
             case 'detail':
-              content = sentence.detailAnswer;
-              voiceUrl = sentence.detailAnswerVoiceUrl;
-              break;
+              content = sentence.detailAnswer
+              voiceUrl = sentence.detailAnswerVoiceUrl
+              break
             case 'keyword':
-              content = sentence.simpleAnswer;
-              voiceUrl = sentence.simpleAnswerVoiceUrl;
-              break;
+              content = sentence.simpleAnswer
+              voiceUrl = sentence.simpleAnswerVoiceUrl
+              break
             default:
-              content = sentence.normalAnswer;
-              voiceUrl = sentence.normalAnswerVoiceUrl;
-              break;
+              content = sentence.normalAnswer
+              voiceUrl = sentence.normalAnswerVoiceUrl
+              break
           }
-          return { ...sentence, content, voiceUrl, questionVoiceUrl: sentence.questionVoiceUrl };
-        });
+          return {
+            ...sentence,
+            content,
+            voiceUrl,
+            questionVoiceUrl: sentence.questionVoiceUrl,
+          }
+        })
 
         const updatedIndexes = data.sentenceResponseList.map((sentence) => ({
           indexTitle: sentence.sentencePoint,
           sentenceOrder: sentence.order,
-        }));
+        }))
 
         const newUrls = updatedSentences.flatMap((sentence) => [
           sentence.questionVoiceUrl,
           sentence.voiceUrl,
-        ]);
+        ])
 
         if (voiceUrls.length === 0) {
-          setSummaryTitle(data.summaryTitle);
-          setVoiceUrls(newUrls);
+          setSummaryTitle(data.summaryTitle)
+          setVoiceUrls(newUrls)
         } else if (!newUrls.some((url) => voiceUrls.includes(url))) {
-          reset();
-          setSummaryTitle(data.summaryTitle);
-          setVoiceUrls(newUrls);
+          reset()
+          setSummaryTitle(data.summaryTitle)
+          setVoiceUrls(newUrls)
         } else {
-          setSummaryTitle(data.summaryTitle);
+          setSummaryTitle(data.summaryTitle)
         }
-        setSentences(updatedSentences);
-        setIndexes(updatedIndexes);
+        setSentences(updatedSentences)
+        setIndexes(updatedIndexes)
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error:', error)
       }
-    };
+    }
 
-    setCurrentIndex(null);
-    fetchSummaryDetail();
-  }, [
-    summaryId,
-    summaryMode, // summaryMode 변경 시에도 실행되도록 의존성에 추가
-    setSummaryTitle,
-    setVoiceUrls,
-    voiceUrls,
-    reset,
-  ]);
+    setCurrentIndex(null)
+    fetchSummaryDetail()
+  }, [summaryId, summaryMode, setSummaryTitle, setVoiceUrls, voiceUrls, reset])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
@@ -166,6 +158,7 @@ export default function Detail() {
   const [selectedSentenceId, setSelectedSentenceId] = useState(null)
   const [loadingSentenceId, setLoadingSentenceId] = useState(null)
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
+  const [isModeModalOpen, setIsModeModalOpen] = useState(false)
   const handleDelete = async (sentenceId) => {
     try {
       await sentencesApi.deleteSentence(sentenceId)
@@ -236,7 +229,10 @@ export default function Detail() {
       return
     }
     if (sentenceURL) {
-      const index = status === 'question' ? (sentenceOrder - 1) * 2 : (sentenceOrder - 1) * 2 + 1;
+      const index =
+        status === 'question'
+          ? (sentenceOrder - 1) * 2
+          : (sentenceOrder - 1) * 2 + 1
       console.log(index)
       setCurrentIndex(index)
       setIsPlaying(true)
@@ -273,7 +269,9 @@ export default function Detail() {
   }
 
   const handleSummaryMode = (mode) => {
+    console.log(mode)
     setSummaryMode(mode)
+    setIsModeModalOpen(false)
   }
 
   return (
@@ -281,6 +279,11 @@ export default function Detail() {
       <HelpModal
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
+      />
+      <ModeModal
+        isOpen={isModeModalOpen}
+        onClose={() => setIsModeModalOpen(false)}
+        onSelectMode={handleSummaryMode}
       />
       <HeaderWrapper>
         <TableOfContents
@@ -294,11 +297,7 @@ export default function Detail() {
         <QuestionIcon>
           <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} />
         </QuestionIcon>
-        <BookmarkMenu
-          summaryMode={summaryMode}
-          onButtonClick={handleSummaryMode}
-          menuItems={modeMenuItems}
-        />
+        <button onClick={() => setIsModeModalOpen(true)}>요약 모드 선택</button>
       </ModeSelectWrapper>
       <Main>
         <ContentArea id="content-area">
@@ -324,11 +323,7 @@ export default function Detail() {
                 status={'answer'}
                 index={(sentence.order - 1) * 2 + 1}
                 onShortPress={() =>
-                  handleShortPress(
-                    sentence.order,
-                    sentence.voiceUrl,
-                    'answer'
-                  )
+                  handleShortPress(sentence.order, sentence.voiceUrl, 'answer')
                 }
                 onLongPress={() =>
                   handleLongPress(sentence.id, sentence.openStatus)
