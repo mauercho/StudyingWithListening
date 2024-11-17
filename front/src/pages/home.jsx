@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
 import styled from '@emotion/styled'
 
 import Lottie from 'react-lottie'
 import animationData from '../assets/lottie/personlistening.json'
 import Logo from '../assets/images/title.svg'
-import FileRegister from '../components/FileRegister'
+import FileRegister from '../components/home/FileRegister'
 import summariesApi from '../api/summariesApi'
-import { FaAngleRight } from 'react-icons/fa6'
 import WordInput from '../components/WordInput'
+import List from '../components/home/List'
+import UploadModal from '../components/UploadModal'
 
 // Styled components
 const Container = styled.div`
@@ -62,63 +62,12 @@ const SectionSubTitle = styled.p`
   font-size: ${({ theme }) => theme.font.size.sm};
   font-weight: ${({ theme }) => theme.font.weight.regular};
 `
-
-const ListTitle = styled.p`
-  display: flex;
-  justify-content: space-between;
-`
-
-const ListMoveButton = styled(Link)`
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  font-size: ${({ theme }) => theme.font.size.xs};
-  font-weight: ${({ theme }) => theme.font.weight.bold};
-  color: ${({ theme }) => theme.color.accent};
-`
-
-const ListWrapper = styled.ul`
-  display: flex;
-  overflow-x: scroll;
-  gap: 20px;
-  padding-bottom: 10px;
-  margin-top: 10px;
-`
-
-const ListItem = styled.li`
-  min-width: 35%;
-  padding: 10px;
-  border: 1px solid ${({ theme }) => theme.color.primary_dark};
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100px;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-
-  p {
-    font-size: ${({ theme }) => theme.font.size.xs};
-    font-weight: ${({ theme }) => theme.font.weight.medium};
-    &:first-of-type {
-      font-size: ${({ theme }) => theme.font.size.base};
-      display: block;
-      height: 32px;
-    }
-
-    &:last-of-type {
-      font-size: ${({ theme }) => theme.font.size.sm};
-    }
-  }
-`
-
-// Helper function
-const formatDate = (dateString) =>
-  new Date(dateString).toISOString().split('T')[0]
-
 // Main component
 export default function Home() {
   const [list, setList] = useState([])
-  const navigate = useNavigate()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const handleOpenModal = () => setIsModalOpen(true)
+  const handleCloseModal = () => setIsModalOpen(false)
 
   const defaultOptions = {
     loop: true,
@@ -128,8 +77,6 @@ export default function Home() {
       preserveAspectRatio: 'xMidYMid slice',
     },
   }
-
-  const handleLinkClick = (summariesId) => navigate(`/detail/${summariesId}`)
 
   useEffect(() => {
     const fetchSummaries = async () => {
@@ -155,34 +102,11 @@ export default function Home() {
       <SubTitle>
         <Point>듣</Point>는 것만으로 '암기'가 되는 <Point>공</Point>부
       </SubTitle>
-      <FileRegister />
-      <div>
-        <ListTitle>
-          <div>
-            <SectionSubTitle>우리 아직 다 못 외웠잖아요?</SectionSubTitle>
-            <SectionTitle>
-              <Point>복습</Point>하러 가기
-            </SectionTitle>
-          </div>
-          <ListMoveButton to="list">
-            더보기 <FaAngleRight />
-          </ListMoveButton>
-        </ListTitle>
-        <ListWrapper>
-          {list.map((v) => {
-            return (
-              <ListItem key={v.id} onClick={() => handleLinkClick(v.id)}>
-                <p>{v.title || '제목 없음'}</p>
-                <p>{formatDate(v.modifiedAt)}</p>
-                <p>
-                  <Point>암기 달성:</Point> {Math.floor(Math.random() * 30)} /
-                  52
-                </p>
-              </ListItem>
-            )
-          })}
-        </ListWrapper>
-      </div>
+      <FileRegister onClick={handleOpenModal} />
+      <UploadModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      ></UploadModal>
       <div>
         <div>
           <SectionSubTitle>학습 자료를 준비하지 못하셨나요?</SectionSubTitle>
@@ -192,6 +116,7 @@ export default function Home() {
         </div>
         <WordInput />
       </div>
+      <List list={list} />
     </Container>
   )
 }
