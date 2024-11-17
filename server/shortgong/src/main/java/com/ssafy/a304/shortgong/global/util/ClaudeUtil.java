@@ -56,7 +56,6 @@ public class ClaudeUtil {
 
 	@Value("${claude.api.keys.key-1}")
 	private String apiKey1;
-
 	@Value("${claude.api.keys.key-2}")
 	private String apiKey2;
 	@Value("${claude.api.keys.key-3}")
@@ -227,6 +226,7 @@ public class ClaudeUtil {
 				ClaudeResponse.class);
 
 			// log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
+			// 로그로 토큰 보기
 
 			return responseEntity.getBody();
 		}
