@@ -7,11 +7,17 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -51,7 +57,6 @@ public class ClaudeUtil {
 
 	@Value("${claude.api.keys.key-1}")
 	private String apiKey1;
-
 	@Value("${claude.api.keys.key-2}")
 	private String apiKey2;
 	@Value("${claude.api.keys.key-3}")
@@ -75,12 +80,8 @@ public class ClaudeUtil {
 
 	private int apiKeyIndex = 0;
 
-	@PostConstruct
-	private void initializeApiKeys() {
-
-		apiKeys = new String[] {apiKey1, apiKey2, apiKey3, apiKey4, apiKey5, apiKey6, apiKey7, apiKey8, apiKey9,
-			apiKey10};
-	}
+	private final Queue<Runnable> requestQueue = new ConcurrentLinkedQueue<>();
+	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
 	public ClaudeResponse sendImageMessages(String imageUrl, String userMessage) throws IOException {
 
@@ -207,13 +208,26 @@ public class ClaudeUtil {
 				ClaudeResponse.class);
 
 			// log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
+			// 로그로 토큰 보기
 
 			return responseEntity.getBody();
 		}
 	}
 
-	public ClaudeResponse sendMessage(String userMessage) {
+	@Async
+	public void sendMessageAsync(String userMessage, Callback callback) {
+		// 요청을 Queue에 추가
+		requestQueue.offer(() -> {
+			try {
+				ClaudeResponse response = sendMessage(userMessage);
+				callback.onSuccess(response);
+			} catch (Exception e) {
+				callback.onError(e);
+			}
+		});
+	}
 
+	public ClaudeResponse sendMessage(String userMessage) {
 		// 요청 데이터 설정
 		ClaudeMessage userMessageObj = ClaudeMessage.builder()
 			.role("user")
@@ -245,9 +259,33 @@ public class ClaudeUtil {
 		return responseEntity.getBody();
 	}
 
+	public interface Callback {
+
+		void onSuccess(ClaudeResponse response);
+
+		void onError(Exception e);
+	}
+
 	private String getApiKey() {
 
 		apiKeyIndex = (apiKeyIndex + 1) % apiKeys.length;
 		return apiKeys[apiKeyIndex];
 	}
+
+	@PostConstruct
+	private void initializeApiKeys() {
+
+		apiKeys = new String[] {apiKey1, apiKey2, apiKey3, apiKey4, apiKey5, apiKey6, apiKey7, apiKey8, apiKey9,
+			apiKey10};
+
+		scheduler.scheduleAtFixedRate(() -> {
+			for (int i = 0; i < 5 && !requestQueue.isEmpty(); i++) {
+				Runnable requestTask = requestQueue.poll();
+				if (requestTask != null) {
+					requestTask.run();
+				}
+			}
+		}, 0, 6, TimeUnit.SECONDS);
+	}
+
 }

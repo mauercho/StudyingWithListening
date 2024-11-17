@@ -23,6 +23,8 @@ public interface SummaryFacade {
 	 * */
 	long uploadTextFileByUrl(String url);
 
+	long uploadByKeyword(String keyword);
+
 	/**
 	 * 요약본 상세 페이지에 필요한 데이터 전송
 	 * @return SummaryDetailResponse

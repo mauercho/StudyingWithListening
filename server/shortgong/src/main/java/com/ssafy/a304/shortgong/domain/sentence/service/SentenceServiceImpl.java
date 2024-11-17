@@ -1,32 +1,26 @@
 package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import static com.ssafy.a304.shortgong.global.errorCode.SentenceErrorCode.*;
-import static com.ssafy.a304.shortgong.global.model.constant.ClovaVoice.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionAnswerResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.ThreeAnswerResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
-import com.ssafy.a304.shortgong.domain.sentence.model.entity.SentenceTitle;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
-import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceTitleRepository;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 import com.ssafy.a304.shortgong.global.util.ClovaOCRUtil;
-import com.ssafy.a304.shortgong.global.util.ClovaVoiceUtil;
 import com.ssafy.a304.shortgong.global.util.PromptUtil;
-import com.ssafy.a304.shortgong.global.util.RandomUtil;
-import com.ssafy.a304.shortgong.global.util.S3FileUtil;
 import com.ssafy.a304.shortgong.global.util.SentenceUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -35,12 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true) // async 를 위해 클래스 단위의 적용 취소
 public class SentenceServiceImpl implements SentenceService {
 
 	private final SentenceRepository sentenceRepository;
-	private final SentenceTitleRepository sentenceTitleRepository;
-	private final ClovaVoiceUtil clovaVoiceUtil;
+	private final SentenceAsyncService sentenceAsyncService;
 	private final SentenceUtil sentenceUtil;
 	private final ClovaOCRUtil clovaOCRUtil;
 	private final ClaudeUtil claudeUtil;
@@ -49,91 +41,22 @@ public class SentenceServiceImpl implements SentenceService {
 	private final AtomicInteger orderCounter = new AtomicInteger(1);
 
 	/**
-	 * 문장에 해당하는 voice 생성 & 저장
-	 * @return 파일명
-	 * */
-	// @Async
-	@Override
-	@Transactional
-	public void uploadSentenceVoice(Sentence sentence) /* throws TaskRejectedException */ {
-
-		String questionFileName = null;
-		String normalFileName = null;
-		String simpleFileName = null;
-		String detailFileName = null;
-		String summaryFolderName = sentence.getSummary().getFolderName();
-
-		if (sentence.getQuestion() != null) {
-			byte[] questionVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
-				sentence.getQuestion(),
-				DONGHYUN.getName());
-			questionFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
-				questionVoiceData,
-				summaryFolderName,
-				RandomUtil.generateUUID());
-		}
-		if (sentence.getSentenceContentNormal() != null) {
-			byte[] normalVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
-				sentence.getSentenceContentNormal(),
-				GOEUN.getName());
-			normalFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
-				normalVoiceData,
-				summaryFolderName,
-				RandomUtil.generateUUID());
-		}
-		if (sentence.getSentenceContentSimple() != null) {
-			byte[] simpleVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
-				sentence.getSentenceContentSimple(),
-				GOEUN.getName());
-			simpleFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
-				simpleVoiceData,
-				summaryFolderName,
-				RandomUtil.generateUUID());
-		}
-		if (sentence.getSentenceContentDetail() != null) {
-			byte[] detailVoiceData = clovaVoiceUtil.requestVoiceByTextAndVoice(
-				sentence.getSentenceContentDetail(),
-				GOEUN.getName());
-			detailFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
-				detailVoiceData,
-				summaryFolderName,
-				RandomUtil.generateUUID());
-		}
-		// TODO : 이미 파일이 존재하면 삭제하기
-		sentence.updateVoiceFileNames(questionFileName, normalFileName, simpleFileName, detailFileName);
-		sentenceRepository.save(sentence);
-	}
-
-	/**
 	 * Quiz (TPQA 방식) 형식의 문장 리스트를 db에 저장하는 메서드
 	 * @param text summary
 	 * @return List<Sentence>
 	 */
+	@Async
 	@Override
-	@Transactional
-	public List<Sentence> parseQuizSentenceList(String text, Summary summary) {
+	public void parseQuizSentenceList(String text, Summary summary) {
+
+		String tpqPrompt = promptUtil.TPQ(text);
+		ClaudeResponse response = claudeUtil.sendMessage(tpqPrompt);
+
+		List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
 
 		orderCounter.set(1);
-		return getQuestions(text).stream()
-			.flatMap(questionResponse -> {
-				SentenceTitle sentenceTitle;
-				sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
-					.orElseGet(() -> sentenceTitleRepository.save(
-						SentenceTitle.builder()
-							.name(questionResponse.getTitle())
-							.build()));
-
-				return questionResponse.getQuestionAnswerResponseList().stream()
-					.map(questionAnswerResponse ->
-						Sentence.builder()
-							.summary(summary)
-							.sentenceTitle(sentenceTitle)
-							.sentencePoint(questionAnswerResponse.getPoint())
-							.question(questionAnswerResponse.getQuestion())
-							.order(orderCounter.getAndIncrement())
-							.build());
-			})
-			.toList();
+		getQuestionListByTPQTextList(tpqTextList).forEach(
+			questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary, orderCounter));
 	}
 
 	/**
@@ -187,70 +110,26 @@ public class SentenceServiceImpl implements SentenceService {
 		return sentenceUtil.joinStrings(sentenceStringList);
 	}
 
-	@Override
-	public List<QuestionResponse> getQuestions(String text) {
-
-		String testText = promptUtil.TPQ(text);
-		log.info("testText ; {}", testText);
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
-		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
-		return getQuestionList(newSentences);
-	}
-
-	/**
-	 * 문장의 NA, SA, DA 다 넣어준 문장 반환
-	 * @param sentence : 요청할 문장
-	 * @param originalText : 원본 텍스트
-	 * @return sentence
-	 * @author 정재영
-	 */
-	@Override
-	public Sentence setAnswers(Sentence sentence, String originalText) {
-
-		// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
-		List<String> sentenceList = getAnswerList(sentence, originalText);
-		ThreeAnswerResponse threeAnswerResponse = getAnswersByText(sentenceList);
-		sentence.updateThreeAnswerResponse(threeAnswerResponse);
-		return sentence;
-	}
-
-	/**
-	 * TPQ에 해당하는 3가지 Answer를 반환
-	 * @return List<String> (TPQ에 해당하는 3가지 Answer)
-	 * @auther 이주형
-	 */
-	private List<String> getAnswerList(Sentence sentence, String text) {
-
-		String testText = promptUtil.getAnswerPrompt(
-			sentence.getSentenceTitle().getName(),
-			sentence.getSentencePoint(),
-			sentence.getQuestion(),
-			text);
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
-
-		return sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
-	}
-
-	private List<QuestionResponse> getQuestionList(List<String> texts) {
+	private List<QuestionResponse> getQuestionListByTPQTextList(List<String> texts) {
 
 		int count = 0;
 		List<QuestionResponse> questionResponseList = new ArrayList<>();
 
 		QuestionResponse questionResponse = new QuestionResponse();
 		QuestionAnswerResponse questionAnswerResponse = new QuestionAnswerResponse();
-
+		for (String text : texts)
+			log.info("text: {}", text);
 		for (String text : texts) {
 			String sentence = text.substring(2).trim();
 			switch (text.charAt(0)) {
 				case 'T':
-					log.info("Title: {}", sentence);
 					questionResponse.setTitle(sentence);
 					break;
 				case 'P':
 					questionAnswerResponse.setPoint(sentence);
 					break;
 				case 'Q': // 완성 될 때
-					if (count == 3) {
+					if (count == 5) {
 						return questionResponseList;
 					}
 					count++;
@@ -262,26 +141,6 @@ public class SentenceServiceImpl implements SentenceService {
 			}
 		}
 		return questionResponseList;
-	}
-
-	private ThreeAnswerResponse getAnswersByText(List<String> sentenceList) {
-
-		ThreeAnswerResponse threeAnswerResponse = new ThreeAnswerResponse();
-
-		sentenceList.forEach(
-			sentenceBeforeParsed -> {
-				String prefix = sentenceBeforeParsed.substring(0, 2);
-				String answer = sentenceBeforeParsed.substring(4).trim();  // 2 -> 4로 변경함
-
-				if ("NA".equals(prefix)) {
-					threeAnswerResponse.setNormalAnswer(answer);
-				} else if ("SA".equals(prefix)) {
-					threeAnswerResponse.setSimpleAnswer(answer);
-				} else if ("DA".equals(prefix)) {
-					threeAnswerResponse.setDetailAnswer(answer);
-				}
-			});
-		return threeAnswerResponse;
 	}
 
 	/**
