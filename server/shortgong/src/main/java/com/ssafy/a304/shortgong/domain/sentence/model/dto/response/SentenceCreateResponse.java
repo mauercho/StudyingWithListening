@@ -21,13 +21,9 @@ public class SentenceCreateResponse {
 
 	private String sentenceContentSimple;
 
-	private String sentenceContentDetail;
-
 	private String normalVoiceFileName;
 
 	private String simpleVoiceFileName;
-
-	private String detailVoiceFileName;
 
 	private Integer order;
 
@@ -42,10 +38,8 @@ public class SentenceCreateResponse {
 			.sentencePoint(sentence.getPoint())
 			.sentenceContentNormal(sentence.getSentenceContentNormal())
 			.sentenceContentSimple(sentence.getSentenceContentSimple())
-			.sentenceContentDetail(sentence.getSentenceContentDetail())
 			.normalVoiceFileName(sentence.getNormalVoiceFileName())
 			.simpleVoiceFileName(sentence.getSimpleVoiceFileName())
-			.detailVoiceFileName(sentence.getDetailVoiceFileName())
 			.order(sentence.getOrder())
 			.createdAt(sentence.getCreatedAt().toString())
 			.openStatus(sentence.getOpenStatus())

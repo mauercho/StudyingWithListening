@@ -63,17 +63,11 @@ public class Sentence extends BaseEntity {
 	@Column(name = "sentence_content_simple", columnDefinition = "TEXT")
 	private String sentenceContentSimple;
 
-	@Column(name = "sentence_content_detail", columnDefinition = "TEXT")
-	private String sentenceContentDetail;
-
 	@Column(name = "question_file_name", columnDefinition = "TEXT")
 	private String questionFileName;
 
 	@Column(name = "normal_voice_file_name", columnDefinition = "VARCHAR(256)")
 	private String normalVoiceFileName;
-
-	@Column(name = "detail_voice_file_name", columnDefinition = "VARCHAR(256)")
-	private String detailVoiceFileName;
 
 	@Column(name = "simple_voice_file_name", columnDefinition = "VARCHAR(256)")
 	private String simpleVoiceFileName;
@@ -97,26 +91,8 @@ public class Sentence extends BaseEntity {
 		this.order = order;
 	}
 
-	public void updateVoiceFileNames(String questionFileName,
-		String normalVoiceFileName, String simpleVoiceFileName,
-		String detailVoiceFileName) {
-
-		this.questionFileName = questionFileName;
-		this.normalVoiceFileName = normalVoiceFileName;
-		this.simpleVoiceFileName = simpleVoiceFileName;
-		this.detailVoiceFileName = detailVoiceFileName;
-	}
-
-	public void updateOpenStatus(Boolean openStatus) {
-
-		this.openStatus = openStatus;
-	}
-
 	public void updateThreeAnswerResponse(ThreeAnswerResponse threeAnswerResponse) {
 
-		if (threeAnswerResponse.getDetailAnswer() != null) {
-			this.sentenceContentDetail = threeAnswerResponse.getDetailAnswer();
-		}
 		if (threeAnswerResponse.getSimpleAnswer() != null) {
 			this.sentenceContentSimple = threeAnswerResponse.getSimpleAnswer();
 		}
@@ -139,10 +115,6 @@ public class Sentence extends BaseEntity {
 
 		this.simpleVoiceFileName = simpleVoiceFileName;
 	}
-
-	public void updateDetailVoiceFileName(String detailVoiceFileName) {
-
-		this.detailVoiceFileName = detailVoiceFileName;
-	}
+	
 }
 

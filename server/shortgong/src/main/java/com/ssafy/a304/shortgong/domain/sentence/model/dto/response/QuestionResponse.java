@@ -16,18 +16,6 @@ public class QuestionResponse {
 
 	private List<QuestionAnswerResponse> questionAnswerResponseList = new ArrayList<>();
 
-	// QuestionResponse(String title) {
-	//
-	// 	this.title = title;
-	// }
-	//
-	// QuestionResponse(String title, List<QuestionAnswerResponse> questionAnswerResponseList) {
-	//
-	// 	this.title = title;
-	// 	this.questionAnswerResponseList = questionAnswerResponseList;
-	//
-	// }
-
 	public void addAnswerResponse(QuestionAnswerResponse questionAnswerResponse) {
 
 		questionAnswerResponseList.add(questionAnswerResponse);
