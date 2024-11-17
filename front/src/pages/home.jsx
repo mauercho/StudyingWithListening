@@ -8,6 +8,7 @@ import Logo from '../assets/images/title.svg'
 import FileRegister from '../components/FileRegister'
 import summariesApi from '../api/summariesApi'
 import { FaAngleRight } from 'react-icons/fa6'
+import WordInput from '../components/WordInput'
 
 // Styled components
 const Container = styled.div`
@@ -52,13 +53,13 @@ const Point = styled.span`
 `
 
 const SectionTitle = styled.p`
-  font-size: ${({ theme }) => theme.font.size['2xl']};
+  font-size: ${({ theme }) => theme.font.size['xl']};
   font-weight: ${({ theme }) => theme.font.weight.medium};
   margin-top: 4px;
 `
 
 const SectionSubTitle = styled.p`
-  font-size: ${({ theme }) => theme.font.size.base};
+  font-size: ${({ theme }) => theme.font.size.sm};
   font-weight: ${({ theme }) => theme.font.weight.regular};
 `
 
@@ -72,7 +73,7 @@ const ListMoveButton = styled(Link)`
   display: flex;
   align-items: center;
   font-size: ${({ theme }) => theme.font.size.xs};
-  font-weight: ${({ theme }) => theme.font.weight.regular};
+  font-weight: ${({ theme }) => theme.font.weight.bold};
   color: ${({ theme }) => theme.color.accent};
 `
 
@@ -80,10 +81,12 @@ const ListWrapper = styled.ul`
   display: flex;
   overflow-x: scroll;
   gap: 20px;
+  padding-bottom: 10px;
+  margin-top: 10px;
 `
 
 const ListItem = styled.li`
-  min-width: 30%;
+  min-width: 35%;
   padding: 10px;
   border: 1px solid ${({ theme }) => theme.color.primary_dark};
   border-radius: 8px;
@@ -91,6 +94,7 @@ const ListItem = styled.li`
   flex-direction: column;
   justify-content: space-between;
   height: 100px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 
   p {
     font-size: ${({ theme }) => theme.font.size.xs};
@@ -152,33 +156,41 @@ export default function Home() {
         <Point>듣</Point>는 것만으로 '암기'가 되는 <Point>공</Point>부
       </SubTitle>
       <FileRegister />
-      <ListTitle>
+      <div>
+        <ListTitle>
+          <div>
+            <SectionSubTitle>우리 아직 다 못 외웠잖아요?</SectionSubTitle>
+            <SectionTitle>
+              <Point>복습</Point>하러 가기
+            </SectionTitle>
+          </div>
+          <ListMoveButton to="list">
+            더보기 <FaAngleRight />
+          </ListMoveButton>
+        </ListTitle>
+        <ListWrapper>
+          {list.map((v) => {
+            return (
+              <ListItem key={v.id} onClick={() => handleLinkClick(v.id)}>
+                <p>{v.title || '제목 없음'}</p>
+                <p>{formatDate(v.modifiedAt)}</p>
+                <p>
+                  <Point>암기 달성:</Point> {Math.floor(Math.random() * 30)} /
+                  52
+                </p>
+              </ListItem>
+            )
+          })}
+        </ListWrapper>
+      </div>
+      <div>
         <div>
-          <SectionSubTitle>우리 아직 다 못 외웠잖아요?</SectionSubTitle>
+          <SectionSubTitle>학습 자료를 준비하지 못하셨나요?</SectionSubTitle>
           <SectionTitle>
-            <Point>복습</Point>하러 가기
+            <Point>단어 입력</Point>으로 학습하러 가기
           </SectionTitle>
         </div>
-        <ListMoveButton to="list">
-          더보기 <FaAngleRight />
-        </ListMoveButton>
-      </ListTitle>
-      <ListWrapper>
-        {list.map((v) => {
-          return (
-            <ListItem key={v.id} onClick={() => handleLinkClick(v.id)}>
-              <p>{v.title || '제목 없음'}</p>
-              <p>{formatDate(v.modifiedAt)}</p>
-              <p><Point>암기 달성:</Point> 11 / 52</p>
-            </ListItem>
-          )
-        })}
-      </ListWrapper>
-      <div>
-        <SectionSubTitle>학습 자료를 준비하지 못하셨나요?</SectionSubTitle>
-        <SectionTitle>
-          <Point>단어 입력</Point>으로 학습하러 가기
-        </SectionTitle>
+        <WordInput />
       </div>
     </Container>
   )
