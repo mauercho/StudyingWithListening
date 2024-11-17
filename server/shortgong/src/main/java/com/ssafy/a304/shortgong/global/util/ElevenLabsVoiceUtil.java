@@ -27,7 +27,17 @@ public class ElevenLabsVoiceUtil {
 
 	public byte[] requestVoiceByTextAndVoice(String text) throws CustomException {
 
+		return requestVoiceByTextAndVoiceByAlice(text);
+	}
+
+	public byte[] requestVoiceByTextAndVoiceByAlice(String text) throws CustomException {
+
 		return requestVoiceByTextAndVoice(text, ALICE.getVoiceId());
+	}
+
+	public byte[] requestVoiceByTextAndVoiceByBrian(String text) throws CustomException {
+
+		return requestVoiceByTextAndVoice(text, BRIAN.getVoiceId());
 	}
 
 	public byte[] requestVoiceByTextAndVoice(String text, String voiceId) throws CustomException {
