@@ -11,7 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ThreeAnswerResponse {
 
-	private String detailAnswer;
 	private String simpleAnswer;
 	private String normalAnswer;
 }

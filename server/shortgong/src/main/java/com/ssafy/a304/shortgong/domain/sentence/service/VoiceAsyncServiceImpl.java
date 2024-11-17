@@ -93,28 +93,5 @@ public class VoiceAsyncServiceImpl implements VoiceAsyncService {
 				});
 
 		}
-		if (sentence.getSentenceContentDetail() != null) {
-			elevenLabsVoiceUtil.requestVoiceByTextAndVoiceAsync(
-				sentence.getSentenceContentDetail(),
-				ALICE.getVoiceId(),
-				new ElevenLabsVoiceUtil.Callback() {
-					@Override
-					public void onSuccess(byte[] voice) {
-
-						String detailFileName = S3FileUtil.uploadSentenceVoiceFileByUuid(
-							voice,
-							summaryFolderName,
-							RandomUtil.generateUUID());
-						sentence.updateDetailVoiceFileName(detailFileName);
-						sentenceRepository.save(sentence);
-					}
-
-					@Override
-					public void onError(Exception e) {
-
-						System.err.println("Error: " + e.getMessage());
-					}
-				});
-		}
 	}
 }
