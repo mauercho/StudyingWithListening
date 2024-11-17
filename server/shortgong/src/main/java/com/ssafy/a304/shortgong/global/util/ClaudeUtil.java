@@ -244,7 +244,8 @@ public class ClaudeUtil {
 		});
 	}
 
-	private ClaudeResponse sendMessage(String userMessage) {
+	// private ClaudeResponse sendMessage(String userMessage) {
+	public ClaudeResponse sendMessage(String userMessage) {
 		// 요청 데이터 설정
 		ClaudeMessage userMessageObj = ClaudeMessage.builder()
 			.role("user")
