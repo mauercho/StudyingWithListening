@@ -14,19 +14,24 @@ import Loading from '../components/Loading'
 import usePlayerStore from '../stores/usePlayerStore'
 import HelpModal from '../components/HelpModal'
 import ModeModal from '../components/modeModal'
+import theme from '../assets/styles/theme'
 
 const Container = styled.div`
   width: 100%;
   overflow-y: auto;
   box-sizing: border-box;
 `
-const QuestionIcon = styled.div`
+const QuestionIcon = styled(BsQuestionSquareFill)`
   color: ${({ theme }) => theme.color.primary_dark};
-  /* padding-left: 10px; */
-  font-size: 20px;
+  ${({ mode }) =>
+    mode === 'simple' &&
+    `
+      color: ${theme.color.secondary};
+    `}
+  font-size: 40px;
 `
 
-const HeaderWrapper = styled.div`
+const TableOfContentsWrapper = styled.div`
   width: 100%;
   max-width: 768px;
   top: 60px;
@@ -34,27 +39,29 @@ const HeaderWrapper = styled.div`
   background: ${({ theme }) => theme.color.white};
   z-index: 80;
   border-radius: 0 0 16px 16px;
-  padding: 0 10px;
+  padding: 0;
   box-sizing: border-box;
 `
 
-const ModeSelectWrapper = styled.div`
+const HeaderWrapper = styled.div`
+  top: 100px;
+  position: fixed;
   width: 100%;
   display: flex;
-  /* flex-direction: row-reverse; */
-  top: 95px;
-  position: fixed;
-  padding: 0 10px;
-  box-sizing: border-box;
+  flex-direction: row;
   justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid ${theme.color.primary};
+  box-sizing: border-box;
 `
 
 const Main = styled.div`
   position: fixed;
   width: 100%;
-  top: 120px;
-  bottom: 75px;
-  overflow-y: auto;
+  top: 162px;
+  bottom: 67px;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   padding: 0 10px;
@@ -71,7 +78,33 @@ const ContentArea = styled.ul`
   gap: 10px;
   overflow-y: auto;
   box-sizing: border-box;
-  background: ${({ theme }) => theme.color.grey};
+`
+
+const QnA = styled(Element)`
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 10px;
+  // border-bottom: 1px solid black;
+`
+
+const ModeSelectButton = styled.button`
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: ${theme.font.size.lg};
+  font-weight: ${theme.font.weight.medium};
+  border-radius: 10px;
+  border: 0;
+  box-sizing: border-box;
+  background-color: ${theme.color.primary_dark};
+  ${({ mode }) =>
+    mode === 'simple' &&
+    `
+      background-color: ${theme.color.secondary};
+    `}
 `
 
 export default function Detail() {
@@ -256,7 +289,7 @@ export default function Detail() {
       duration: 500,
       delay: 0,
       smooth: 'easeInOutQuart',
-      offset: -244,
+      offset: -112,
     })
   }
 
@@ -285,24 +318,33 @@ export default function Detail() {
         onClose={() => setIsModeModalOpen(false)}
         onSelectMode={handleSummaryMode}
       />
-      <HeaderWrapper>
+      <TableOfContentsWrapper>
         <TableOfContents
           indexes={indexes}
           onButtonClick={handleTableTouch}
           isOpen={isTableOpen}
           toggleOpen={toggleTable}
         />
-      </HeaderWrapper>
-      <ModeSelectWrapper>
-        <QuestionIcon>
-          <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} />
+      </TableOfContentsWrapper>
+      <HeaderWrapper>
+        <QuestionIcon
+          onClick={() => setIsHelpModalOpen(true)}
+          mode={summaryMode}
+          size={40}
+        >
+          {/* <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} /> */}
         </QuestionIcon>
-        <button onClick={() => setIsModeModalOpen(true)}>요약 모드 선택</button>
-      </ModeSelectWrapper>
+        <ModeSelectButton
+          mode={summaryMode}
+          onClick={() => setIsModeModalOpen(true)}
+        >
+          요약 모드 선택
+        </ModeSelectButton>
+      </HeaderWrapper>
       <Main>
         <ContentArea id="content-area">
           {sentences.map((sentence) => (
-            <Element name={`sentence-${sentence.order}`} key={sentence.id}>
+            <QnA name={`sentence-${sentence.order}`} key={sentence.id}>
               <Sentence
                 text={sentence.question}
                 status={'question'}
@@ -330,7 +372,7 @@ export default function Detail() {
                 }
               />
               {loadingSentenceId === sentence.id && <Loading />}
-            </Element>
+            </QnA>
           ))}
         </ContentArea>
       </Main>
