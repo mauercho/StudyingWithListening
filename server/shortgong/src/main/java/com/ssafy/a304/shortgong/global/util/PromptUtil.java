@@ -235,7 +235,6 @@ public class PromptUtil {
 		));
 	}
 
-
 	public String complete(String text) {
 
 		return String.join("", Arrays.asList(
@@ -528,6 +527,13 @@ public class PromptUtil {
 			"--------------------------------\n", text, "\n--------------------------------\n\n"
 
 		));
+	}
+
+	public String getTextBtKeyword(String keyword) {
+
+		int page = 3;
+		return keyword + "로 공부할 자료 만들어줘. "
+			+ "공부 자료의 분량은 " + page + "로 만들어줘.";
 	}
 
 	/**

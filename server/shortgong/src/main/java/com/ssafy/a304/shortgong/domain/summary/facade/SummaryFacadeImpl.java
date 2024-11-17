@@ -65,6 +65,23 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		return summary.getId();
 	}
 
+	@Override
+	public long uploadByKeyword(String keyword) {
+
+		User loginUser = userService.selectLoginUser();
+		// url -> 텍스트 크롤링 -> txt 파일 -> S3에 업로드 -> DB에 업로드컨텐츠 저장 -> 요약집 저장 (업로드컨텐츠, 업로더, 제목)
+		String text = summaryService.getTextByKeyword(keyword);
+		MultipartFile contentFile = S3FileUtil.getTextFileByText(text);
+		String savedFilename = uploadContentService.uploadContentFile(contentFile);
+		UploadContent uploadContent = uploadContentService.saveUploadContent(loginUser, text, savedFilename);
+		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
+		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
+
+		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장 & Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+		sentenceService.parseQuizSentenceList(text, summary);
+		return summary.getId();
+	}
+
 	/**
 	 * 요약집의 상세 페이지에 필요한 정보
 	 *

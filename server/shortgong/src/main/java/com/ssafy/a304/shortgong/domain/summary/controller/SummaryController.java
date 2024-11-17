@@ -1,5 +1,6 @@
 package com.ssafy.a304.shortgong.domain.summary.controller;
 
+import static com.ssafy.a304.shortgong.domain.uploadContent.model.constant.UploadContentType.*;
 import static com.ssafy.a304.shortgong.global.errorCode.UploadContentErrorCode.*;
 
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.a304.shortgong.domain.summary.facade.SummaryFacade;
-import com.ssafy.a304.shortgong.domain.uploadContent.model.constant.UploadContentType;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,20 +46,17 @@ public class SummaryController {
 	public ResponseEntity<?> createSummary(
 		@RequestPart(value = "type") String type,
 		@RequestPart(value = "contentFile", required = false) MultipartFile contentFile,
-		@RequestPart(value = "url", required = false) String url
+		@RequestPart(value = "url", required = false) String url,
+		@RequestPart(value = "keyword", required = false) String keyword
 	) {
 
-		if (type.equals(UploadContentType.IMAGE.getType())) {
-			// TODO : contentFile 유효성 검사 ?
-			return ResponseEntity.ok(summaryFacade.uploadContentByFile(contentFile));
-		} else if (type.equals(UploadContentType.URL.getType())) {
-			// TODO : url 유효성 검사
-			return ResponseEntity.ok(summaryFacade.uploadTextFileByUrl(url));
-		}
+		return switch (fromType(type)) {
+			case IMAGE -> ResponseEntity.ok(summaryFacade.uploadContentByFile(contentFile));
+			case URL -> ResponseEntity.ok(summaryFacade.uploadTextFileByUrl(url));
+			case KEYWORD -> ResponseEntity.ok(summaryFacade.uploadByKeyword(keyword));
+			default -> throw new CustomException(INVALID_UPLOAD_CONTENT_TYPE);
+		};
 
-		// if (!type.equals(UploadContentType.IMAGE.getType()) && !type.equals(UploadContentType.URL.getType())) {
-		throw new CustomException(INVALID_UPLOAD_CONTENT_TYPE);
-		// }
 	}
 
 	/**
