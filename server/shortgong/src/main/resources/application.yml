@@ -120,5 +120,7 @@ eleven-labs:
   api:
     keys:
       key-1: ${ELEVEN_LABS_KEY_1}
+      key-2: ${ELEVEN_LABS_KEY_2}
+      key-3: ${ELEVEN_LABS_KEY_3}
     tts:
       url: https://api.elevenlabs.io/v1/text-to-speech/

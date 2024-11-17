@@ -1,19 +1,24 @@
 package com.ssafy.a304.shortgong.global.util;
 
-import static com.ssafy.a304.shortgong.global.model.constant.ElevenLabsVoice.*;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.ssafy.a304.shortgong.global.config.ElevenLabsTTSConfig;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,19 +30,23 @@ public class ElevenLabsVoiceUtil {
 	private final RestTemplate restTemplate;
 	private final ElevenLabsTTSConfig elevenLabsTTSConfig;
 
-	public byte[] requestVoiceByTextAndVoice(String text) throws CustomException {
+	private int apiKeyIndex = 0;
+	private String[] apiKeys;
 
-		return requestVoiceByTextAndVoiceByAlice(text);
-	}
+	private final Queue<Runnable> requestQueue = new ConcurrentLinkedQueue<>();
+	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-	public byte[] requestVoiceByTextAndVoiceByAlice(String text) throws CustomException {
+	@Async
+	public void requestVoiceByTextAndVoiceAsync(String text, String voiceId, ElevenLabsVoiceUtil.Callback callback) {
 
-		return requestVoiceByTextAndVoice(text, ALICE.getVoiceId());
-	}
-
-	public byte[] requestVoiceByTextAndVoiceByBrian(String text) throws CustomException {
-
-		return requestVoiceByTextAndVoice(text, BRIAN.getVoiceId());
+		requestQueue.offer(() -> {
+			try {
+				byte[] voice = requestVoiceByTextAndVoice(text, voiceId);
+				callback.onSuccess(voice);
+			} catch (Exception e) {
+				callback.onError(e);
+			}
+		});
 	}
 
 	public byte[] requestVoiceByTextAndVoice(String text, String voiceId) throws CustomException {
@@ -53,6 +62,13 @@ public class ElevenLabsVoiceUtil {
 			log.debug("Eleven Labs 보이스 요청 실패 : {}", e.getMessage());
 			throw new IllegalArgumentException(e.getMessage());
 		}
+	}
+
+	public interface Callback {
+
+		void onSuccess(byte[] voice);
+
+		void onError(Exception e);
 	}
 
 	private Map<String, Object> getVoiceSettings() {
@@ -72,15 +88,7 @@ public class ElevenLabsVoiceUtil {
 		bodyMap.put("model_id", "eleven_turbo_v2_5");
 		bodyMap.put("language_code", "ko");
 		bodyMap.put("voice_settings", getVoiceSettings());
-		// bodyMap.put("pronunciation_dictionary_locators", List.of(Map.of(
-		// 	"pronunciation_dictionary_id", "<string>",
-		// 	"version_id", "<string>"
-		// )));
 		bodyMap.put("seed", 123);
-		// bodyMap.put("previous_text", "<string>");
-		// bodyMap.put("next_text", "<string>");
-		// bodyMap.put("previous_request_ids", List.of("<string>"));
-		// bodyMap.put("next_request_ids", List.of("<string>"));
 		bodyMap.put("use_pvc_as_ivc", true);
 		bodyMap.put("apply_text_normalization", "auto");
 
@@ -92,8 +100,33 @@ public class ElevenLabsVoiceUtil {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
 		headers.set("Accept", "audio/mpeg");
-		headers.set("xi-api-key", elevenLabsTTSConfig.getApiKey1());
+		headers.set("xi-api-key", getApiKey());
 		return headers;
+	}
+
+	private String getApiKey() {
+
+		apiKeyIndex = (apiKeyIndex + 1) % apiKeys.length;
+		return apiKeys[apiKeyIndex];
+	}
+
+	@PostConstruct
+	private void initializeApiKeys() {
+
+		apiKeys = new String[] {
+			elevenLabsTTSConfig.getApiKey1(),
+			elevenLabsTTSConfig.getApiKey2(),
+			elevenLabsTTSConfig.getApiKey3()};
+
+		scheduler.scheduleAtFixedRate(() -> {
+			for (int i = 0; i < 2 && !requestQueue.isEmpty(); i++) {
+				Runnable requestTask = requestQueue.poll();
+				if (requestTask != null) {
+					requestTask.run();
+				}
+			}
+		}, 0, 1, TimeUnit.SECONDS);
+
 	}
 
 }

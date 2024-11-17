@@ -19,4 +19,6 @@ public interface SummaryService {
 	List<SummaryOverviewResponse> searchSummaryListByUser(User user);
 
 	String getTextByCrawlingUrl(String url);
+
+	String getTextByKeyword(String keyword);
 }

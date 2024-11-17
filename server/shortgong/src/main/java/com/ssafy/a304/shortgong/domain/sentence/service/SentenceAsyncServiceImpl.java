@@ -1,0 +1,140 @@
+package com.ssafy.a304.shortgong.domain.sentence.service;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.ThreeAnswerResponse;
+import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
+import com.ssafy.a304.shortgong.domain.sentence.model.entity.SentenceTitle;
+import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
+import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceTitleRepository;
+import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
+import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
+import com.ssafy.a304.shortgong.global.util.PromptUtil;
+import com.ssafy.a304.shortgong.global.util.SentenceUtil;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class SentenceAsyncServiceImpl implements SentenceAsyncService {
+
+	private final SentenceTitleRepository sentenceTitleRepository;
+	private final SentenceRepository sentenceRepository;
+	private final VoiceAsyncService voiceAsyncService;
+	private final SentenceUtil sentenceUtil;
+	private final PromptUtil promptUtil;
+	private final ClaudeUtil claudeUtil;
+
+	@Async
+	@Override
+	public void getAnswerAndVoices(QuestionResponse questionResponse, String text, Summary summary,
+		AtomicInteger orderCounter) {
+		// 기존 sentenceTitle 엔티티 있으면 가져오고 없으면 엔티티 생성하기
+		SentenceTitle sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
+			.orElseGet(() -> sentenceTitleRepository.save(
+				SentenceTitle.builder()
+					.name(questionResponse.getTitle())
+					.build()));
+
+		// Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+		questionResponse.getQuestionAnswerResponseList()
+			.forEach(questionAnswerResponse -> {
+
+				Sentence sentence = Sentence.builder()
+					.summary(summary)
+					.sentenceTitle(sentenceTitle)
+					.point(questionAnswerResponse.getPoint())
+					.question(questionAnswerResponse.getQuestion())
+					.order(orderCounter.getAndIncrement())
+					.build();
+
+				Sentence existSentence = find(sentence);
+				if (existSentence == null) {
+					existSentence = save(sentence);
+					setAnswersAndGetVoice(existSentence, text);
+				}
+
+			});
+	}
+
+	// @Transactional(isolation = Isolation.SERIALIZABLE)
+	private Sentence find(Sentence sentence) {
+
+		return sentenceRepository.findByQuestionAndSummary(sentence.getQuestion(), sentence.getSummary())
+			.orElse(null);
+	}
+
+	// @Transactional(isolation = Isolation.SERIALIZABLE)
+	private Sentence save(Sentence sentence) {
+
+		return sentenceRepository.save(sentence);
+	}
+
+	/**
+	 * 문장의 NA, SA, DA 다 넣어준 문장 반환
+	 * @param sentence : 요청할 문장
+	 * @param originalText : 원본 텍스트
+	 * @author 정재영
+	 */
+	private void setAnswersAndGetVoice(Sentence sentence, String originalText) {
+		// 이미 받았으면 그만 돌아!
+		if (sentence.getQuestionFileName() != null) {
+			return;
+		}
+
+		String answerPrompt = promptUtil.getAnswerPrompt(
+			sentence.getSentenceTitle().getName(),
+			sentence.getPoint(),
+			sentence.getQuestion(),
+			originalText);
+
+		claudeUtil.sendMessageAsync(answerPrompt, new ClaudeUtil.Callback() {
+			@Override
+			public void onSuccess(ClaudeResponse response) {
+
+				log.info("Success: {}", response.getContent().get(0).getText());
+				List<String> answerList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+				// 프롬프트에 T,P,Q,A 넣어서 DA, SA, NA 포함한 text 가져오기 (AI)
+				ThreeAnswerResponse threeAnswerResponse = getAnswersByText(answerList);
+				sentence.updateThreeAnswerResponse(threeAnswerResponse);
+				// TTS 요청하기
+				voiceAsyncService.uploadSentenceVoice(sentence);
+				sentenceRepository.save(sentence);
+			}
+
+			@Override
+			public void onError(Exception e) {
+
+				System.err.println("Error: " + e.getMessage());
+			}
+		});
+	}
+
+	private ThreeAnswerResponse getAnswersByText(List<String> sentenceList) {
+
+		ThreeAnswerResponse threeAnswerResponse = new ThreeAnswerResponse();
+
+		sentenceList.forEach(
+			sentenceBeforeParsed -> {
+				String prefix = sentenceBeforeParsed.substring(0, 2);
+				String answer = sentenceBeforeParsed.substring(4).trim();  // 2 -> 4로 변경함
+
+				if ("NA".equals(prefix)) {
+					threeAnswerResponse.setNormalAnswer(answer);
+				} else if ("SA".equals(prefix)) {
+					threeAnswerResponse.setSimpleAnswer(answer);
+				} else if ("DA".equals(prefix)) {
+					threeAnswerResponse.setDetailAnswer(answer);
+				}
+			});
+		return threeAnswerResponse;
+	}
+}

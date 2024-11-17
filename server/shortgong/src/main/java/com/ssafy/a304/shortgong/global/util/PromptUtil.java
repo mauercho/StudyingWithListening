@@ -649,6 +649,13 @@ public class PromptUtil {
 		));
 	}
 
+	public String getTextBtKeyword(String keyword) {
+
+		int page = 3;
+		return keyword + "로 공부할 자료 만들어줘. "
+			+ "공부 자료의 분량은 " + page + "로 만들어줘.";
+	}
+
 	/**
 	 * @return 문장 재생성 프롬프트 반환
 	 * @author 이주형
