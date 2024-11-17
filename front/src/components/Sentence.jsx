@@ -32,6 +32,7 @@ const Text = styled.p`
   font-size: 16px;
   color: ${({ theme }) => theme.color.primary_dark};
   font-weight: ${({ theme }) => theme.font.weight.light};
+  line-height: 1.4;
   ${({ theme, status }) =>
     status === 'question' &&
     `
