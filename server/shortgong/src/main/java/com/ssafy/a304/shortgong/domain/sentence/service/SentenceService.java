@@ -2,7 +2,6 @@ package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import java.util.List;
 
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
@@ -10,13 +9,7 @@ import com.ssafy.a304.shortgong.global.error.CustomException;
 
 public interface SentenceService {
 
-	/**
-	 * 문장에 해당하는 voice 생성 & 저장
-	 * @return 파일명
-	 * */
-	void uploadSentenceVoice(Sentence sentence);
-
-	List<Sentence> parseQuizSentenceList(String text, Summary summary);
+	void parseQuizSentenceList(String text, Summary summary);
 
 	/**
 	 * 문장 객체 반환
@@ -43,9 +36,11 @@ public interface SentenceService {
 
 	String getTextByFileUrlWithOcr(String savedFilename);
 
-	List<QuestionResponse> getQuestions(String text);
+	void setAnswersAndGetVoice(Sentence sentence, String text);
 
-	Sentence setAnswers(Sentence sentence, String text);
+	void uploadAllSentenceVoices(List<Sentence> sentenceListContainAnswers);
+
+	// void getQuestions(String text);
 
 	/**
 	 * @param text : 요약할 내용

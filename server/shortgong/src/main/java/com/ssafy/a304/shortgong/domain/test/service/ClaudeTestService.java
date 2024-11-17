@@ -48,14 +48,23 @@ public class ClaudeTestService {
 	public void testTPQClaudeApi() {
 
 		String testText = promptUtil.TPQ(getTestText());
-		// String testText = promptUtil.complete(getTestText());
-		// String testText = promptUtil.simple(getTestText());
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
-		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
 
-		for (String sentence : newSentences) {
-			log.info("sentence: {}", sentence);
-		}
+		claudeUtil.sendMessageAsync(testText, new ClaudeUtil.Callback() {
+			@Override
+			public void onSuccess(ClaudeResponse response) {
+
+				List<String> newSentences = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+				for (String sentence : newSentences) {
+					log.info("sentence: {}", sentence);
+				}
+			}
+
+			@Override
+			public void onError(Exception e) {
+
+				log.error("Error: {}", e.getMessage());
+			}
+		});
 	}
 
 	public void testAnswerClaudeApi() {
@@ -65,12 +74,23 @@ public class ClaudeTestService {
 		String Q = "새로운 지식은 어떤 방식으로 습득되나요?";
 
 		String testText = promptUtil.getAnswerPrompt(T, P, Q, getTestText());
-		ClaudeResponse claudeResponse = claudeUtil.sendMessage(testText);
-		List<String> newSentences = sentenceUtil.splitByNewline(claudeResponse.getContent().get(0).getText());
+		claudeUtil.sendMessageAsync(testText, new ClaudeUtil.Callback() {
+			@Override
+			public void onSuccess(ClaudeResponse response) {
 
-		for (String sentence : newSentences) {
-			log.info("sentence: {}", sentence);
-		}
+				List<String> newSentences = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+
+				for (String sentence : newSentences) {
+					log.info("sentence: {}", sentence);
+				}
+			}
+
+			@Override
+			public void onError(Exception e) {
+
+				log.error("Error: {}", e.getMessage());
+			}
+		});
 	}
 
 	public String getTestText() {

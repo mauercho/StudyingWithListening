@@ -115,3 +115,10 @@ claude:
     model: claude-3-5-sonnet-20241022
     temperature: 0.7
     max-tokens: 8192
+
+eleven-labs:
+  api:
+    keys:
+      key-1: ${ELEVEN_LABS_KEY_1}
+    tts:
+      url: https://api.elevenlabs.io/v1/text-to-speech/
