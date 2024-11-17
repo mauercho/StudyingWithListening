@@ -7,6 +7,11 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -74,11 +79,26 @@ public class ClaudeUtil {
 
 	private int apiKeyIndex = 0;
 
+	private final Queue<Runnable> requestQueue = new ConcurrentLinkedQueue<>();
+	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+	private static final int RATE_LIMIT = 50;
+
 	@PostConstruct
 	private void initializeApiKeys() {
 
 		apiKeys = new String[] {apiKey1, apiKey2, apiKey3, apiKey4, apiKey5, apiKey6, apiKey7, apiKey8, apiKey9,
 			apiKey10};
+
+		// 스케줄러: 매 1분마다 대기열의 요청을 처리
+		scheduler.scheduleAtFixedRate(() -> {
+			log.info("Processing queued requests...");
+			for (int i = 0; i < RATE_LIMIT && !requestQueue.isEmpty(); i++) {
+				Runnable requestTask = requestQueue.poll();
+				if (requestTask != null) {
+					requestTask.run();
+				}
+			}
+		}, 0, 1, TimeUnit.MINUTES);
 	}
 
 	public ClaudeResponse sendImageMessages(String imageUrl, String userMessage) throws IOException {
@@ -212,8 +232,19 @@ public class ClaudeUtil {
 		}
 	}
 
-	public ClaudeResponse sendMessage(String userMessage) {
+	public void sendMessageAsync(String userMessage, Callback callback) {
+		// 요청을 Queue에 추가
+		requestQueue.offer(() -> {
+			try {
+				ClaudeResponse response = sendMessage(userMessage);
+				callback.onSuccess(response);
+			} catch (Exception e) {
+				callback.onError(e);
+			}
+		});
+	}
 
+	private ClaudeResponse sendMessage(String userMessage) {
 		// 요청 데이터 설정
 		ClaudeMessage userMessageObj = ClaudeMessage.builder()
 			.role("user")
@@ -249,5 +280,13 @@ public class ClaudeUtil {
 
 		apiKeyIndex = (apiKeyIndex + 1) % apiKeys.length;
 		return apiKeys[apiKeyIndex];
+	}
+
+	// Callback 인터페이스 정의
+	public interface Callback {
+
+		void onSuccess(ClaudeResponse response);
+
+		void onError(Exception e);
 	}
 }

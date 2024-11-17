@@ -46,6 +46,7 @@ dependencies {
     implementation 'software.amazon.awssdk:s3'
     // Compile, Develop, Runtime, Annotation
     compileOnly 'org.projectlombok:lombok'
+    compileOnly 'com.konghq:unirest-java-core:4.4.5'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
     runtimeOnly 'com.mysql:mysql-connector-j'
