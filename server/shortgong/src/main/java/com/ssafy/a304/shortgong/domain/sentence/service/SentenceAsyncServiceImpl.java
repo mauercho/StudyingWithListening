@@ -131,8 +131,6 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 					threeAnswerResponse.setNormalAnswer(answer);
 				} else if ("SA".equals(prefix)) {
 					threeAnswerResponse.setSimpleAnswer(answer);
-				} else if ("DA".equals(prefix)) {
-					threeAnswerResponse.setDetailAnswer(answer);
 				}
 			});
 		return threeAnswerResponse;
