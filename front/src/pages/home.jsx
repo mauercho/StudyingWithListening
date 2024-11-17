@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import styled from '@emotion/styled';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import styled from '@emotion/styled'
 
-import Logo from '../assets/images/logo.svg';
-import FileInput from '../components/FileInput';
-import FileRegister from '../components/FileRegister';
-import summariesApi from '../api/summariesApi';
-import { FaAngleRight } from 'react-icons/fa6';
+import Lottie from 'react-lottie'
+import animationData from '../assets/lottie/personlistening.json'
+import Logo from '../assets/images/title.svg'
+import FileRegister from '../components/FileRegister'
+import summariesApi from '../api/summariesApi'
+import { FaAngleRight } from 'react-icons/fa6'
 
 // 공통 스타일 변수
-const borderColor = ({ theme }) => theme.color.primary_dark;
-const textColor = ({ theme }) => theme.color.primary;
-const fontSize = ({ theme }) => theme.font.size;
-const fontWeight = ({ theme }) => theme.font.weight;
+const borderColor = ({ theme }) => theme.color.primary_dark
+const textColor = ({ theme }) => theme.color.primary
+const fontSize = ({ theme }) => theme.font.size
+const fontWeight = ({ theme }) => theme.font.weight
 
 // Styled components
 const Container = styled.div`
@@ -22,12 +23,30 @@ const Container = styled.div`
   align-items: center;
   gap: 30px;
   flex: 1;
-`;
+`
+
+const Header = styled.section`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+
+  div {
+    width: fit-content;
+    position: relative;
+
+    & > div {
+      position: absolute;
+      left: 100px;
+      top: -30px;
+    }
+  }
+`
 
 const Text = styled.p`
   font-size: ${fontSize.xl};
   font-weight: ${fontWeight.regular};
-`;
+`
 
 const ListTitle = styled.p`
   color: ${({ theme }) => theme.color.black};
@@ -35,7 +54,7 @@ const ListTitle = styled.p`
   font-size: ${fontSize.xl};
   font-weight: ${fontWeight.medium};
   text-align: center;
-`;
+`
 
 const ListWrapper = styled.div`
   display: flex;
@@ -45,12 +64,12 @@ const ListWrapper = styled.div`
   height: 250px;
   border-top: 1px solid ${borderColor};
   border-bottom: 1px solid ${borderColor};
-`;
+`
 
 const ListContainer = styled.ul`
   ${ListWrapper}
   flex-direction: column;
-`;
+`
 
 const Item = styled.li`
   display: flex;
@@ -64,29 +83,29 @@ const Item = styled.li`
   &:hover {
     background-color: ${({ theme }) => theme.color.grey};
   }
-`;
+`
 
 const ItemText = styled.span`
   font-size: ${fontSize.sm};
   font-weight: ${fontWeight.regular};
-`;
+`
 
 const ItemNum = styled(ItemText)`
   width: 10%;
   color: ${textColor};
   font-size: ${fontSize.xs};
-`;
+`
 
 const ItemTitle = styled(ItemText)`
   width: 65%;
   margin-right: 5%;
-`;
+`
 
 const ItemDate = styled(ItemText)`
   width: 20%;
   color: ${textColor};
   font-size: ${fontSize.xs};
-`;
+`
 
 const ListMoveButton = styled(Link)`
   text-decoration: none;
@@ -95,34 +114,50 @@ const ListMoveButton = styled(Link)`
   font-size: ${fontSize.sm};
   font-weight: ${fontWeight.regular};
   color: ${({ theme }) => theme.color.accent};
-`;
+`
 
 // Helper function
-const formatDate = (dateString) => new Date(dateString).toISOString().split('T')[0];
+const formatDate = (dateString) =>
+  new Date(dateString).toISOString().split('T')[0]
 
 // Main component
 export default function Home() {
-  const [list, setList] = useState([]);
-  const navigate = useNavigate();
+  const [list, setList] = useState([])
+  const navigate = useNavigate()
 
-  const handleLinkClick = (summariesId) => navigate(`/detail/${summariesId}`);
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice',
+    },
+  }
+
+  const handleLinkClick = (summariesId) => navigate(`/detail/${summariesId}`)
 
   useEffect(() => {
     const fetchSummaries = async () => {
       try {
-        const data = await summariesApi.getSummaries();
-        setList(data.slice().reverse().slice(0, 5));
+        const data = await summariesApi.getSummaries()
+        setList(data.slice().reverse().slice(0, 5))
       } catch (error) {
-        console.error('Error fetching summaries:', error);
+        console.error('Error fetching summaries:', error)
       }
-    };
+    }
 
-    fetchSummaries();
-  }, []);
+    fetchSummaries()
+  }, [])
 
   return (
     <Container>
-      <img src={Logo} alt="logo.png" width={133} height={72} />
+      <Header>
+        <div>
+          <img src={Logo} alt="title.svg" />
+            <Lottie options={defaultOptions} height={100} width={120} />
+
+        </div>
+      </Header>
       <Text>듣는 것만으로 암기가 되는 학습</Text>
       <FileRegister />
       <ListTitle>최근 학습 목록</ListTitle>
@@ -145,5 +180,5 @@ export default function Home() {
         내 학습 목록 <FaAngleRight />
       </ListMoveButton>
     </Container>
-  );
+  )
 }
