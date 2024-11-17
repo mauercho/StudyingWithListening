@@ -9,31 +9,28 @@ import FileRegister from '../components/FileRegister'
 import summariesApi from '../api/summariesApi'
 import { FaAngleRight } from 'react-icons/fa6'
 
-// 공통 스타일 변수
-const borderColor = ({ theme }) => theme.color.primary_dark
-const textColor = ({ theme }) => theme.color.primary
-const fontSize = ({ theme }) => theme.font.size
-const fontWeight = ({ theme }) => theme.font.weight
-
 // Styled components
 const Container = styled.div`
   padding-top: 30px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 30px;
+  width: 100%;
+  gap: 4%;
   flex: 1;
 `
 
-const Header = styled.section`
+const Header = styled.header`
   display: flex;
   width: 100%;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 
   div {
-    width: fit-content;
     position: relative;
+
+    img {
+      display: block;
+    }
 
     & > div {
       position: absolute;
@@ -43,77 +40,71 @@ const Header = styled.section`
   }
 `
 
-const Text = styled.p`
-  font-size: ${fontSize.xl};
-  font-weight: ${fontWeight.regular};
-`
-
-const ListTitle = styled.p`
-  color: ${({ theme }) => theme.color.black};
-  width: 100%;
-  font-size: ${fontSize.xl};
-  font-weight: ${fontWeight.medium};
+const SubTitle = styled.p`
+  font-size: ${({ theme }) => theme.font.size.xl};
+  font-weight: ${({ theme }) => theme.font.weight.medium};
   text-align: center;
 `
 
-const ListWrapper = styled.div`
+const Point = styled.span`
+  font-weight: ${({ theme }) => theme.font.weight.bold};
+  color: ${({ theme }) => theme.color.primary_dark};
+`
+
+const SectionTitle = styled.p`
+  font-size: ${({ theme }) => theme.font.size['2xl']};
+  font-weight: ${({ theme }) => theme.font.weight.medium};
+  margin-top: 4px;
+`
+
+const SectionSubTitle = styled.p`
+  font-size: ${({ theme }) => theme.font.size.base};
+  font-weight: ${({ theme }) => theme.font.weight.regular};
+`
+
+const ListTitle = styled.p`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 250px;
-  border-top: 1px solid ${borderColor};
-  border-bottom: 1px solid ${borderColor};
-`
-
-const ListContainer = styled.ul`
-  ${ListWrapper}
-  flex-direction: column;
-`
-
-const Item = styled.li`
-  display: flex;
-  align-items: center;
-  height: 50px;
-  padding: 10px;
-  width: 100%;
-  cursor: pointer;
-  border-bottom: 1px solid ${borderColor};
-
-  &:hover {
-    background-color: ${({ theme }) => theme.color.grey};
-  }
-`
-
-const ItemText = styled.span`
-  font-size: ${fontSize.sm};
-  font-weight: ${fontWeight.regular};
-`
-
-const ItemNum = styled(ItemText)`
-  width: 10%;
-  color: ${textColor};
-  font-size: ${fontSize.xs};
-`
-
-const ItemTitle = styled(ItemText)`
-  width: 65%;
-  margin-right: 5%;
-`
-
-const ItemDate = styled(ItemText)`
-  width: 20%;
-  color: ${textColor};
-  font-size: ${fontSize.xs};
+  justify-content: space-between;
 `
 
 const ListMoveButton = styled(Link)`
   text-decoration: none;
   display: flex;
   align-items: center;
-  font-size: ${fontSize.sm};
-  font-weight: ${fontWeight.regular};
+  font-size: ${({ theme }) => theme.font.size.xs};
+  font-weight: ${({ theme }) => theme.font.weight.regular};
   color: ${({ theme }) => theme.color.accent};
+`
+
+const ListWrapper = styled.ul`
+  display: flex;
+  overflow-x: scroll;
+  gap: 20px;
+`
+
+const ListItem = styled.li`
+  min-width: 30%;
+  padding: 10px;
+  border: 1px solid ${({ theme }) => theme.color.primary_dark};
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100px;
+
+  p {
+    font-size: ${({ theme }) => theme.font.size.xs};
+    font-weight: ${({ theme }) => theme.font.weight.medium};
+    &:first-of-type {
+      font-size: ${({ theme }) => theme.font.size.base};
+      display: block;
+      height: 32px;
+    }
+
+    &:last-of-type {
+      font-size: ${({ theme }) => theme.font.size.sm};
+    }
+  }
 `
 
 // Helper function
@@ -154,31 +145,41 @@ export default function Home() {
       <Header>
         <div>
           <img src={Logo} alt="title.svg" />
-            <Lottie options={defaultOptions} height={100} width={120} />
-
+          <Lottie options={defaultOptions} height={100} width={120} />
         </div>
       </Header>
-      <Text>듣는 것만으로 암기가 되는 학습</Text>
+      <SubTitle>
+        <Point>듣</Point>는 것만으로 '암기'가 되는 <Point>공</Point>부
+      </SubTitle>
       <FileRegister />
-      <ListTitle>최근 학습 목록</ListTitle>
-
-      {list.length ? (
-        <ListContainer>
-          {list.map((v) => (
-            <Item key={v.id} onClick={() => handleLinkClick(v.id)}>
-              <ItemNum>{v.id}</ItemNum>
-              <ItemTitle>{v.title || '제목 없음'}</ItemTitle>
-              <ItemDate>{formatDate(v.modifiedAt)}</ItemDate>
-            </Item>
-          ))}
-        </ListContainer>
-      ) : (
-        <ListWrapper>최근 학습한 목록이 없어요!</ListWrapper>
-      )}
-
-      <ListMoveButton to="list">
-        내 학습 목록 <FaAngleRight />
-      </ListMoveButton>
+      <ListTitle>
+        <div>
+          <SectionSubTitle>우리 아직 다 못 외웠잖아요?</SectionSubTitle>
+          <SectionTitle>
+            <Point>복습</Point>하러 가기
+          </SectionTitle>
+        </div>
+        <ListMoveButton to="list">
+          더보기 <FaAngleRight />
+        </ListMoveButton>
+      </ListTitle>
+      <ListWrapper>
+        {list.map((v) => {
+          return (
+            <ListItem key={v.id} onClick={() => handleLinkClick(v.id)}>
+              <p>{v.title || '제목 없음'}</p>
+              <p>{formatDate(v.modifiedAt)}</p>
+              <p><Point>암기 달성:</Point> 11 / 52</p>
+            </ListItem>
+          )
+        })}
+      </ListWrapper>
+      <div>
+        <SectionSubTitle>학습 자료를 준비하지 못하셨나요?</SectionSubTitle>
+        <SectionTitle>
+          <Point>단어 입력</Point>으로 학습하러 가기
+        </SectionTitle>
+      </div>
     </Container>
   )
 }
