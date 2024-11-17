@@ -73,8 +73,10 @@ public class SummaryController {
 	 * 요약본 제목 변경
 	 * */
 	@PatchMapping("/{summary-id}")
-	public ResponseEntity<?> modifySummaryTitle(@PathVariable("summary-id") Long summaryId,
-		@RequestBody String title) {
+	public ResponseEntity<?> modifySummaryTitle(
+		@PathVariable("summary-id") Long summaryId,
+		@RequestBody String title
+	) {
 
 		summaryFacade.updateTitleBySummaryId(title, summaryId);
 		return ResponseEntity.ok().build();

@@ -39,7 +39,7 @@ public class SentenceCreateResponse {
 
 		return SentenceCreateResponse.builder()
 			.id(sentence.getId())
-			.sentencePoint(sentence.getSentencePoint())
+			.sentencePoint(sentence.getPoint())
 			.sentenceContentNormal(sentence.getSentenceContentNormal())
 			.sentenceContentSimple(sentence.getSentenceContentSimple())
 			.sentenceContentDetail(sentence.getSentenceContentDetail())

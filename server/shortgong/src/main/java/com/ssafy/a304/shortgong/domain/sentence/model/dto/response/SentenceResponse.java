@@ -31,7 +31,7 @@ public class SentenceResponse {
 
 		this.id = sentence.getId();
 		this.sentenceTitleId = sentence.getSentenceTitle().getId();
-		this.sentencePoint = sentence.getSentencePoint();
+		this.sentencePoint = sentence.getPoint();
 		this.order = sentence.getOrder();
 		this.openStatus = sentence.getOpenStatus();
 

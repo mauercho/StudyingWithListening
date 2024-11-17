@@ -1,7 +1,5 @@
 package com.ssafy.a304.shortgong.global.util;
 
-import static com.ssafy.a304.shortgong.global.model.constant.ElevenLabsVoice.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import com.ssafy.a304.shortgong.global.config.ElevenLabsTTSConfig;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,19 +24,17 @@ public class ElevenLabsVoiceUtil {
 	private final RestTemplate restTemplate;
 	private final ElevenLabsTTSConfig elevenLabsTTSConfig;
 
-	public byte[] requestVoiceByTextAndVoice(String text) throws CustomException {
+	private int apiKeyIndex = 0;
+	private String[] apiKeys;
 
-		return requestVoiceByTextAndVoiceByAlice(text);
-	}
+	public void requestVoiceByTextAndVoiceAsync(String text, String voiceId, ElevenLabsVoiceUtil.Callback callback) {
 
-	public byte[] requestVoiceByTextAndVoiceByAlice(String text) throws CustomException {
-
-		return requestVoiceByTextAndVoice(text, ALICE.getVoiceId());
-	}
-
-	public byte[] requestVoiceByTextAndVoiceByBrian(String text) throws CustomException {
-
-		return requestVoiceByTextAndVoice(text, BRIAN.getVoiceId());
+		try {
+			byte[] voice = requestVoiceByTextAndVoice(text, voiceId);
+			callback.onSuccess(voice);
+		} catch (Exception e) {
+			callback.onError(e);
+		}
 	}
 
 	public byte[] requestVoiceByTextAndVoice(String text, String voiceId) throws CustomException {
@@ -53,6 +50,13 @@ public class ElevenLabsVoiceUtil {
 			log.debug("Eleven Labs 보이스 요청 실패 : {}", e.getMessage());
 			throw new IllegalArgumentException(e.getMessage());
 		}
+	}
+
+	public interface Callback {
+
+		void onSuccess(byte[] voice);
+
+		void onError(Exception e);
 	}
 
 	private Map<String, Object> getVoiceSettings() {
@@ -92,8 +96,24 @@ public class ElevenLabsVoiceUtil {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
 		headers.set("Accept", "audio/mpeg");
-		headers.set("xi-api-key", elevenLabsTTSConfig.getApiKey1());
+		headers.set("xi-api-key", getApiKey());
 		return headers;
+	}
+
+	private String getApiKey() {
+
+		apiKeyIndex = (apiKeyIndex + 1) % apiKeys.length;
+		return apiKeys[apiKeyIndex];
+	}
+
+	@PostConstruct
+	private void initializeApiKeys() {
+
+		apiKeys = new String[] {
+			elevenLabsTTSConfig.getApiKey1(),
+			elevenLabsTTSConfig.getApiKey2(),
+			elevenLabsTTSConfig.getApiKey3()};
+
 	}
 
 }

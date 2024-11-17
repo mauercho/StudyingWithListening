@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -82,7 +83,6 @@ public class ClaudeUtil {
 
 	private final Queue<Runnable> requestQueue = new ConcurrentLinkedQueue<>();
 	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-	private static final int RATE_LIMIT = 50;
 
 	public ClaudeResponse sendImageMessages(String imageUrl, String userMessage) throws IOException {
 
@@ -214,6 +214,7 @@ public class ClaudeUtil {
 		}
 	}
 
+	@Async
 	public void sendMessageAsync(String userMessage, Callback callback) {
 		// 요청을 Queue에 추가
 		requestQueue.offer(() -> {
@@ -258,7 +259,6 @@ public class ClaudeUtil {
 		return responseEntity.getBody();
 	}
 
-	// Callback 인터페이스 정의
 	public interface Callback {
 
 		void onSuccess(ClaudeResponse response);
@@ -278,16 +278,15 @@ public class ClaudeUtil {
 		apiKeys = new String[] {apiKey1, apiKey2, apiKey3, apiKey4, apiKey5, apiKey6, apiKey7, apiKey8, apiKey9,
 			apiKey10};
 
-		// 스케줄러: 매 1분마다 대기열의 요청을 처리
 		scheduler.scheduleAtFixedRate(() -> {
-			log.info("Processing queued requests...");
-			for (int i = 0; i < RATE_LIMIT && !requestQueue.isEmpty(); i++) {
+			// log.debug("Processing queued requests...");
+			for (int i = 0; i < 5 && !requestQueue.isEmpty(); i++) {
 				Runnable requestTask = requestQueue.poll();
 				if (requestTask != null) {
 					requestTask.run();
 				}
 			}
-		}, 0, 1, TimeUnit.MINUTES);
+		}, 0, 6, TimeUnit.SECONDS);
 	}
 
 }
