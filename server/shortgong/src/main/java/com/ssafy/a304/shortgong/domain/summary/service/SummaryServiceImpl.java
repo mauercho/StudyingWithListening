@@ -71,7 +71,7 @@ public class SummaryServiceImpl implements SummaryService {
 	@Override
 	public String getTextByKeyword(String keyword) {
 
-		String prompt = promptUtil.getTextBtKeyword(keyword);
+		String prompt = promptUtil.getKeywordTPQ(keyword);
 		ClaudeResponse response = claudeUtil.sendMessage(prompt);
 		return response.getContent().get(0).getText();
 	}
