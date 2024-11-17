@@ -4,6 +4,7 @@ import styled from '@emotion/styled';
 
 import Logo from '../assets/images/logo.svg';
 import FileInput from '../components/FileInput';
+import FileRegister from '../components/FileRegister';
 import summariesApi from '../api/summariesApi';
 import { FaAngleRight } from 'react-icons/fa6';
 
@@ -123,7 +124,7 @@ export default function Home() {
     <Container>
       <img src={Logo} alt="logo.png" width={133} height={72} />
       <Text>듣는 것만으로 암기가 되는 학습</Text>
-      <FileInput />
+      <FileRegister />
       <ListTitle>최근 학습 목록</ListTitle>
 
       {list.length ? (
