@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import Lottie from 'react-lottie';
-import animationData from '../assets/lottie/headthinking.json';
+import animationData from '../../assets/lottie/headthinking.json';
 
 const Container = styled.div`
   width: 100%;
@@ -49,7 +49,7 @@ const Container = styled.div`
   }
 `;
 
-export default function FileRegister() {
+export default function FileRegister({ onClick, ...props }) {
   const defaultOptions = {
     loop: true,
     autoplay: true,
@@ -60,7 +60,7 @@ export default function FileRegister() {
   };
 
   return (
-    <Container>
+    <Container onClick={onClick}>
       <section>
         <p>새로운 학습 파일을 업로드</p>
         <p>하고 암기를 하러 가볼까요?</p>
