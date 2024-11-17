@@ -13,7 +13,10 @@ import com.ssafy.a304.shortgong.domain.summary.repository.SummaryRepository;
 import com.ssafy.a304.shortgong.domain.uploadContent.model.entity.UploadContent;
 import com.ssafy.a304.shortgong.domain.user.model.entity.User;
 import com.ssafy.a304.shortgong.global.error.CustomException;
+import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
+import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 import com.ssafy.a304.shortgong.global.util.CrawlingServerConnectUtil;
+import com.ssafy.a304.shortgong.global.util.PromptUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +27,8 @@ public class SummaryServiceImpl implements SummaryService {
 
 	private final CrawlingServerConnectUtil crawlingServerConnectUtil;
 	private final SummaryRepository summaryRepository;
+	private final PromptUtil promptUtil;
+	private final ClaudeUtil claudeUtil;
 
 	@Override
 	public Summary selectSummaryById(Long id) throws CustomException {
@@ -61,5 +66,13 @@ public class SummaryServiceImpl implements SummaryService {
 	public String getTextByCrawlingUrl(String url) {
 
 		return crawlingServerConnectUtil.getBodyTextByUrl(url);
+	}
+
+	@Override
+	public String getTextByKeyword(String keyword) {
+
+		String prompt = promptUtil.getKeywordTPQ(keyword);
+		ClaudeResponse response = claudeUtil.sendMessage(prompt);
+		return response.getContent().get(0).getText();
 	}
 }

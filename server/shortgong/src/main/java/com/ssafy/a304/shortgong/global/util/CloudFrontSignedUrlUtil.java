@@ -40,7 +40,7 @@ public class CloudFrontSignedUrlUtil {
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		}
-		log.info("url: {}", url);
+		log.debug("url: {}", url);
 		return url;
 	}
 }

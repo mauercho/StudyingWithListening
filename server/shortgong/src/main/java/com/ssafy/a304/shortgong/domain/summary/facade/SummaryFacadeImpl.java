@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
 import com.ssafy.a304.shortgong.domain.sentence.service.SentenceService;
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryOverviewResponse;
@@ -44,18 +43,8 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
 		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
 
-		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장
-		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
-		sentenceList = sentenceService.saveSentences(sentenceList);
-
-		// Answer 들만 따로 요청 & 일괄 저장
-		List<Sentence> sentenceListContainAnswers = sentenceList.stream().map(
-			// sentence 에 빈 부분 (NA, SA, DA) 채우기
-			sentence -> sentenceService.setAnswers(sentence, text)).toList();
-		sentenceListContainAnswers = sentenceService.saveSentences(sentenceListContainAnswers);
-
-		// 문장들을 TTS 요청하여 S3에 업로드하기
-		sentenceListContainAnswers.forEach(sentenceService::uploadSentenceVoice);
+		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장 & Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+		sentenceService.parseQuizSentenceList(text, summary);
 		return summary.getId();
 	}
 
@@ -71,18 +60,25 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
 		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
 
-		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장
-		List<Sentence> sentenceList = sentenceService.parseQuizSentenceList(text, summary);
-		sentenceList = sentenceService.saveSentences(sentenceList);
+		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장 & Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+		sentenceService.parseQuizSentenceList(text, summary);
+		return summary.getId();
+	}
 
-		// Answer 들만 따로 요청 & 일괄 저장
-		List<Sentence> sentenceListContainAnswers = sentenceList.stream().map(
-			// sentence 에 빈 부분 (NA, SA, DA) 채우기
-			sentence -> sentenceService.setAnswers(sentence, text)).toList();
-		sentenceListContainAnswers = sentenceService.saveSentences(sentenceListContainAnswers);
+	@Override
+	public long uploadByKeyword(String keyword) {
 
-		// 문장들을 TTS 요청하여 S3에 업로드하기
-		sentenceListContainAnswers.forEach(sentenceService::uploadSentenceVoice);
+		User loginUser = userService.selectLoginUser();
+		// url -> 텍스트 크롤링 -> txt 파일 -> S3에 업로드 -> DB에 업로드컨텐츠 저장 -> 요약집 저장 (업로드컨텐츠, 업로더, 제목)
+		String text = summaryService.getTextByKeyword(keyword);
+		MultipartFile contentFile = S3FileUtil.getTextFileByText(text);
+		String savedFilename = uploadContentService.uploadContentFile(contentFile);
+		UploadContent uploadContent = uploadContentService.saveUploadContent(loginUser, text, savedFilename);
+		Summary summary = summaryService.createNewSummary(loginUser, uploadContent);
+		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
+
+		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장 & Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
+		sentenceService.parseQuizSentenceList(text, summary);
 		return summary.getId();
 	}
 
