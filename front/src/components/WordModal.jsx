@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import {
   FaCheck,
@@ -147,20 +148,45 @@ export default function WordModal({ isOpen, onClose, text, ...props }) {
   const initialState = {
     serverResponse: false,
     title: '',
-    qList: [
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-    ],
+    qList: [],
   }
 
+  const navigate = useNavigate()
+  const [newSummaryId, setNewSummaryId] = useState(null)
   const [state, setState] = useState(initialState)
+  const titleRef = useRef(null)
 
-  const handleComplete = () => {
-    setState(initialState) // 상태를 초기값으로 되돌림
-    onClose() // 모달 닫기
+  const handleComplete = async () => {
+    setState(initialState) // 상태 초기화
+
+    // try {
+    //   const response = await summariesApi.patchSummaryTitle(
+    //     newSummaryId,
+    //     titleRef.current.value
+    //   )
+    //   console.log(response)
+    //   console.log(response?.status)
+    //   // 성공적으로 응답을 받았을 경우
+    //   if (response?.status === 200) {
+    //     console.log('Patch successful:', response.data)
+    //     navigate(`/detail/${newSummaryId}`) // 성공 시 이동
+    //   } else {
+    //     console.error('Unexpected response:', response)
+    //     navigate(`/detail/${newSummaryId}`) // 성공 시 이동
+    //   }
+    // } catch (error) {
+    //   // 요청 실패 시 에러 로그 출력
+    //   console.error('Patch failed:', error)
+    // }
+    summariesApi
+      .patchSummaryTitle(newSummaryId, titleRef.current.value)
+      .then(({ data }) => {
+        console.log(data)
+        navigate(`/detail/${newSummaryId}`)
+      })
+      .catch((err) => {
+        console.error('Unexpecected response:', err)
+      })
   }
 
   // 모달이 열릴 때만 요청 실행
@@ -174,12 +200,100 @@ export default function WordModal({ isOpen, onClose, text, ...props }) {
     const formData = new FormData()
     formData.append('type', 'keyword')
     formData.append('keyword', text)
+
     try {
       const result = await summariesApi.postSummaries(formData)
+      console.log('Upload result:', result)
+
+      // setState((prev) => ({ ...prev, serverResponse: true }))
+
+      // 첫 번째 Polling 시작
+      let isReady = false // 첫 번째 조건 충족 여부
+      const maxRetries = 12 // 최대 12번 시도
+      let attempts = 0
+
+      while (!isReady && attempts < maxRetries) {
+        try {
+          const response = await summariesApi.getSummariesDetail(result) // API 호출
+          console.log('Polling response:', response)
+
+          if (response?.sentenceResponseList?.[0]) {
+            console.log(
+              'Sentence response is ready:',
+              response.sentenceResponseList[0]
+            )
+            const questionList = response.sentenceResponseList.map((item) => ({
+              content: item.question,
+            }))
+
+            // `qList`에 저장
+            setState((prev) => ({
+              ...prev,
+              qList: questionList,
+            }))
+            isReady = true
+            break
+          } else {
+            console.log('Sentence response not ready yet...')
+          }
+        } catch (error) {
+          console.error('Polling error:', error)
+        }
+
+        attempts++
+        if (!isReady) {
+          await new Promise((resolve) => setTimeout(resolve, 5000)) // 5초 대기
+        }
+      }
+
+      if (!isReady) {
+        console.warn('First polling reached maximum attempts.')
+        return
+      }
+
+      // 두 번째 Polling 시작
+      let allUrlsReady = false // 모든 URL 조건 충족 여부
+      attempts = 0 // 재시도 횟수 초기화
+
+      while (!allUrlsReady && attempts < maxRetries) {
+        try {
+          const response = await summariesApi.getSummariesDetail(result) // API 호출
+          console.log('Polling response for URLs:', response)
+
+          // 모든 sentenceResponseList의 normalAnswerVoiceUrl과 simpleAnswerVoiceUrl 확인
+          if (
+            response?.sentenceResponseList?.every(
+              (sentence) =>
+                sentence.normalAnswerVoiceUrl !== '' &&
+                sentence.simpleAnswerVoiceUrl !== '' &&
+                sentence.normalAnswer !== '' &&
+                sentence.simpleAnswer
+            )
+          ) {
+            console.log('All URLs are ready:', response.sentenceResponseList)
+            setState((prev) => ({ ...prev, serverResponse: true }))
+            allUrlsReady = true
+            setNewSummaryId(result)
+            break
+          } else {
+            console.log('URLs not ready yet...')
+          }
+        } catch (error) {
+          console.error('Polling error for URLs:', error)
+        }
+
+        attempts++
+        if (!allUrlsReady) {
+          await new Promise((resolve) => setTimeout(resolve, 5000)) // 5초 대기
+        }
+      }
+
+      if (!allUrlsReady) {
+        console.warn('Second polling reached maximum attempts.')
+      }
     } catch (error) {
       console.error('Upload failed:', error)
     }
-    setState((prev) => ({ ...prev, serverResponse: true }))
   }
 
   if (!isOpen) return null
@@ -217,6 +331,7 @@ export default function WordModal({ isOpen, onClose, text, ...props }) {
           ))}
         </SchemeContent>
         <TitleInput
+          ref={titleRef}
           placeholder="제목을 입력하세요"
           value={state.title}
           onChange={(e) =>
@@ -224,7 +339,7 @@ export default function WordModal({ isOpen, onClose, text, ...props }) {
           }
         />
         <ProgressBar serverResponse={state.serverResponse} />
-        {state.serverResponse && state.title !== '' ? (
+        {state.serverResponse ? (
           <Button onClick={handleComplete}>
             <FaCheck size={18} />
             <span>완료</span>

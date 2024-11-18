@@ -25,6 +25,13 @@ class summariesApi extends baseApi {
   patchSummaries(summaryId, summariesData) {
     return this.patch(`/${summaryId}`, summariesData)
   }
+
+  patchSummaryTitle(summaryId, title) {
+    const data = {
+      title,
+    }
+    return this.put(`/${summaryId}`, data)
+  }
 }
 
 export default new summariesApi()

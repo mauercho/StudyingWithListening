@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import {
   FaArrowUp,
@@ -198,8 +199,6 @@ const CloseButton = styled.button`
 `
 
 export default function UploadModal({ isOpen, onClose, direct = false }) {
-  let sse
-
   const initialState = {
     uploadStatus: direct,
     serverResponse: false,
@@ -209,46 +208,11 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
     qList: [],
   }
 
+  const navigate = useNavigate() // navigate 인스턴스 생성
   const [state, setState] = useState(initialState)
+  const [newSummaryId, setNewSummaryId] = useState(null)
   const inputRef = useRef(null)
-
-  const handleConnectInit = () => {
-    if (sse) {
-      sse.close()
-    }
-    sse = new EventSource('https://k11a304.p.ssafy.io/api/alert/connect')
-    console.log('new SSE! ###################################')
-    // 연결되었을 때 이벤트리스너
-    // receivedConnectData : "connected"
-    sse.addEventListener('connect', (e) => {
-      const { data: receivedConnectData } = e
-      console.log('connect event data: ', receivedConnectData)
-    })
-
-    // question들이 모두 완성되었을 때 이벤트리스너
-    // receivedConnectData 예시 : {
-    //      summaryId : int
-    //      questions: Array(String)
-    // }
-    sse.addEventListener('all questions of summary are created', (e) => {
-      const { data: receivedConnectData } = e
-      console.log('question created event data: ', receivedConnectData)
-      console.log(receivedConnectData.questions)
-      console.log(receivedConnectData.summaryId)
-      console.log(receivedConnectData[0])
-      // setState((prev) => ({
-      //   ...prev,
-      //   qList: receivedConnectData.questions,
-      // }))
-    })
-
-    // answer들이 모두 완성되었을 때 이벤트리스너
-    // receivedConnectData : summaryId
-    sse.addEventListener('all answers of summary are created', (e) => {
-      const { data: receivedConnectData } = e
-      console.log('answer created event data: ', receivedConnectData)
-    })
-  }
+  const titleRef = useRef(null)
 
   const handleFileChange = (event) => {
     const file = event.target.files[0]
@@ -257,9 +221,37 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
     }
   }
 
-  const handleComplete = () => {
-    setState(initialState) // 상태를 초기값으로 되돌림
-    onClose() // 모달 닫기
+  const handleComplete = async () => {
+    setState(initialState) // 상태 초기화
+
+    // try {
+    // const response = await summariesApi.patchSummaryTitle(
+    //   newSummaryId,
+    //   titleRef.current.value
+    // )
+    // 성공적으로 응답을 받았을 경우
+    //  if (response?.status === 200) {
+    //   console.log('Patch successful:', response.data)
+    //   navigate(`/detail/${newSummaryId}`) // 성공 시 이동
+    // } else {
+    //   console.error('Unexpecected response:', response)
+    //   navigate(`/detail/${newSummaryId}`) // 성공 시 이동
+    // }
+    summariesApi
+      .patchSummaryTitle(newSummaryId, titleRef.current.value)
+      .then(({ data }) => {
+        console.log(data)
+        navigate(`/detail/${newSummaryId}`)
+      })
+      .catch((err) => {
+        console.error('Unexpecected response:', err)
+      })
+    // console.log(response)
+    // console.log(response?.status)
+    // } catch (error) {
+    //   // 요청 실패 시 에러 로그 출력
+    //   console.error('Patch failed:', error)
+    // }
   }
 
   const handleUpload = async () => {
@@ -267,7 +259,6 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
       alert('학습자료가 없습니다!')
       return
     }
-    handleConnectInit()
     setState((prev) => ({ ...prev, uploadStatus: true }))
 
     const formData = new FormData()
@@ -276,7 +267,99 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
 
     try {
       const result = await summariesApi.postSummaries(formData)
-      setState((prev) => ({ ...prev, serverResponse: true }))
+      console.log('Upload result:', result)
+
+      // setState((prev) => ({ ...prev, serverResponse: true }))
+
+      // 첫 번째 Polling 시작
+      let isReady = false // 첫 번째 조건 충족 여부
+      const maxRetries = 12 // 최대 12번 시도
+      let attempts = 0
+
+      while (!isReady && attempts < maxRetries) {
+        try {
+          const response = await summariesApi.getSummariesDetail(result) // API 호출
+          console.log('Polling response:', response)
+
+          if (response?.sentenceResponseList?.[0]) {
+            console.log(
+              'Sentence response is ready:',
+              response.sentenceResponseList[0]
+            )
+            // `sentenceResponseList`에서 각 `question`을 추출하여 `questionList` 생성
+            console.log(
+              '이거%%%%%%%%%%%%%%%%%%%%%%%%',
+              response.sentenceResponseList
+            )
+            const questionList = response.sentenceResponseList.map((item) => ({
+              content: item.question,
+            }))
+
+            // `qList`에 저장
+            setState((prev) => ({
+              ...prev,
+              qList: questionList,
+            }))
+            isReady = true
+            break
+          } else {
+            console.log('Sentence response not ready yet...')
+          }
+        } catch (error) {
+          console.error('Polling error:', error)
+        }
+
+        attempts++
+        if (!isReady) {
+          await new Promise((resolve) => setTimeout(resolve, 5000)) // 5초 대기
+        }
+      }
+
+      if (!isReady) {
+        console.warn('First polling reached maximum attempts.')
+        return
+      }
+
+      // 두 번째 Polling 시작
+      let allUrlsReady = false // 모든 URL 조건 충족 여부
+      attempts = 0 // 재시도 횟수 초기화
+
+      while (!allUrlsReady && attempts < maxRetries) {
+        try {
+          const response = await summariesApi.getSummariesDetail(result) // API 호출
+          console.log('Polling response for URLs:', response)
+
+          // 모든 sentenceResponseList의 normalAnswerVoiceUrl과 simpleAnswerVoiceUrl 확인
+          if (
+            response?.sentenceResponseList?.every(
+              (sentence) =>
+                sentence.normalAnswerVoiceUrl !== '' &&
+                sentence.simpleAnswerVoiceUrl !== '' &&
+                sentence.normalAnswer !== '' &&
+                sentence.simpleAnswer
+            )
+          ) {
+            console.log('All URLs are ready:', response.sentenceResponseList)
+            setState((prev) => ({ ...prev, serverResponse: true }))
+            allUrlsReady = true
+            setNewSummaryId(result)
+            break
+          } else {
+            console.log('URLs not ready yet...')
+          }
+        } catch (error) {
+          console.error('Polling error for URLs:', error)
+        }
+
+        attempts++
+        if (!allUrlsReady) {
+          await new Promise((resolve) => setTimeout(resolve, 5000)) // 5초 대기
+        }
+      }
+
+      if (!allUrlsReady) {
+        console.warn('Second polling reached maximum attempts.')
+      }
     } catch (error) {
       console.error('Upload failed:', error)
     }
@@ -346,6 +429,7 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
         )}
         {state.uploadStatus && (
           <TitleInput
+            ref={titleRef}
             placeholder="제목을 입력하세요"
             value={state.title}
             onChange={(e) =>
@@ -361,7 +445,7 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
             <FaArrowUp size={18} />
             <span>업로드 하기</span>
           </Button>
-        ) : state.serverResponse && state.title !== '' ? (
+        ) : state.serverResponse ? (
           <Button onClick={handleComplete}>
             <FaCheck size={18} />
             <span>완료</span>
