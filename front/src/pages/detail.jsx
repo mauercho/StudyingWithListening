@@ -213,7 +213,7 @@ export default function Detail() {
         }
         setSentences(updatedSentences)
         setIndexes(updatedIndexes)
-        setCurrentIndex(updatedSentences[0].order + 1)
+        setCurrentIndex(updatedSentences[0].order - 1)
         setImageUrl(data.uploadContentUrl)
       } catch (error) {
         console.error('Error:', error)
