@@ -327,7 +327,7 @@ export default function WordModal({ isOpen, onClose, text, ...props }) {
         <SchemeContent>
           {state.qList.map((v, idx) => (
             <p key={idx}>
-              {idx + 1}. Q: {v.content || '질문이 들어갑니다?'}
+              Q{idx + 1}: {v.content || '질문이 들어갑니다?'}
             </p>
           ))}
         </SchemeContent>
