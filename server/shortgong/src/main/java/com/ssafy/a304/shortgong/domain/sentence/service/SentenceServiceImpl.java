@@ -4,12 +4,14 @@ import static com.ssafy.a304.shortgong.global.errorCode.SentenceErrorCode.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.a304.shortgong.domain.alert.repository.SseEmitters;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionAnswerResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.QuestionResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
@@ -37,6 +39,7 @@ public class SentenceServiceImpl implements SentenceService {
 	private final ClovaOCRUtil clovaOCRUtil;
 	private final ClaudeUtil claudeUtil;
 	private final PromptUtil promptUtil;
+	private final SseEmitters sseEmitters;
 
 	private final AtomicInteger orderCounter = new AtomicInteger(1);
 
@@ -47,7 +50,7 @@ public class SentenceServiceImpl implements SentenceService {
 	 */
 	@Async
 	@Override
-	public void parseQuizSentenceList(String text, Summary summary) {
+	public CompletableFuture<Void> parseQuizSentenceList(String text, Summary summary) {
 
 		String tpqPrompt = promptUtil.TPQ(text);
 		ClaudeResponse response = claudeUtil.sendMessage(tpqPrompt);
@@ -55,12 +58,24 @@ public class SentenceServiceImpl implements SentenceService {
 		List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
 
 		orderCounter.set(1);
-		getQuestionListByTPQTextList(tpqTextList).forEach(
+
+		List<QuestionResponse> questionResponseList = getQuestionListByTPQTextList(tpqTextList);
+		List<String> questions = questionResponseList.stream()
+			.flatMap(questionResponse ->
+				questionResponse.getQuestionAnswerResponseList().stream()
+					.map(QuestionAnswerResponse::getQuestion))
+			.toList();
+		sseEmitters.sendQuestionCreatedMessage(summary.getId(), questions);
+		questionResponseList.forEach(
 			questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary, orderCounter));
+
+		// 비동기 작업이 완료됨을 반환
+		return CompletableFuture.completedFuture(null);
 	}
 
+	@Async
 	@Override
-	public void parseQuizSentenceListByKeyword(String text, Summary summary) {
+	public CompletableFuture<Void> parseQuizSentenceListByKeyword(String text, Summary summary) {
 
 		String tpqPrompt = promptUtil.getKeywordTPQ(text);
 		ClaudeResponse response = claudeUtil.sendMessage(tpqPrompt);
@@ -68,9 +83,19 @@ public class SentenceServiceImpl implements SentenceService {
 		List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
 
 		orderCounter.set(1);
-		getQuestionListByTPQTextList(tpqTextList).forEach(
+		List<QuestionResponse> questionResponseList = getQuestionListByTPQTextList(tpqTextList);
+		List<String> questions = questionResponseList.stream()
+			.flatMap(questionResponse ->
+				questionResponse.getQuestionAnswerResponseList().stream()
+					.map(QuestionAnswerResponse::getQuestion))
+			.toList();
+		sseEmitters.sendQuestionCreatedMessage(summary.getId(), questions);
+		questionResponseList.forEach(
 			questionResponse -> sentenceAsyncService.getAnswerAndVoicesByKeyword(questionResponse, text, summary,
 				orderCounter));
+
+		// 비동기 작업이 완료됨을 반환
+		return CompletableFuture.completedFuture(null);
 	}
 
 	/**

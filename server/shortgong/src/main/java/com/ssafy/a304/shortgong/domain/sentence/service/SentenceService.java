@@ -1,6 +1,7 @@
 package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.SentenceResponse;
 import com.ssafy.a304.shortgong.domain.sentence.model.entity.Sentence;
@@ -9,9 +10,9 @@ import com.ssafy.a304.shortgong.global.error.CustomException;
 
 public interface SentenceService {
 
-	void parseQuizSentenceList(String text, Summary summary);
+	CompletableFuture<Void> parseQuizSentenceList(String text, Summary summary);
 
-	void parseQuizSentenceListByKeyword(String text, Summary summary);
+	CompletableFuture<Void> parseQuizSentenceListByKeyword(String text, Summary summary);
 
 	/**
 	 * 문장 객체 반환
