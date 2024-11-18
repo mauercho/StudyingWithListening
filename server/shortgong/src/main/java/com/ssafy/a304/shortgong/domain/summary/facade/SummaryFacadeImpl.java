@@ -111,11 +111,11 @@ public class SummaryFacadeImpl implements SummaryFacade {
 	}
 
 	@Override
-	public void updateTitleBySummaryId(String title, Long summaryId) {
+	public Summary updateTitleBySummaryId(String title, Long summaryId) {
 
 		Summary summary = summaryService.selectSummaryById(summaryId);
 		summary.updateTitle(title);
-		summaryService.save(summary);
+		return summaryService.save(summary);
 	}
 
 	@Override

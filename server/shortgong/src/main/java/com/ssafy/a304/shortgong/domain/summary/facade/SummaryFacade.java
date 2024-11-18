@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryOverviewResponse;
+import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 
 public interface SummaryFacade {
 
@@ -32,7 +33,7 @@ public interface SummaryFacade {
 	 * */
 	SummaryDetailResponse getSummaryDetail(Long summaryId);
 
-	void updateTitleBySummaryId(String title, Long summaryId);
+	Summary updateTitleBySummaryId(String title, Long summaryId);
 
 	List<SummaryOverviewResponse> getSummaryList();
 }
