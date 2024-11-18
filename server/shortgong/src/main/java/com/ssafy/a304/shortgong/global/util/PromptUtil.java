@@ -166,7 +166,8 @@ public class PromptUtil {
 	 */
 	public String getAnswerPrompt(String TContent, String PContent, String QContent, String text) {
 
-		return String.join("", Arrays.asList(
+		// 1. 시스템 프롬프트 부분 (항상 동일)
+		String systemPrompt = String.join("", Arrays.asList(
 			"당신은 자연어 처리의 전문가로서, 주어진 본문 텍스트를 바탕으로 TPQ(Title, Point, Question)에 대한 답변을 작성하는 데 특화되어 있다. ",
 			"반환 데이터는 각 질문(Q)에 대해 A(Answer)를 Simple, Normal의 세 가지 버전으로 작성해야 한다.\n\n",
 			"이 형식으로 출력된 데이터는 사용자가 학습 내용을 단계적으로 깊이 이해하고 암기할 수 있도록 구성되어야 한다. ",
@@ -176,8 +177,11 @@ public class PromptUtil {
 			"2가지 Answer 형식에 대해 다음과 같은 형식을 지킬 것:\n",
 			getSimpleAnswerRequirements(),
 			getNormalAnswerRequirements(),
-			getCommonAnswerRequirements(),
+			getCommonAnswerRequirements()
+		));
 
+		// 2. 예시 부분 (항상 동일)
+		String examplePrompt = String.join("", Arrays.asList(
 			"입력되는 TContent, Pcontent, Qcontent와 출력되어야 하는 SA, NA의 예시:\n",
 
 			"\"T: 데이터 무결성 P: 데이터베이스 무결성 종류 Q: 데이터베이스에서 다루는 무결성의 주요 종류에는 어떤 것들이 있나요?\"일 때,\n",
@@ -213,14 +217,25 @@ public class PromptUtil {
 			"T: 정렬 P: 계수 정렬 Q: 계수 정렬은 무엇인가요?\"일 때,\n",
 			"SA: 숫자 세고 위치 정하기! 범위 작을 때 유리! 평균 O(n)\n",
 			"NA: 카운트! 범위가 작다면 O(n)으로 정렬할 수 있어. 숫자를 세어서 정렬하는 특별한 방식이야. 학생들이 줄 서서 하나씩 이름을 부르는 모습을 상상해봐! 각 값을 세어서 그 위치를 정하는 과정처럼.\n",
+		));
 
+		String inputPrompt = String.join("", Arrays.asList(
 			"주어진 T, P, Q는 다음과 같다:\n",
 			"T: ", TContent, "\n",
 			"P: ", PContent, "\n",
-			"Q: ", QContent, "\n\n",
+			"Q: ", QContent, "\n\n"
+		));
 
+		String textPrompt = String.join("", Arrays.asList(
 			"이제 주어진 본문 텍스트를 참고해서 SA, NA를 반환하세요.\n",
 			"--------------------------------\n", text, "\n--------------------------------\n\n"
+		));
+
+		return String.join("", Arrays.asList(
+			systemPrompt,
+			examplePrompt,
+			inputPrompt,
+			textPrompt
 		));
 	}
 

@@ -7,8 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class CacheControl {
+public class SystemContent {
 
 	private String type;
+
+	private String text;
+
+	private CacheControl cacheControl;
 
 }
