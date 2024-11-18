@@ -8,6 +8,7 @@ import App from './App'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
 import './assets/styles/reset.css'
+import './assets/styles/styles.css'
 import theme from './assets/styles/theme'
 import GlobalStyles from './components/GlobalStyles'
 
