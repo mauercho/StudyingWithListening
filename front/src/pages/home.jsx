@@ -65,6 +65,7 @@ const SectionSubTitle = styled.p`
 // Main component
 export default function Home() {
   const [list, setList] = useState([])
+  // 새로운 학습 파일 모달
   const [isModalOpen, setIsModalOpen] = useState(false)
   const handleOpenModal = () => setIsModalOpen(true)
   const handleCloseModal = () => setIsModalOpen(false)

@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from '@emotion/styled'
-import { FaArrowUp, FaUpload, FaCheck, FaCircleNotch } from 'react-icons/fa6'
+import { FaCheck, FaCircleNotch } from 'react-icons/fa6'
 import ProgressBar from './home/ProgressBar'
 import summariesApi from '../api/summariesApi'
 
@@ -117,12 +117,9 @@ const CloseButton = styled.button`
   }
 `
 
-export default function UploadModal({ isOpen, onClose, direct = false }) {
+export default function WordModal({ isOpen, onClose, text, ...props }) {
   const initialState = {
-    uploadStatus: direct,
     serverResponse: false,
-    data: '',
-    name: '',
     title: '',
     qList: [
       { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
@@ -134,44 +131,29 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
   }
 
   const [state, setState] = useState(initialState)
-  const inputRef = useRef(null)
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-      setState((prev) => ({ ...prev, name: file.name, data: file }))
-    }
-  }
 
   const handleComplete = () => {
     setState(initialState) // 상태를 초기값으로 되돌림
     onClose() // 모달 닫기
   }
 
-  const handleUpload = async () => {
-    if (state.data === '') {
-      alert('학습자료가 없습니다!')
-      return
+  // 모달이 열릴 때만 요청 실행
+  useEffect(() => {
+    if (isOpen) {
+      handleUpload();
     }
+  }, [isOpen]); // isOpen 값이 변경될 때 실행
 
-
-    setState((prev) => ({ ...prev, uploadStatus: true }))
-
+  const handleUpload = async () => {
     const formData = new FormData()
-    formData.append('type', 'image')
-    formData.append('contentFile', state.data)
-
+    formData.append('type', 'keyword')
+    formData.append('keyword', text)
     try {
       const result = await summariesApi.postSummaries(formData)
-      setState((prev) => ({ ...prev, serverResponse: true }))
     } catch (error) {
       console.error('Upload failed:', error)
     }
-  }
-
-  const handleUploadFile = () => {
-    inputRef.current.accept = 'application/pdf,image/*'
-    inputRef.current.click()
+    setState((prev) => ({ ...prev, serverResponse: true }))
   }
 
   if (!isOpen) return null
@@ -187,56 +169,26 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
         >
           &times;
         </CloseButton>
-        {state.uploadStatus && (
-          <div>
-            학습할 내용이에요. 본격적인 듣기 학습 전에 배울 내용을 읽어보면 학습
-            효과가 올라간답니다!
-          </div>
-        )}
-        {state.uploadStatus ? (
-          <SchemeContent>
-            {state.qList.map((v, idx) => (
-              <p key={idx}>
-                {idx + 1}. Q: {v.content || '질문이 들어갑니다?'}
-              </p>
-            ))}
-          </SchemeContent>
-        ) : (
-          <UploadContent onClick={handleUploadFile}>
-            {state.name ? (
-              <div>{state.name}</div>
-            ) : (
-              <div>
-                <FaUpload size={32} />
-                <p>눌러서 학습자료를 업로드 해보세요!</p>
-              </div>
-            )}
-            <input
-              type="file"
-              ref={inputRef}
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-            />
-          </UploadContent>
-        )}
-        {state.uploadStatus && (
-          <TitleInput
-            placeholder="제목을 입력하세요"
-            value={state.title}
-            onChange={(e) =>
-              setState((prev) => ({ ...prev, title: e.target.value }))
-            }
-          />
-        )}
-        {state.uploadStatus && (
-          <ProgressBar serverResponse={state.serverResponse} />
-        )}
-        {!state.uploadStatus ? (
-          <Button onClick={handleUpload} disabled={!state.data}>
-            <FaArrowUp size={18} />
-            <span>업로드 하기</span>
-          </Button>
-        ) : state.serverResponse && state.title !== '' ? (
+        <div>
+          학습할 내용이에요. 본격적인 듣기 학습 전에 배울 내용을 읽어보면 학습
+          효과가 올라간답니다!
+        </div>
+        <SchemeContent>
+          {state.qList.map((v, idx) => (
+            <p key={idx}>
+              {idx + 1}. Q: {v.content || '질문이 들어갑니다?'}
+            </p>
+          ))}
+        </SchemeContent>
+        <TitleInput
+          placeholder="제목을 입력하세요"
+          value={state.title}
+          onChange={(e) =>
+            setState((prev) => ({ ...prev, title: e.target.value }))
+          }
+        />
+        <ProgressBar serverResponse={state.serverResponse} />
+        {state.serverResponse && state.title !== '' ? (
           <Button onClick={handleComplete}>
             <FaCheck size={18} />
             <span>완료</span>

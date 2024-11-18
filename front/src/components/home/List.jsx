@@ -57,17 +57,22 @@ const ListItem = styled.li`
   p {
     font-size: ${({ theme }) => theme.font.size.xs};
     font-weight: ${({ theme }) => theme.font.weight.medium};
+
     &:first-of-type {
       font-size: ${({ theme }) => theme.font.size.base};
-      display: block;
-      height: 32px;
+      display: inline-block;
+      min-height: 32px;
+      overflow: hidden; // 넘치는 텍스트 숨김
+      text-overflow: ellipsis; // ...으로 표시
+      white-space: nowrap; // 한 줄로 표시
     }
 
     &:last-of-type {
       font-size: ${({ theme }) => theme.font.size.sm};
     }
   }
-`
+`;
+
 
 // Helper function
 const formatDate = (dateString) =>

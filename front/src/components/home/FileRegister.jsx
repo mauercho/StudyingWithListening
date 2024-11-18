@@ -20,6 +20,7 @@ const Container = styled.div`
       flex-direction: column;
       justify-content: center;
       padding: 0 1rem;
+      align-items: center;
 
       div {
         margin-top: 1rem;
