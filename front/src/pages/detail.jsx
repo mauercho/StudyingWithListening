@@ -134,10 +134,10 @@ export default function Detail() {
           let content, voiceUrl
           switch (summaryMode) {
             case 'detail':
-              content = sentence.detailAnswer
-              voiceUrl = sentence.detailAnswerVoiceUrl
+              content = sentence.normalAnswer
+              voiceUrl = sentence.normalAnswerVoiceUrl
               break
-            case 'keyword':
+            case 'simple':
               content = sentence.simpleAnswer
               voiceUrl = sentence.simpleAnswerVoiceUrl
               break
@@ -361,6 +361,7 @@ export default function Detail() {
                 }
               />
               <Sentence
+                mode={summaryMode}
                 text={sentence.content}
                 status={'answer'}
                 index={(sentence.order - 1) * 2 + 1}
