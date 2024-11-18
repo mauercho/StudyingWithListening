@@ -15,9 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.a304.shortgong.domain.summary.facade.SummaryFacade;
+import com.ssafy.a304.shortgong.domain.summary.model.dto.response.SummaryDetailResponse;
 import com.ssafy.a304.shortgong.global.error.CustomException;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -63,7 +67,24 @@ public class SummaryController {
 	 * 요약본 상세 페이지 정보
 	 * */
 	@GetMapping("/{summary-id}")
-	@Operation(summary = "Get summary Detail by Summary ID", description = "Returns a summary detail by summary id")
+	@Operation(
+		summary = "Get summary Detail by Summary ID",
+		description = "Returns a summary detail by summary id",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "Successful response",
+				content = @Content(
+					mediaType = "application/json",
+					schema = @Schema(implementation = SummaryDetailResponse.class)
+				)
+			),
+			@ApiResponse(
+				responseCode = "404",
+				description = "Summary not found"
+			)
+		}
+	)
 	public ResponseEntity<?> getSummaryDetail(@PathVariable("summary-id") Long summaryId) {
 
 		return ResponseEntity.ok(summaryFacade.getSummaryDetail(summaryId));
