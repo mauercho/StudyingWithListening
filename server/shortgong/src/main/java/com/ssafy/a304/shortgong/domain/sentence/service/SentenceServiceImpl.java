@@ -153,16 +153,6 @@ public class SentenceServiceImpl implements SentenceService {
 	// 	return claudeUtil.sendMessage(prompt).getContent();
 	// }
 
-	/**
-	 * URL 로부터 텍스트를 요약
-	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
-	 */
-	// private List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text) {
-	//
-	// 	String prompt = promptUtil.getUrlSummarizedPrompt(text);
-	// 	return claudeUtil.sendMessage(prompt).getContent();
-	// }
-
 	// @Override
 	// @Transactional
 	// public void deleteSentence(Long sentenceId) {
