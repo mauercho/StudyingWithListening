@@ -44,6 +44,10 @@ const globalStyles = (theme) => css`
 
     font-family: 'TheJamsil', Arial, sans-serif;
   }
+
+  button {
+    font-family: inherit; /* 상위 요소의 폰트 상속 */
+  }
 `
 
 function GlobalStyles() {

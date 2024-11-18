@@ -12,21 +12,26 @@ import sentencesApi from '../api/sentencesApi'
 import summariesApi from '../api/summariesApi'
 import Loading from '../components/Loading'
 import usePlayerStore from '../stores/usePlayerStore'
-import BookmarkMenu from '../components/BookmarkMenu'
 import HelpModal from '../components/HelpModal'
+import ModeModal from '../components/modeModal'
+import theme from '../assets/styles/theme'
 
 const Container = styled.div`
   width: 100%;
   overflow-y: auto;
   box-sizing: border-box;
 `
-const QuestionIcon = styled.div`
+const QuestionIcon = styled(BsQuestionSquareFill)`
   color: ${({ theme }) => theme.color.primary_dark};
-  /* padding-left: 10px; */
-  font-size: 20px;
+  ${({ mode }) =>
+    mode === 'simple' &&
+    `
+      color: ${theme.color.secondary};
+    `}
+  font-size: 40px;
 `
 
-const HeaderWrapper = styled.div`
+const TableOfContentsWrapper = styled.div`
   width: 100%;
   max-width: 768px;
   top: 60px;
@@ -34,27 +39,29 @@ const HeaderWrapper = styled.div`
   background: ${({ theme }) => theme.color.white};
   z-index: 80;
   border-radius: 0 0 16px 16px;
-  padding: 0 10px;
+  padding: 0;
   box-sizing: border-box;
 `
 
-const ModeSelectWrapper = styled.div`
+const HeaderWrapper = styled.div`
+  top: 100px;
+  position: fixed;
   width: 100%;
   display: flex;
-  /* flex-direction: row-reverse; */
-  top: 95px;
-  position: fixed;
-  padding: 0 10px;
-  box-sizing: border-box;
+  flex-direction: row;
   justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid ${theme.color.primary};
+  box-sizing: border-box;
 `
 
 const Main = styled.div`
   position: fixed;
   width: 100%;
-  top: 120px;
-  bottom: 75px;
-  overflow-y: auto;
+  top: 162px;
+  bottom: 67px;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   padding: 0 10px;
@@ -71,7 +78,33 @@ const ContentArea = styled.ul`
   gap: 10px;
   overflow-y: auto;
   box-sizing: border-box;
-  background: ${({ theme }) => theme.color.grey};
+`
+
+const QnA = styled(Element)`
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 10px;
+  // border-bottom: 1px solid black;
+`
+
+const ModeSelectButton = styled.button`
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: ${theme.font.size.lg};
+  font-weight: ${theme.font.weight.medium};
+  border-radius: 10px;
+  border: 0;
+  box-sizing: border-box;
+  background-color: ${theme.color.primary_dark};
+  ${({ mode }) =>
+    mode === 'simple' &&
+    `
+      background-color: ${theme.color.secondary};
+    `}
 `
 
 export default function Detail() {
@@ -88,77 +121,69 @@ export default function Detail() {
   } = usePlayerStore()
 
   const [sentences, setSentences] = useState([])
-  const [summaryMode, setSummaryMode] = useState('normal')
-
-  const modeMenuItems = [
-    { title: '상세', mode: 'detail' },
-    { title: '키워드', mode: 'keyword' },
-    { title: '일반', mode: 'normal' },
-  ]
+  const [summaryMode, setSummaryMode] = useState('detail')
 
   useEffect(() => {
     const fetchSummaryDetail = async () => {
       try {
-        const data = await summariesApi.getSummariesDetail(summaryId);
-        console.log(data);
+        const data = await summariesApi.getSummariesDetail(summaryId)
+        console.log(data)
 
         // summaryMode에 따라 맞는 content와 voiceUrl을 선택
         const updatedSentences = data.sentenceResponseList.map((sentence) => {
-          let content, voiceUrl;
+          let content, voiceUrl
           switch (summaryMode) {
             case 'detail':
-              content = sentence.detailAnswer;
-              voiceUrl = sentence.detailAnswerVoiceUrl;
-              break;
-            case 'keyword':
-              content = sentence.simpleAnswer;
-              voiceUrl = sentence.simpleAnswerVoiceUrl;
-              break;
+              content = sentence.normalAnswer
+              voiceUrl = sentence.normalAnswerVoiceUrl
+              break
+            case 'simple':
+              content = sentence.simpleAnswer
+              voiceUrl = sentence.simpleAnswerVoiceUrl
+              break
             default:
-              content = sentence.normalAnswer;
-              voiceUrl = sentence.normalAnswerVoiceUrl;
-              break;
+              content = sentence.normalAnswer
+              voiceUrl = sentence.normalAnswerVoiceUrl
+              break
           }
-          return { ...sentence, content, voiceUrl, questionVoiceUrl: sentence.questionVoiceUrl };
-        });
+          return {
+            ...sentence,
+            content,
+            voiceUrl,
+            questionVoiceUrl: sentence.questionVoiceUrl,
+          }
+        })
 
         const updatedIndexes = data.sentenceResponseList.map((sentence) => ({
           indexTitle: sentence.sentencePoint,
           sentenceOrder: sentence.order,
-        }));
+        }))
 
         const newUrls = updatedSentences.flatMap((sentence) => [
           sentence.questionVoiceUrl,
           sentence.voiceUrl,
-        ]);
+        ])
 
         if (voiceUrls.length === 0) {
-          setSummaryTitle(data.summaryTitle);
-          setVoiceUrls(newUrls);
+          setSummaryTitle(data.summaryTitle)
+          setVoiceUrls(newUrls)
         } else if (!newUrls.some((url) => voiceUrls.includes(url))) {
-          reset();
-          setSummaryTitle(data.summaryTitle);
-          setVoiceUrls(newUrls);
+          reset()
+          setSummaryTitle(data.summaryTitle)
+          setVoiceUrls(newUrls)
         } else {
-          setSummaryTitle(data.summaryTitle);
+          setSummaryTitle(data.summaryTitle)
         }
-        setSentences(updatedSentences);
-        setIndexes(updatedIndexes);
+        setSentences(updatedSentences)
+        setIndexes(updatedIndexes)
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error:', error)
       }
-    };
+    }
 
-    setCurrentIndex(null);
-    fetchSummaryDetail();
-  }, [
-    summaryId,
-    summaryMode, // summaryMode 변경 시에도 실행되도록 의존성에 추가
-    setSummaryTitle,
-    setVoiceUrls,
-    voiceUrls,
-    reset,
-  ]);
+    setCurrentIndex(null)
+    fetchSummaryDetail()
+  }, [summaryId, summaryMode, setSummaryTitle, setVoiceUrls, voiceUrls, reset])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
@@ -166,6 +191,7 @@ export default function Detail() {
   const [selectedSentenceId, setSelectedSentenceId] = useState(null)
   const [loadingSentenceId, setLoadingSentenceId] = useState(null)
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
+  const [isModeModalOpen, setIsModeModalOpen] = useState(false)
   const handleDelete = async (sentenceId) => {
     try {
       await sentencesApi.deleteSentence(sentenceId)
@@ -236,7 +262,10 @@ export default function Detail() {
       return
     }
     if (sentenceURL) {
-      const index = status === 'question' ? (sentenceOrder - 1) * 2 : (sentenceOrder - 1) * 2 + 1;
+      const index =
+        status === 'question'
+          ? (sentenceOrder - 1) * 2
+          : (sentenceOrder - 1) * 2 + 1
       console.log(index)
       setCurrentIndex(index)
       setIsPlaying(true)
@@ -260,7 +289,7 @@ export default function Detail() {
       duration: 500,
       delay: 0,
       smooth: 'easeInOutQuart',
-      offset: -244,
+      offset: -112,
     })
   }
 
@@ -273,7 +302,9 @@ export default function Detail() {
   }
 
   const handleSummaryMode = (mode) => {
+    console.log(mode)
     setSummaryMode(mode)
+    setIsModeModalOpen(false)
   }
 
   return (
@@ -282,28 +313,38 @@ export default function Detail() {
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
       />
-      <HeaderWrapper>
+      <ModeModal
+        isOpen={isModeModalOpen}
+        onClose={() => setIsModeModalOpen(false)}
+        onSelectMode={handleSummaryMode}
+      />
+      <TableOfContentsWrapper>
         <TableOfContents
           indexes={indexes}
           onButtonClick={handleTableTouch}
           isOpen={isTableOpen}
           toggleOpen={toggleTable}
         />
-      </HeaderWrapper>
-      <ModeSelectWrapper>
-        <QuestionIcon>
-          <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} />
+      </TableOfContentsWrapper>
+      <HeaderWrapper>
+        <QuestionIcon
+          onClick={() => setIsHelpModalOpen(true)}
+          mode={summaryMode}
+          size={40}
+        >
+          {/* <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} /> */}
         </QuestionIcon>
-        <BookmarkMenu
-          summaryMode={summaryMode}
-          onButtonClick={handleSummaryMode}
-          menuItems={modeMenuItems}
-        />
-      </ModeSelectWrapper>
+        <ModeSelectButton
+          mode={summaryMode}
+          onClick={() => setIsModeModalOpen(true)}
+        >
+          요약 모드 선택
+        </ModeSelectButton>
+      </HeaderWrapper>
       <Main>
         <ContentArea id="content-area">
           {sentences.map((sentence) => (
-            <Element name={`sentence-${sentence.order}`} key={sentence.id}>
+            <QnA name={`sentence-${sentence.order}`} key={sentence.id}>
               <Sentence
                 text={sentence.question}
                 status={'question'}
@@ -320,22 +361,19 @@ export default function Detail() {
                 }
               />
               <Sentence
+                mode={summaryMode}
                 text={sentence.content}
                 status={'answer'}
                 index={(sentence.order - 1) * 2 + 1}
                 onShortPress={() =>
-                  handleShortPress(
-                    sentence.order,
-                    sentence.voiceUrl,
-                    'answer'
-                  )
+                  handleShortPress(sentence.order, sentence.voiceUrl, 'answer')
                 }
                 onLongPress={() =>
                   handleLongPress(sentence.id, sentence.openStatus)
                 }
               />
               {loadingSentenceId === sentence.id && <Loading />}
-            </Element>
+            </QnA>
           ))}
         </ContentArea>
       </Main>
