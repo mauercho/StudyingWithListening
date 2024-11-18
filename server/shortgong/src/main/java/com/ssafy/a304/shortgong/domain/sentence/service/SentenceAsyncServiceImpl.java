@@ -1,6 +1,7 @@
 package com.ssafy.a304.shortgong.domain.sentence.service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.scheduling.annotation.Async;
@@ -35,7 +36,7 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 
 	@Async
 	@Override
-	public void getAnswerAndVoices(QuestionResponse questionResponse, String text, Summary summary,
+	public CompletableFuture<Void> getAnswerAndVoices(QuestionResponse questionResponse, String text, Summary summary,
 		AtomicInteger orderCounter) {
 		// 기존 sentenceTitle 엔티티 있으면 가져오고 없으면 엔티티 생성하기
 		SentenceTitle sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
@@ -63,11 +64,13 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 				}
 
 			});
+		return CompletableFuture.completedFuture(null);
 	}
 
 	@Async
 	@Override
-	public void getAnswerAndVoicesByKeyword(QuestionResponse questionResponse, String text, Summary summary,
+	public CompletableFuture<Void> getAnswerAndVoicesByKeyword(QuestionResponse questionResponse, String text,
+		Summary summary,
 		AtomicInteger orderCounter) {
 		// 기존 sentenceTitle 엔티티 있으면 가져오고 없으면 엔티티 생성하기
 		SentenceTitle sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
@@ -95,6 +98,7 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 				}
 
 			});
+		return CompletableFuture.completedFuture(null);
 	}
 
 	// @Transactional(isolation = Isolation.SERIALIZABLE)

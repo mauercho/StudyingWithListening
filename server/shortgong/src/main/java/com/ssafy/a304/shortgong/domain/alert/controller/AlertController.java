@@ -25,7 +25,7 @@ public class AlertController {
 	@GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public ResponseEntity<SseEmitter> connect() {
 
-		SseEmitter emitter = new SseEmitter(60 * 1000L);
+		SseEmitter emitter = new SseEmitter(3 * 1000L);
 		emitters.add(emitter);
 		try {
 			emitter.send(
