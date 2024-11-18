@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { scroller, Element } from 'react-scroll'
 import { BsQuestionSquareFill } from 'react-icons/bs'
+import { FaLightbulb } from 'react-icons/fa'
+import { FaFireAlt } from 'react-icons/fa'
 
 import TableOfContents from '../components/TableOfContents'
 import Sentence from '../components/Sentence'
@@ -87,44 +89,41 @@ const QnA = styled(Element)`
   gap: 10px;
 `
 
-const ModeWrapper = styled.div`
+const SubTitle = styled.div`
   display: flex;
-  gap: -20px;
-  align-items: center;
   justify-content: center;
-  background: ${theme.color.grey};
-  border-radius: 10px;
-`
-
-const Mode = styled.div`
-  display: flex;
-  justify-content: end;
   align-items: center;
-  padding: 12px;
+  gap: 10px;
 `
 
-const ModeText = styled.p`
-  font-size: ${theme.font.size.base};
-  font-weight: ${theme.font.weight.light};
-  opacity: 0.6;
+const SubTitleText = styled.p`
+  font-size: ${theme.font.size['2xl']};
+  font-weight: ${theme.font.weight.bold};
+`
+
+const IconWrapper = styled.div`
+  width: 60px;
 `
 
 const ModeSelectButton = styled.button`
-  padding: 10px;
+  width: 84px;
+  background: ${({ theme }) => theme.color.white};
+  padding: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
+  color: ${theme.color.primary_dark};
+  border: 1px solid ${theme.color.primary_dark};
   font-size: ${theme.font.size.lg};
   font-weight: ${theme.font.weight.medium};
   border-radius: 10px;
-  border: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
-  background-color: ${theme.color.primary_dark};
   ${({ mode }) =>
     mode === 'simple' &&
     `
-      background-color: ${theme.color.secondary};
+        color: ${theme.color.secondary};
+        border: 1px solid ${theme.color.secondary};
     `}
 `
 
@@ -201,7 +200,7 @@ export default function Detail() {
       }
     }
 
-    setCurrentIndex(null)
+    setCurrentIndex(0)
     fetchSummaryDetail()
   }, [
     summaryId,
@@ -353,32 +352,36 @@ export default function Detail() {
         />
       </TableOfContentsWrapper>
       <HeaderWrapper>
-        <QuestionIcon
-          onClick={() => setIsHelpModalOpen(true)}
-          mode={summaryMode}
-          size={40}
-        >
-          {/* <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} /> */}
-        </QuestionIcon>
-        <ModeWrapper>
-          <Mode>
-            <ModeText mode={summaryMode}>
-              {summaryMode === 'simple' ? '시험 5분 전' : '연상 암기'}
-            </ModeText>
-          </Mode>
-          <ModeSelectButton
+        <IconWrapper>
+          <QuestionIcon
+            onClick={() => setIsHelpModalOpen(true)}
             mode={summaryMode}
-            onClick={() => setIsModeModalOpen(true)}
-          >
-            요약 모드 선택
-          </ModeSelectButton>
-        </ModeWrapper>
+            size={30}
+          ></QuestionIcon>
+        </IconWrapper>
+        <SubTitle>
+          {summaryMode === 'simple' ? (
+            <FaFireAlt size={25} color={'#FF0000'} />
+          ) : (
+            <FaLightbulb size={25} color={'#FFB902'} />
+          )}
+          <SubTitleText>
+            {summaryMode === 'simple' ? '시험 5분 전' : '연상 암기'}
+          </SubTitleText>
+        </SubTitle>
+        <ModeSelectButton
+          mode={summaryMode}
+          onClick={() => setIsModeModalOpen(true)}
+        >
+          모드 선택
+        </ModeSelectButton>
       </HeaderWrapper>
       <Main>
         <ContentArea id="content-area">
           {sentences.map((sentence) => (
             <QnA name={`sentence-${sentence.order}`} key={sentence.id}>
               <Sentence
+                mode={summaryMode}
                 text={sentence.question}
                 status={'question'}
                 index={(sentence.order - 1) * 2}
