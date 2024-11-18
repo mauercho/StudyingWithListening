@@ -28,6 +28,7 @@ const ModalHeader = styled.div`
 
 const Title = styled.p`
   font-size: ${theme.font.size.lg};
+  font-weight: ${theme.font.weight.medium};
 `
 
 const ModalContainer = styled.div`
@@ -73,7 +74,7 @@ const ButtonSection = styled.div`
 
 const SectionText = styled.p`
   font-size: ${theme.font.size.lg};
-  font-weight: ${theme.font.weight.medium};
+  font-weight: ${theme.font.weight.regular};
   padding: 10px;
   width: 100%;
 `
@@ -98,6 +99,7 @@ const Footer = styled.div`
     opacity: 0.3;
     font-size: ${theme.font.size.base};
     font-weight: ${theme.font.weight.regular};
+    overflow-wrap: break-word;
   }
 `
 
@@ -123,7 +125,6 @@ export default function HelpModal({ isOpen, onClose, onSelectMode }) {
   }
 
   const handleModeSelect = (mode) => {
-    console.log(mode)
     onSelectMode(mode)
   }
 
