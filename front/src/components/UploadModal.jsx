@@ -1,6 +1,13 @@
 import React, { useState, useRef } from 'react'
 import styled from '@emotion/styled'
-import { FaArrowUp, FaUpload, FaCheck, FaCircleNotch } from 'react-icons/fa6'
+import {
+  FaArrowUp,
+  FaUpload,
+  FaCheck,
+  FaCircleNotch,
+  FaLightbulb,
+  FaBookOpen,
+} from 'react-icons/fa6'
 import ProgressBar from './home/ProgressBar'
 import summariesApi from '../api/summariesApi'
 
@@ -12,6 +19,33 @@ const Spinner = styled(FaCircleNotch)`
     }
     100% {
       transform: rotate(360deg);
+    }
+  }
+`
+
+const SchemeTitle = styled.div`
+  width: 100%;
+  div {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+
+    span {
+      margin-right: 4px;
+    }
+
+    &:first-of-type {
+      color: ${({ theme }) => theme.color.black};
+      span {
+        color: ${({theme}) => theme.color.primary};
+      }
+    }
+
+    &:last-of-type {
+      color: #dc143c;
+      span {
+        color: #ffd400;
+      }
     }
   }
 `
@@ -183,7 +217,6 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
       alert('학습자료가 없습니다!')
       return
     }
-
     handleConnectInit()
     setState((prev) => ({ ...prev, uploadStatus: true }))
 
@@ -218,10 +251,20 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
           &times;
         </CloseButton>
         {state.uploadStatus && (
-          <div>
-            학습할 내용이에요. 본격적인 듣기 학습 전에 배울 내용을 읽어보면 학습
-            효과가 올라간답니다!
-          </div>
+          <SchemeTitle>
+            <div>
+              <span>
+                <FaBookOpen />
+              </span>
+              배울 내용을 미리 읽어보세요.
+            </div>
+            <div>
+              <span>
+                <FaLightbulb />
+              </span>
+              듣기 학습의 효과가 더욱 높아져요!
+            </div>
+          </SchemeTitle>
         )}
         {state.uploadStatus ? (
           <SchemeContent>
@@ -238,7 +281,7 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
             ) : (
               <div>
                 <FaUpload size={32} />
-                <p>눌러서 학습자료를 업로드 해보세요!</p>
+                <p style={{marginTop: '8px', color: "black"}}>눌러서 학습자료를 업로드 해보세요!</p>
               </div>
             )}
             <input
