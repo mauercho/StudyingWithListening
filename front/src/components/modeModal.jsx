@@ -103,7 +103,7 @@ const Footer = styled.div`
   }
 `
 
-export default function HelpModal({ isOpen, onClose, onSelectMode }) {
+export default function ModeModal({ isOpen, onClose, onSelectMode }) {
   if (!isOpen) return null
 
   const thinkImageOptions = {

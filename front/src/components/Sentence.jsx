@@ -154,8 +154,6 @@ export default function Sentence({
   const { currentIndex } = usePlayerStore()
   const { ...longPressHandler } = useLongPress(onLongPress)
 
-  console.log(mode)
-
   return (
     <Container
       mode={mode}
