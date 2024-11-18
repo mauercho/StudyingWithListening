@@ -11,6 +11,8 @@ public interface SentenceService {
 
 	void parseQuizSentenceList(String text, Summary summary);
 
+	void parseQuizSentenceListByKeyword(String text, Summary summary);
+
 	/**
 	 * 문장 객체 반환
 	 * @return Sentence (문장 객체)
