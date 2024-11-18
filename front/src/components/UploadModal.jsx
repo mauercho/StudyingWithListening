@@ -90,12 +90,20 @@ const ContentBase = styled.div`
 const UploadContent = styled(ContentBase)`
   align-items: center;
   justify-content: center;
+  border: 2px dashed ${({ theme }) => theme.color.primary_dark};
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.color.grey_light};
+    border-color: ${({ theme }) => theme.color.primary};
+  }
 
   & > div {
     color: ${({ theme }) => theme.color.primary};
     text-align: center;
   }
-`
+`;
+
 
 const SchemeContent = styled(ContentBase)`
   padding: 10px;
@@ -105,7 +113,46 @@ const SchemeContent = styled(ContentBase)`
   overflow-y: scroll;
   flex-direction: column;
   gap: 20px;
-`
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.color.primary};
+    border-radius: 10px;
+  }
+
+  & > p {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInList 0.3s ease-in-out forwards;
+  }
+
+  @keyframes fadeInList {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  & > p:nth-of-type(1) {
+    animation-delay: 0.1s;
+  }
+
+  & > p:nth-of-type(2) {
+    animation-delay: 0.2s;
+  }
+
+  & > p:nth-of-type(3) {
+    animation-delay: 0.3s;
+  }
+`;
+
 
 const TitleInput = styled.input`
   width: calc(100% - 20px);
