@@ -5,7 +5,6 @@ import static com.ssafy.a304.shortgong.global.errorCode.SentenceErrorCode.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,7 @@ public class SentenceServiceImpl implements SentenceService {
 	private final PromptUtil promptUtil;
 	private final SseEmitters sseEmitters;
 
-	private final AtomicInteger orderCounter = new AtomicInteger(1);
+	// private final AtomicInteger orderCounter = new AtomicInteger(1);
 
 	/**
 	 * Quiz (TPQA 방식) 형식의 문장 리스트를 db에 저장하는 메서드
@@ -57,7 +56,7 @@ public class SentenceServiceImpl implements SentenceService {
 
 		List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
 
-		orderCounter.set(1);
+		// orderCounter.set(1);
 		List<QuestionResponse> questionResponseList = getQuestionListByTPQTextList(tpqTextList);
 		List<String> questions = questionResponseList.stream()
 			.flatMap(questionResponse ->
@@ -69,8 +68,7 @@ public class SentenceServiceImpl implements SentenceService {
 		sseEmitters.sendQuestionCreatedMessage(summary.getId(), questions);
 		// 모든 비동기 작업을 모아 완료를 기다림
 		List<CompletableFuture<Void>> futures = questionResponseList.stream()
-			.map(questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary,
-				orderCounter))
+			.map(questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary))
 			.toList();
 
 		// 비동기 작업이 완료됨을 반환
@@ -86,7 +84,7 @@ public class SentenceServiceImpl implements SentenceService {
 
 		List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
 
-		orderCounter.set(1);
+		// orderCounter.set(1);
 		List<QuestionResponse> questionResponseList = getQuestionListByTPQTextList(tpqTextList);
 		List<String> questions = questionResponseList.stream()
 			.flatMap(questionResponse ->
@@ -98,8 +96,7 @@ public class SentenceServiceImpl implements SentenceService {
 		sseEmitters.sendQuestionCreatedMessage(summary.getId(), questions);
 		// 모든 비동기 작업을 모아 완료를 기다림
 		List<CompletableFuture<Void>> futures = questionResponseList.stream()
-			.map(questionResponse -> sentenceAsyncService.getAnswerAndVoicesByKeyword(questionResponse, text, summary,
-				orderCounter))
+			.map(questionResponse -> sentenceAsyncService.getAnswerAndVoicesByKeyword(questionResponse, text, summary))
 			.toList();
 
 		// 비동기 작업이 완료됨을 반환
@@ -160,7 +157,7 @@ public class SentenceServiceImpl implements SentenceService {
 
 	private List<QuestionResponse> getQuestionListByTPQTextList(List<String> texts) {
 
-		int count = 0;
+		// int count = 0;
 		List<QuestionResponse> questionResponseList = new ArrayList<>();
 
 		QuestionResponse questionResponse = new QuestionResponse();
@@ -177,10 +174,10 @@ public class SentenceServiceImpl implements SentenceService {
 					questionAnswerResponse.setPoint(sentence);
 					break;
 				case 'Q': // 완성 될 때
-					if (count == 5) {
-						return questionResponseList;
-					}
-					count++;
+					// if (count == 5) {
+					// 	return questionResponseList;
+					// }
+					// count++;
 					questionAnswerResponse.setQuestion(sentence);
 					questionResponse.addAnswerResponse(questionAnswerResponse);
 					questionResponseList.add(questionResponse);

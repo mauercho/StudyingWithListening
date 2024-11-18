@@ -37,15 +37,14 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 
 	@Async
 	@Override
-	public CompletableFuture<Void> getAnswerAndVoices(QuestionResponse questionResponse, String text, Summary summary,
-		AtomicInteger orderCounter) {
+	public CompletableFuture<Void> getAnswerAndVoices(QuestionResponse questionResponse, String text, Summary summary) {
 		// 기존 sentenceTitle 엔티티 있으면 가져오고 없으면 엔티티 생성하기
 		SentenceTitle sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
 			.orElseGet(() -> sentenceTitleRepository.save(
 				SentenceTitle.builder()
 					.name(questionResponse.getTitle())
 					.build()));
-
+		AtomicInteger order = new AtomicInteger(1);
 		// Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
 		questionResponse.getQuestionAnswerResponseList()
 			.forEach(questionAnswerResponse -> {
@@ -55,7 +54,7 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 					.sentenceTitle(sentenceTitle)
 					.point(questionAnswerResponse.getPoint())
 					.question(questionAnswerResponse.getQuestion())
-					.order(orderCounter.getAndIncrement())
+					.order(order.getAndIncrement())
 					.build();
 
 				Sentence existSentence = find(sentence);
@@ -71,15 +70,14 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 	@Async
 	@Override
 	public CompletableFuture<Void> getAnswerAndVoicesByKeyword(QuestionResponse questionResponse, String text,
-		Summary summary,
-		AtomicInteger orderCounter) {
+		Summary summary) {
 		// 기존 sentenceTitle 엔티티 있으면 가져오고 없으면 엔티티 생성하기
 		SentenceTitle sentenceTitle = sentenceTitleRepository.findByName(questionResponse.getTitle())
 			.orElseGet(() -> sentenceTitleRepository.save(
 				SentenceTitle.builder()
 					.name(questionResponse.getTitle())
 					.build()));
-
+		AtomicInteger order = new AtomicInteger(1);
 		// Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
 		questionResponse.getQuestionAnswerResponseList()
 			.forEach(questionAnswerResponse -> {
@@ -89,13 +87,13 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 					.sentenceTitle(sentenceTitle)
 					.point(questionAnswerResponse.getPoint())
 					.question(questionAnswerResponse.getQuestion())
-					.order(orderCounter.getAndIncrement())
+					.order(order.get())
 					.build();
 
 				Sentence existSentence = find(sentence);
 				if (existSentence == null) {
-					existSentence = save(sentence);
-					setAnswersAndGetVoiceByKeyword(existSentence, text);
+					setAnswersAndGetVoiceByKeyword(save(sentence), text);
+					order.incrementAndGet();
 				}
 
 			});
