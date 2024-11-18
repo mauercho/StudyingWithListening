@@ -94,7 +94,7 @@ export default function ContentsModal({ isOpen, onClose, url }) {
             />
           )}
           {isPDF && <Iframe src={url} title="PDF Viewer" />}
-          {!isImage && !isPDF && <p>지원하지 않는 파일 형식입니다.</p>}
+          {!isImage && !isPDF && <p>키워드로 생성되어서 원본이 없어요.</p>}
         </Content>
       </ModalContainer>
     </ModalBackground>
