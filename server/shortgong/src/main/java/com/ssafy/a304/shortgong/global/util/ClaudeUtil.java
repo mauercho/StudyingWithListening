@@ -78,6 +78,26 @@ public class ClaudeUtil {
 	private String apiKey9;
 	@Value("${claude.api.keys.key-10}")
 	private String apiKey10;
+	@Value("${claude.api.keys.key-11}")
+	private String apiKey11;
+	@Value("${claude.api.keys.key-12}")
+	private String apiKey12;
+	@Value("${claude.api.keys.key-13}")
+	private String apiKey13;
+	@Value("${claude.api.keys.key-14}")
+	private String apiKey14;
+	@Value("${claude.api.keys.key-15}")
+	private String apiKey15;
+	@Value("${claude.api.keys.key-16}")
+	private String apiKey16;
+	@Value("${claude.api.keys.key-17}")
+	private String apiKey17;
+	@Value("${claude.api.keys.key-18}")
+	private String apiKey18;
+	@Value("${claude.api.keys.key-19}")
+	private String apiKey19;
+	@Value("${claude.api.keys.key-20}")
+	private String apiKey20;
 
 	private String[] apiKeys;
 
@@ -338,8 +358,10 @@ public class ClaudeUtil {
 	@PostConstruct
 	private void initializeApiKeys() {
 
-		apiKeys = new String[] {apiKey1, apiKey2, apiKey3, apiKey4, apiKey5, apiKey6, apiKey7, apiKey8, apiKey9,
-			apiKey10};
+		apiKeys = new String[] {
+			apiKey1, apiKey2, apiKey3, apiKey4, apiKey5, apiKey6, apiKey7, apiKey8, apiKey9, apiKey10,
+			/* apiKey11, apiKey12, apiKey13, apiKey14, apiKey15, apiKey16, apiKey17, apiKey18, apiKey19, apiKey20, */
+		};
 
 		scheduler.scheduleAtFixedRate(() -> {
 			for (int i = 0; i < 5 && !requestQueue.isEmpty(); i++) {
