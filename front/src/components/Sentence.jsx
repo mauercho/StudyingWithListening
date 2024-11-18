@@ -47,10 +47,19 @@ const Container = styled.li`
   ${({ theme, status }) =>
     status === 'question' &&
     `
-      border: 1px solid ${theme.color.primary};
+      border: 1px solid ${theme.color.primary_dark};
       background-color: ${theme.color.primary_dark};
       opacity: 1;
     `}
+
+  ${({ theme, status, mode }) => {
+    if (status === 'question' && mode === 'simple') {
+      return `
+      border: 1px solid ${theme.color.secondary};
+      background-color: ${theme.color.secondary};
+    `
+    }
+  }}
 
   &::after {
     content: '';
@@ -59,7 +68,7 @@ const Container = styled.li`
     left: 0;
     width: 100%;
     height: 100%;
-    background: ${({ theme, status }) =>
+    /* background: ${({ theme, status }) =>
       status === 'question'
         ? `linear-gradient(
             to right,
@@ -72,7 +81,8 @@ const Container = styled.li`
             ${theme.color.white} 8%,
             ${theme.color.grey} 24%,
             ${theme.color.white} 40%
-          )`};
+          )`}; */
+
     background-size: 2000px 100%; /* 쉼머 효과 크기 */
     animation: ${shimmer} 8s infinite linear; /* 쉼머 애니메이션 */
     border-radius: 10px;
@@ -85,12 +95,21 @@ const Text = styled.p`
   width: 100%;
   opacity: 1;
   font-size: 16px;
-  color: ${({ theme }) => theme.color.primary_dark};
+  color: ${({ theme }) => theme.color.black};
   font-weight: ${({ theme }) => theme.font.weight.light};
   line-height: 1.4;
   overflow-wrap: break-word;
   position: relative;
   z-index: 2; /* 텍스트가 쉼머 위로 오게 */
+  ${({ theme, status }) =>
+    status === 'question' &&
+    `
+      font-size: ${theme.font.size.lg};
+      font-weight: ${theme.font.weight.regular};
+      color: ${theme.color.white};
+      opacity: 1;
+    `}
+
   ${({ theme, status }) =>
     status === 'question' &&
     `
@@ -117,7 +136,7 @@ const IconWrapper = styled.div`
   justify-content: center;
   width: 20px;
   height: 20px;
-  background-color: ${({ theme }) => theme.color.secondary};
+  background-color: ${({ theme }) => theme.color.black};
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 3;
@@ -132,15 +151,23 @@ export default function Sentence({
   onShortPress,
   onLongPress,
 }) {
-  const { currentIndex, isPlaying } = usePlayerStore()
+  const { currentIndex } = usePlayerStore()
   const { ...longPressHandler } = useLongPress(onLongPress)
 
+  console.log(mode)
+
   return (
-    <Container status={status} onClick={onShortPress} {...longPressHandler}>
+    <Container
+      mode={mode}
+      status={status}
+      onClick={onShortPress}
+      {...longPressHandler}
+    >
       <Text mode={mode} status={status}>
+        {status === 'question' ? 'Q: ' : 'A: '}
         {text}
       </Text>
-      {(!isPlaying || index === currentIndex) && (
+      {index === currentIndex && (
         <IconWrapper>
           <FaHeadphones color="white" size={16} />
         </IconWrapper>

@@ -213,8 +213,11 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
   const inputRef = useRef(null)
 
   const handleConnectInit = () => {
+    if (sse) {
+      sse.close()
+    }
     sse = new EventSource('https://k11a304.p.ssafy.io/api/alert/connect')
-
+    console.log('new SSE! ###################################')
     // 연결되었을 때 이벤트리스너
     // receivedConnectData : "connected"
     sse.addEventListener('connect', (e) => {
