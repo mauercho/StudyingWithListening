@@ -6,6 +6,7 @@ import { scroller, Element } from 'react-scroll'
 import { BsQuestionSquareFill } from 'react-icons/bs'
 import { FaLightbulb } from 'react-icons/fa'
 import { FaFireAlt } from 'react-icons/fa'
+import { FaFileAlt } from 'react-icons/fa'
 
 import TableOfContents from '../components/TableOfContents'
 import Sentence from '../components/Sentence'
@@ -15,7 +16,8 @@ import summariesApi from '../api/summariesApi'
 import Loading from '../components/Loading'
 import usePlayerStore from '../stores/usePlayerStore'
 import HelpModal from '../components/HelpModal'
-import ModeModal from '../components/modeModal'
+import ModeModal from '../components/ModeModal'
+import ContentsModal from '../components/ContentsModal'
 import theme from '../assets/styles/theme'
 
 const Container = styled.div`
@@ -30,7 +32,11 @@ const QuestionIcon = styled(BsQuestionSquareFill)`
     `
       color: ${theme.color.secondary};
     `}
-  font-size: 40px;
+  font-size: 30px;
+`
+
+const FileIcon = styled(FaFileAlt)`
+  color: ${theme.color.primary};
 `
 
 const TableOfContentsWrapper = styled.div`
@@ -61,7 +67,7 @@ const HeaderWrapper = styled.div`
 const Main = styled.div`
   position: fixed;
   width: 100%;
-  top: 162px;
+  top: 152px;
   bottom: 67px;
   overflow-y: scroll;
   display: flex;
@@ -102,7 +108,10 @@ const SubTitleText = styled.p`
 `
 
 const IconWrapper = styled.div`
-  width: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
 `
 
 const ModeSelectButton = styled.button`
@@ -142,12 +151,21 @@ export default function Detail() {
 
   const [sentences, setSentences] = useState([])
   const [summaryMode, setSummaryMode] = useState('detail')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalFlag, setModalFlag] = useState(false)
+  const [isTableOpen, setIsTableOpen] = useState(false)
+  const [selectedSentenceId, setSelectedSentenceId] = useState(null)
+  const [loadingSentenceId, setLoadingSentenceId] = useState(null)
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
+  const [isModeModalOpen, setIsModeModalOpen] = useState(false)
+  const [isUploadedModalOpen, setIsUploadedModalOpen] = useState(false)
+  const [imageUrl, setImageUrl] = useState('')
 
   useEffect(() => {
     const fetchSummaryDetail = async () => {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
-
+        console.log(data)
         // summaryMode에 따라 맞는 content와 voiceUrl을 선택
         const updatedSentences = data.sentenceResponseList.map((sentence) => {
           let content, voiceUrl
@@ -195,12 +213,13 @@ export default function Detail() {
         }
         setSentences(updatedSentences)
         setIndexes(updatedIndexes)
+        setCurrentIndex(updatedSentences[0].order + 1)
+        setImageUrl(data.uploadContentUrl)
       } catch (error) {
         console.error('Error:', error)
       }
     }
 
-    setCurrentIndex(0)
     fetchSummaryDetail()
   }, [
     summaryId,
@@ -212,13 +231,6 @@ export default function Detail() {
     reset,
   ])
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalFlag, setModalFlag] = useState(false)
-  const [isTableOpen, setIsTableOpen] = useState(false)
-  const [selectedSentenceId, setSelectedSentenceId] = useState(null)
-  const [loadingSentenceId, setLoadingSentenceId] = useState(null)
-  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
-  const [isModeModalOpen, setIsModeModalOpen] = useState(false)
   const handleDelete = async (sentenceId) => {
     try {
       await sentencesApi.deleteSentence(sentenceId)
@@ -296,8 +308,8 @@ export default function Detail() {
   }
 
   const handleLongPress = (sentenceId, status) => {
-    setModalFlag(!status ? false : true)
-    setIsModalOpen(true)
+    // setModalFlag(!status ? false : true)
+    // setIsModalOpen(true)
     setSelectedSentenceId(sentenceId)
   }
 
@@ -343,6 +355,11 @@ export default function Detail() {
         onClose={() => setIsModeModalOpen(false)}
         onSelectMode={handleSummaryMode}
       />
+      <ContentsModal
+        isOpen={isUploadedModalOpen}
+        onClose={() => setIsUploadedModalOpen(false)}
+        url={imageUrl}
+      />
       <TableOfContentsWrapper>
         <TableOfContents
           indexes={indexes}
@@ -357,7 +374,8 @@ export default function Detail() {
             onClick={() => setIsHelpModalOpen(true)}
             mode={summaryMode}
             size={30}
-          ></QuestionIcon>
+          />
+          <FileIcon onClick={() => setIsUploadedModalOpen(true)} size={30} />
         </IconWrapper>
         <SubTitle>
           {summaryMode === 'simple' ? (
