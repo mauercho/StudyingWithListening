@@ -18,13 +18,13 @@ const shimmer = keyframes`
 
 const scalePulse = keyframes`
   0% {
-    transform: scale(1); /* 기본 크기 */
+    transform: scale(1);
   }
   50% {
-    transform: scale(1.1); /* 확대 */
+    transform: scale(1.1);
   }
   100% {
-    transform: scale(1); /* 원래 크기로 돌아옴 */
+    transform: scale(1);
   }
 `
 
@@ -94,6 +94,13 @@ const Text = styled.p`
       color: ${theme.color.white};
       opacity: 1;
     `}
+
+  ${({ theme, mode }) =>
+    mode === 'simple' &&
+    `
+      font-size: ${theme.font.size.lg};
+      font-weight: ${theme.font.weight.medium};
+    `}
 `
 
 const IconWrapper = styled.div`
@@ -116,6 +123,7 @@ export default function Sentence({
   text,
   status,
   index,
+  mode = 'detail',
   onShortPress,
   onLongPress,
 }) {
@@ -123,9 +131,13 @@ export default function Sentence({
 
   const { ...longPressHandler } = useLongPress(onLongPress)
 
+  console.log(mode)
+
   return (
     <Container status={status} onClick={onShortPress} {...longPressHandler}>
-      <Text status={status}>{text}</Text>
+      <Text mode={mode} status={status}>
+        {text}
+      </Text>
       {(!isPlaying || index === currentIndex) && (
         <IconWrapper>
           <FaHeadphones color="white" size={16} />
