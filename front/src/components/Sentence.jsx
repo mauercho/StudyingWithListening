@@ -91,6 +91,8 @@ const Text = styled.p`
   ${({ theme, status }) =>
     status === 'question' &&
     `
+      font-size: ${theme.font.size.lg};
+      font-weight: ${theme.font.weight.regular};
       color: ${theme.color.white};
       opacity: 1;
     `}
@@ -128,10 +130,7 @@ export default function Sentence({
   onLongPress,
 }) {
   const { currentIndex, isPlaying } = usePlayerStore()
-
   const { ...longPressHandler } = useLongPress(onLongPress)
-
-  console.log(mode)
 
   return (
     <Container status={status} onClick={onShortPress} {...longPressHandler}>
