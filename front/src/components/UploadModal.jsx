@@ -103,8 +103,7 @@ const UploadContent = styled(ContentBase)`
     color: ${({ theme }) => theme.color.primary};
     text-align: center;
   }
-`;
-
+`
 
 const SchemeContent = styled(ContentBase)`
   padding: 10px;
@@ -152,8 +151,7 @@ const SchemeContent = styled(ContentBase)`
   & > p:nth-of-type(3) {
     animation-delay: 0.3s;
   }
-`;
-
+`
 
 const TitleInput = styled.input`
   width: calc(100% - 20px);
@@ -232,7 +230,13 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
     sse.addEventListener('all questions of summary are created', (e) => {
       const { data: receivedConnectData } = e
       console.log('question created event data: ', receivedConnectData)
-      setState((prev) => ({ ...prev, qList: receivedConnectData.questions }))
+      console.log(receivedConnectData.questions)
+      console.log(receivedConnectData.summaryId)
+      console.log(receivedConnectData[0])
+      // setState((prev) => ({
+      //   ...prev,
+      //   qList: receivedConnectData.questions,
+      // }))
     })
 
     // answer들이 모두 완성되었을 때 이벤트리스너
