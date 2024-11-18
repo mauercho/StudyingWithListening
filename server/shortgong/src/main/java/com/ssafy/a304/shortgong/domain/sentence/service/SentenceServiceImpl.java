@@ -58,7 +58,6 @@ public class SentenceServiceImpl implements SentenceService {
 		List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
 
 		orderCounter.set(1);
-
 		List<QuestionResponse> questionResponseList = getQuestionListByTPQTextList(tpqTextList);
 		List<String> questions = questionResponseList.stream()
 			.flatMap(questionResponse ->
