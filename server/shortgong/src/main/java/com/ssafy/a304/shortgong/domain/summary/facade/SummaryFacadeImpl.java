@@ -102,9 +102,11 @@ public class SummaryFacadeImpl implements SummaryFacade {
 	@Override
 	public SummaryDetailResponse getSummaryDetail(Long summaryId) {
 
+		Summary summary = summaryService.selectSummaryById(summaryId);
 		return SummaryDetailResponse.builder()
-			.summaryTitle(summaryService.selectSummaryById(summaryId).getTitle())
+			.summaryTitle(summary.getTitle())
 			.sentenceResponseList(sentenceService.searchAllSentenceResponseBySummaryId(summaryId))
+			.uploadContentUrl(S3FileUtil.getPreSignedUrl(summary.getUploadContent().getFileName()))
 			.build();
 	}
 
