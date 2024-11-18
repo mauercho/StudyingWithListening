@@ -11,7 +11,7 @@ public class PromptUtil {
 
 	private final static int count = 10;
 	private final static int tCount = 2;
-	private final static int qCount = 2;
+	private final static int qCount = 4;
 
 	/**
 	 * TPQ 프롬프트를 생성합니다.
