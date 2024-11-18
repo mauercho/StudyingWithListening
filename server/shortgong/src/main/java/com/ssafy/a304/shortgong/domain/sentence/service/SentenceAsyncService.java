@@ -13,4 +13,7 @@ public interface SentenceAsyncService {
 	void getAnswerAndVoices(QuestionResponse questionResponse, String text, Summary summary,
 		AtomicInteger orderCounter);
 
+	@Async
+	void getAnswerAndVoicesByKeyword(QuestionResponse questionResponse, String text, Summary summary,
+		AtomicInteger orderCounter);
 }

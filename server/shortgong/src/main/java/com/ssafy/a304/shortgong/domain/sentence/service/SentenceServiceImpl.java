@@ -59,6 +59,20 @@ public class SentenceServiceImpl implements SentenceService {
 			questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary, orderCounter));
 	}
 
+	@Override
+	public void parseQuizSentenceListByKeyword(String text, Summary summary) {
+
+		String tpqPrompt = promptUtil.getKeywordTPQ(text);
+		ClaudeResponse response = claudeUtil.sendMessage(tpqPrompt);
+
+		List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+
+		orderCounter.set(1);
+		getQuestionListByTPQTextList(tpqTextList).forEach(
+			questionResponse -> sentenceAsyncService.getAnswerAndVoicesByKeyword(questionResponse, text, summary,
+				orderCounter));
+	}
+
 	/**
 	 * 문장 객체 반환
 	 * @return Sentence (문장 객체)
@@ -150,16 +164,6 @@ public class SentenceServiceImpl implements SentenceService {
 	// private List<ClaudeResponseMessage> getSummarizedTextByAI(String text) {
 	//
 	// 	String prompt = promptUtil.getSummarizedPrompt(text);
-	// 	return claudeUtil.sendMessage(prompt).getContent();
-	// }
-
-	/**
-	 * URL 로부터 텍스트를 요약
-	 * @return List<ClaudeResponseMessage> (요약된 텍스트 리스트)
-	 */
-	// private List<ClaudeResponseMessage> getSummarizedTextFromUrl(String text) {
-	//
-	// 	String prompt = promptUtil.getUrlSummarizedPrompt(text);
 	// 	return claudeUtil.sendMessage(prompt).getContent();
 	// }
 
