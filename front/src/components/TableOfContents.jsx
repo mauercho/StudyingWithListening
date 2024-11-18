@@ -3,8 +3,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import styled from '@emotion/styled'
 
 import { FaGripLines } from 'react-icons/fa'
+import { FaHeadphones } from 'react-icons/fa'
 import usePlayerStore from '../stores/usePlayerStore'
-
+import theme from '../assets/styles/theme'
 
 const Container = styled.div`
   width: 100%;
@@ -13,17 +14,18 @@ const Container = styled.div`
 `
 
 const Navigation = styled.nav`
-  height: ${({ isOpen }) => (isOpen ? '272px' : '0')};
+  height: ${({ isOpen }) => (isOpen ? '170px' : '0')};
   background-color: ${({ theme }) => theme.color.white};
-  overflow-y: auto;
+  overflow-y: scroll;
   transition: height 0.3s ease-in-out;
 `
 
 const TableButton = styled.button`
   width: 100%;
-  padding: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 10px;
+  padding: 10px;
   align-items: start;
   cursor: pointer;
   background-color: ${({ theme }) => theme.color.white};
@@ -37,26 +39,26 @@ const TableButton = styled.button`
   p {
     ${({ theme }) => `
       color: ${theme.color.black};
-      font-weight: ${theme.font.weight.light};
-      font-size: ${theme.font.size.lg};
+      font-weight: ${theme.font.weight.regular};
+      font-size: ${theme.font.size.base};
     `}
   }
+`
 
-  ${({ isPlaying, theme }) =>
-    isPlaying &&
-    `
-      background-color: ${theme.color.primary_light};
-      p {
-        color: ${theme.color.primary_dark};
-        font-weight: ${theme.font.weight.medium};
-      }
-    `}
+const IconFrame = styled.div`
+  width: 22px;
+  height: 22px;
 `
 
 const ToggleButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
   background-color: ${({ theme }) => theme.color.white};
   border-radius: 0 0 16px 16px;
   &:active {
@@ -66,17 +68,19 @@ const ToggleButton = styled.button`
   ${({ theme, isOpen }) =>
     !isOpen
       ? `
-        border-left: 1px solid ${theme.color.primary};
-        border-right: 1px solid ${theme.color.primary};
-        border-bottom: 1px solid ${theme.color.primary};
+        border: 1px solid ${theme.color.primary};
+        border-top: 0;
       `
       : `
         box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.15);
       `}
+
+  p {
+    font-size: ${theme.font.size.lg};
+  }
 `
 
 export default function TableOfContents({ indexes, onButtonClick }) {
-  const currentSentenceId = null
   const [isOpen, setIsOpen] = useState(false)
   const startY = useRef(null)
   const toggleButtonRef = useRef(null)
@@ -122,19 +126,32 @@ export default function TableOfContents({ indexes, onButtonClick }) {
             <li key={item.sentenceOrder}>
               <TableButton
                 onClick={() => onButtonClick(item.sentenceOrder)}
-                isPlaying={item.sentenceOrder * 2 - 1 === currentIndex || item.sentenceOrder * 2 - 1 === currentIndex + 1}
+                isPlaying={
+                  item.sentenceOrder * 2 - 1 === currentIndex ||
+                  item.sentenceOrder * 2 - 1 === currentIndex + 1
+                }
               >
+                <IconFrame>
+                  {item.sentenceOrder * 2 - 2 === currentIndex && (
+                    <FaHeadphones size={16} />
+                  )}
+                  {item.sentenceOrder * 2 - 1 === currentIndex && (
+                    <FaHeadphones size={16} />
+                  )}
+                </IconFrame>
                 <p>{item.indexTitle}</p>
               </TableButton>
             </li>
           ))}
         </ul>
       </Navigation>
+
       <ToggleButton
         ref={toggleButtonRef}
         onClick={() => setIsOpen(!isOpen)}
         isOpen={isOpen}
       >
+        {!isOpen && <p>목차</p>}
         <FaGripLines size={24} />
       </ToggleButton>
     </Container>
