@@ -55,7 +55,6 @@ public class SseEmitters {
 							.questions(questions)
 							.build())
 					.build());
-			log.info("question 생성 메시지 전송 완료");
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
@@ -69,7 +68,6 @@ public class SseEmitters {
 					.name("all answers of summary are created")
 					.data(summaryId)
 					.build());
-			log.info("answer 생성 메시지 전송 완료");
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}

@@ -64,12 +64,17 @@ public class SentenceServiceImpl implements SentenceService {
 				questionResponse.getQuestionAnswerResponseList().stream()
 					.map(QuestionAnswerResponse::getQuestion))
 			.toList();
+
+		// 질문 생성 이벤트 즉시 보냄
 		sseEmitters.sendQuestionCreatedMessage(summary.getId(), questions);
-		questionResponseList.forEach(
-			questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary, orderCounter));
+		// 모든 비동기 작업을 모아 완료를 기다림
+		List<CompletableFuture<Void>> futures = questionResponseList.stream()
+			.map(questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary,
+				orderCounter))
+			.toList();
 
 		// 비동기 작업이 완료됨을 반환
-		return CompletableFuture.completedFuture(null);
+		return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 	}
 
 	@Async
@@ -88,13 +93,18 @@ public class SentenceServiceImpl implements SentenceService {
 				questionResponse.getQuestionAnswerResponseList().stream()
 					.map(QuestionAnswerResponse::getQuestion))
 			.toList();
+
+		// 질문 생성 이벤트 즉시 보냄
 		sseEmitters.sendQuestionCreatedMessage(summary.getId(), questions);
-		questionResponseList.forEach(
-			questionResponse -> sentenceAsyncService.getAnswerAndVoicesByKeyword(questionResponse, text, summary,
-				orderCounter));
+		// 모든 비동기 작업을 모아 완료를 기다림
+		List<CompletableFuture<Void>> futures = questionResponseList.stream()
+			.map(questionResponse -> sentenceAsyncService.getAnswerAndVoicesByKeyword(questionResponse, text, summary,
+				orderCounter))
+			.toList();
 
 		// 비동기 작업이 완료됨을 반환
-		return CompletableFuture.completedFuture(null);
+		return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+			.thenRun(() -> sseEmitters.sendAllAnswersCreatedMessageToEmitter(summary.getId()));
 	}
 
 	/**
