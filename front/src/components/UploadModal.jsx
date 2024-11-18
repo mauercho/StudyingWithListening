@@ -37,7 +37,7 @@ const SchemeTitle = styled.div`
     &:first-of-type {
       color: ${({ theme }) => theme.color.black};
       span {
-        color: ${({theme}) => theme.color.primary};
+        color: ${({ theme }) => theme.color.primary};
       }
     }
 
@@ -103,8 +103,7 @@ const UploadContent = styled(ContentBase)`
     color: ${({ theme }) => theme.color.primary};
     text-align: center;
   }
-`;
-
+`
 
 const SchemeContent = styled(ContentBase)`
   padding: 10px;
@@ -152,8 +151,7 @@ const SchemeContent = styled(ContentBase)`
   & > p:nth-of-type(3) {
     animation-delay: 0.3s;
   }
-`;
-
+`
 
 const TitleInput = styled.input`
   width: calc(100% - 20px);
@@ -200,23 +198,54 @@ const CloseButton = styled.button`
 `
 
 export default function UploadModal({ isOpen, onClose, direct = false }) {
+  let sse
+
   const initialState = {
     uploadStatus: direct,
     serverResponse: false,
     data: '',
     name: '',
     title: '',
-    qList: [
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-    ],
+    qList: [],
   }
 
   const [state, setState] = useState(initialState)
   const inputRef = useRef(null)
+
+  const handleConnectInit = () => {
+    sse = new EventSource('https://k11a304.p.ssafy.io/api/alert/connect')
+
+    // 연결되었을 때 이벤트리스너
+    // receivedConnectData : "connected"
+    sse.addEventListener('connect', (e) => {
+      const { data: receivedConnectData } = e
+      console.log('connect event data: ', receivedConnectData)
+    })
+
+    // question들이 모두 완성되었을 때 이벤트리스너
+    // receivedConnectData 예시 : {
+    //      summaryId : int
+    //      questions: Array(String)
+    // }
+    sse.addEventListener('all questions of summary are created', (e) => {
+      const { data: receivedConnectData } = e
+      console.log('question created event data: ', receivedConnectData)
+      console.log(receivedConnectData.questions)
+      console.log(receivedConnectData.summaryId)
+      console.log(receivedConnectData[0])
+      // setState((prev) => ({
+      //   ...prev,
+      //   qList: receivedConnectData.questions,
+      // }))
+    })
+
+    // answer들이 모두 완성되었을 때 이벤트리스너
+    // receivedConnectData : summaryId
+    sse.addEventListener('all answers of summary are created', (e) => {
+      const { data: receivedConnectData } = e
+      console.log('answer created event data: ', receivedConnectData)
+    })
+  }
 
   const handleFileChange = (event) => {
     const file = event.target.files[0]
@@ -235,7 +264,7 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
       alert('학습자료가 없습니다!')
       return
     }
-
+    handleConnectInit()
     setState((prev) => ({ ...prev, uploadStatus: true }))
 
     const formData = new FormData()
@@ -299,7 +328,9 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
             ) : (
               <div>
                 <FaUpload size={32} />
-                <p style={{marginTop: '8px', color: "black"}}>눌러서 학습자료를 업로드 해보세요!</p>
+                <p style={{ marginTop: '8px', color: 'black' }}>
+                  눌러서 학습자료를 업로드 해보세요!
+                </p>
               </div>
             )}
             <input
