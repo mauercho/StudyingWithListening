@@ -50,7 +50,7 @@ public class Summary extends BaseEntity {
 	@JoinColumn(name = "writer_id", referencedColumnName = "user_id", nullable = false)
 	private User writer;
 
-	@OneToOne(fetch = LAZY)
+	@OneToOne(fetch = EAGER)
 	@JoinColumn(name = "upload_content_id", nullable = false)
 	private UploadContent uploadContent;
 
