@@ -1,5 +1,4 @@
 import React from 'react'
-
 import styled from '@emotion/styled'
 import { MdOutlineClose } from 'react-icons/md'
 import Lottie from 'react-lottie'
@@ -19,16 +18,20 @@ const ModalBackground = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 100;
-`
-const ModalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
+  opacity: 0;
+  transform: scale(0.9);
+  animation: fadeIn 0.3s ease forwards;
 
-const Title = styled.p`
-  font-size: ${theme.font.size.lg};
-  font-weight: ${theme.font.weight.medium};
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
 `
 
 const ModalContainer = styled.div`
@@ -41,6 +44,17 @@ const ModalContainer = styled.div`
   overflow-y: auto;
   position: relative;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+`
+
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`
+
+const Title = styled.p`
+  font-size: ${theme.font.size.lg};
+  font-weight: ${theme.font.weight.medium};
 `
 
 const CloseButton = styled.button`

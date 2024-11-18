@@ -194,6 +194,7 @@ export default function WordModal({ isOpen, onClose, text, ...props }) {
     if (isOpen) {
       handleUpload()
     }
+    // eslint-disable-next-line
   }, [isOpen]) // isOpen 값이 변경될 때 실행
 
   const handleUpload = async () => {
