@@ -59,6 +59,20 @@ public class SentenceServiceImpl implements SentenceService {
 			questionResponse -> sentenceAsyncService.getAnswerAndVoices(questionResponse, text, summary, orderCounter));
 	}
 
+	@Override
+	public void parseQuizSentenceListByKeyword(String text, Summary summary) {
+
+		String tpqPrompt = promptUtil.getKeywordTPQ(text);
+		ClaudeResponse response = claudeUtil.sendMessage(tpqPrompt);
+
+		List<String> tpqTextList = sentenceUtil.splitByNewline(response.getContent().get(0).getText());
+
+		orderCounter.set(1);
+		getQuestionListByTPQTextList(tpqTextList).forEach(
+			questionResponse -> sentenceAsyncService.getAnswerAndVoicesByKeyword(questionResponse, text, summary,
+				orderCounter));
+	}
+
 	/**
 	 * 문장 객체 반환
 	 * @return Sentence (문장 객체)

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ssafy.a304.shortgong.domain.index.model.entity.Index;
-import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.ThreeAnswerResponse;
+import com.ssafy.a304.shortgong.domain.sentence.model.dto.response.TwoAnswerResponse;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
 import com.ssafy.a304.shortgong.global.model.entity.BaseEntity;
 
@@ -91,13 +91,13 @@ public class Sentence extends BaseEntity {
 		this.order = order;
 	}
 
-	public void updateThreeAnswerResponse(ThreeAnswerResponse threeAnswerResponse) {
+	public void updateThreeAnswerResponse(TwoAnswerResponse twoAnswerResponse) {
 
-		if (threeAnswerResponse.getSimpleAnswer() != null) {
-			this.sentenceContentSimple = threeAnswerResponse.getSimpleAnswer();
+		if (twoAnswerResponse.getSimpleAnswer() != null) {
+			this.sentenceContentSimple = twoAnswerResponse.getSimpleAnswer();
 		}
-		if (threeAnswerResponse.getNormalAnswer() != null) {
-			this.sentenceContentNormal = threeAnswerResponse.getNormalAnswer();
+		if (twoAnswerResponse.getNormalAnswer() != null) {
+			this.sentenceContentNormal = twoAnswerResponse.getNormalAnswer();
 		}
 	}
 
@@ -115,6 +115,6 @@ public class Sentence extends BaseEntity {
 
 		this.simpleVoiceFileName = simpleVoiceFileName;
 	}
-	
+
 }
 

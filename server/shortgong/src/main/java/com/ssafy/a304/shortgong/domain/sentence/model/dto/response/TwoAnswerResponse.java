@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ThreeAnswerResponse {
+public class TwoAnswerResponse {
 
 	private String simpleAnswer;
 	private String normalAnswer;
