@@ -73,8 +73,9 @@ public class SentenceServiceImpl implements SentenceService {
 		return CompletableFuture.completedFuture(null);
 	}
 
+	@Async
 	@Override
-	public void parseQuizSentenceListByKeyword(String text, Summary summary) {
+	public CompletableFuture<Void> parseQuizSentenceListByKeyword(String text, Summary summary) {
 
 		String tpqPrompt = promptUtil.getKeywordTPQ(text);
 		ClaudeResponse response = claudeUtil.sendMessage(tpqPrompt);
@@ -92,6 +93,9 @@ public class SentenceServiceImpl implements SentenceService {
 		questionResponseList.forEach(
 			questionResponse -> sentenceAsyncService.getAnswerAndVoicesByKeyword(questionResponse, text, summary,
 				orderCounter));
+
+		// 비동기 작업이 완료됨을 반환
+		return CompletableFuture.completedFuture(null);
 	}
 
 	/**
