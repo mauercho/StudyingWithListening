@@ -1,10 +1,32 @@
 import React from 'react'
 
 import styled from '@emotion/styled'
-import { FaHeadphones } from 'react-icons/fa'
+import { keyframes } from '@emotion/react'
 
+import { FaHeadphones } from 'react-icons/fa'
 import useLongPress from '../hooks/useLongPress'
 import usePlayerStore from '../stores/usePlayerStore'
+
+const shimmer = keyframes`
+  0% { 
+    background-position: -1000px 0; /* 시작 위치 */
+  }
+  100% {
+    background-position: 1000px 0; /* 끝 위치 */
+  }
+`
+
+const scalePulse = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+`
 
 const Container = styled.li`
   display: flex;
@@ -15,15 +37,46 @@ const Container = styled.li`
   padding: 10px;
   border-radius: 10px;
   box-sizing: border-box;
-
+  border: 1px solid black;
   &:active {
     background-color: ${({ theme }) => theme.color.grey_dark};
   }
-`
 
-const Icon = styled(FaHeadphones)`
-  position: absolute;
-  left: -10px; /* 아이콘을 왼쪽에 고정 */
+  ${({ theme, status }) =>
+    status === 'question' &&
+    `
+      border: 1px solid ${theme.color.primary};
+      background-color: ${theme.color.primary_dark};
+      opacity: 1;
+    `}
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: ${({ theme, status }) =>
+      status === 'question'
+        ? `linear-gradient(
+            to right,
+            ${theme.color.primary_dark} 8%,
+            ${theme.color.primary} 24%,
+            ${theme.color.primary_dark} 40%
+          )`
+        : `linear-gradient(
+            to right,
+            ${theme.color.white} 8%,
+            ${theme.color.grey} 24%,
+            ${theme.color.white} 40%
+          )`};
+    background-size: 2000px 100%; /* 쉼머 효과 크기 */
+    animation: ${shimmer} 8s infinite linear; /* 쉼머 애니메이션 */
+    border-radius: 10px;
+    pointer-events: none; /* 클릭 방지 */
+    z-index: 1; /* 텍스트 아래로 */
+  }
 `
 
 const Text = styled.p`
@@ -32,29 +85,63 @@ const Text = styled.p`
   font-size: 16px;
   color: ${({ theme }) => theme.color.primary_dark};
   font-weight: ${({ theme }) => theme.font.weight.light};
+  line-height: 1.4;
+  position: relative;
+  z-index: 2; /* 텍스트가 쉼머 위로 오게 */
   ${({ theme, status }) =>
     status === 'question' &&
     `
-      color: ${theme.color.secondary};
+      font-size: ${theme.font.size.lg};
+      font-weight: ${theme.font.weight.regular};
+      color: ${theme.color.white};
       opacity: 1;
     `}
+
+  ${({ theme, mode }) =>
+    mode === 'simple' &&
+    `
+      font-size: ${theme.font.size.lg};
+      font-weight: ${theme.font.weight.medium};
+    `}
+`
+
+const IconWrapper = styled.div`
+  position: absolute;
+  top: -10px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background-color: ${({ theme }) => theme.color.secondary};
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 3;
+  animation: ${scalePulse} 2s infinite ease-in-out;
 `
 
 export default function Sentence({
   text,
   status,
   index,
+  mode = 'detail',
   onShortPress,
   onLongPress,
 }) {
-  const { currentIndex } = usePlayerStore()
-
+  const { currentIndex, isPlaying } = usePlayerStore()
   const { ...longPressHandler } = useLongPress(onLongPress)
 
   return (
-    <Container onClick={onShortPress} {...longPressHandler}>
-      {index === currentIndex && <Icon size={16} />}
-      <Text status={status}>{status === 'question' ? 'Q: ' : 'A: '}{text}</Text>
+    <Container status={status} onClick={onShortPress} {...longPressHandler}>
+      <Text mode={mode} status={status}>
+        {text}
+      </Text>
+      {(!isPlaying || index === currentIndex) && (
+        <IconWrapper>
+          <FaHeadphones color="white" size={16} />
+        </IconWrapper>
+      )}
     </Container>
   )
 }
