@@ -74,6 +74,7 @@ const ModalContainer = styled.div`
   border-radius: 8px;
   border: 1px solid ${({ theme }) => theme.color.primary};
   background: ${({ theme }) => theme.color.primary_light};
+  animation: fadeIn 0.5s ease-out;
 `
 
 const ContentBase = styled.div`
