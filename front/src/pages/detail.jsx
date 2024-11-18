@@ -52,7 +52,7 @@ const HeaderWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  border-bottom: 1px solid ${theme.color.primary};
+  border-bottom: 1px solid ${theme.color.grey_dark};
   box-sizing: border-box;
 `
 
@@ -85,7 +85,28 @@ const QnA = styled(Element)`
   flex-direction: column;
   padding: 10px;
   gap: 10px;
-  // border-bottom: 1px solid black;
+`
+
+const ModeWrapper = styled.div`
+  display: flex;
+  gap: -20px;
+  align-items: center;
+  justify-content: center;
+  background: ${theme.color.grey};
+  border-radius: 10px;
+`
+
+const Mode = styled.div`
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  padding: 12px;
+`
+
+const ModeText = styled.p`
+  font-size: ${theme.font.size.base};
+  font-weight: ${theme.font.weight.light};
+  opacity: 0.6;
 `
 
 const ModeSelectButton = styled.button`
@@ -127,7 +148,6 @@ export default function Detail() {
     const fetchSummaryDetail = async () => {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
-        console.log(data)
 
         // summaryMode에 따라 맞는 content와 voiceUrl을 선택
         const updatedSentences = data.sentenceResponseList.map((sentence) => {
@@ -183,7 +203,15 @@ export default function Detail() {
 
     setCurrentIndex(null)
     fetchSummaryDetail()
-  }, [summaryId, summaryMode, setSummaryTitle, setVoiceUrls, voiceUrls, reset])
+  }, [
+    summaryId,
+    summaryMode,
+    setCurrentIndex,
+    setSummaryTitle,
+    setVoiceUrls,
+    voiceUrls,
+    reset,
+  ])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
@@ -210,7 +238,6 @@ export default function Detail() {
         sentenceId,
         currentSentence.openStatus
       )
-      console.log('success')
       setSentences(
         sentences.map((sentence) =>
           sentence.id === sentenceId
@@ -253,8 +280,6 @@ export default function Detail() {
   }
 
   const handleShortPress = (sentenceOrder, sentenceURL, status) => {
-    console.log(`Sentence ${sentenceOrder}`)
-
     if (!status) {
       setModalFlag(false)
       setSelectedSentenceId(sentenceOrder)
@@ -266,7 +291,6 @@ export default function Detail() {
         status === 'question'
           ? (sentenceOrder - 1) * 2
           : (sentenceOrder - 1) * 2 + 1
-      console.log(index)
       setCurrentIndex(index)
       setIsPlaying(true)
     }
@@ -276,7 +300,6 @@ export default function Detail() {
     setModalFlag(!status ? false : true)
     setIsModalOpen(true)
     setSelectedSentenceId(sentenceId)
-    console.log(`Sentence ${sentenceId}`)
   }
 
   const handleTableTouch = (sentenceOrder) => {
@@ -302,7 +325,6 @@ export default function Detail() {
   }
 
   const handleSummaryMode = (mode) => {
-    console.log(mode)
     setSummaryMode(mode)
     setIsModeModalOpen(false)
   }
@@ -312,6 +334,10 @@ export default function Detail() {
       <HelpModal
         isOpen={isHelpModalOpen}
         onClose={() => setIsHelpModalOpen(false)}
+        onButtonClick={() => {
+          setIsHelpModalOpen(false)
+          setIsModeModalOpen(true)
+        }}
       />
       <ModeModal
         isOpen={isModeModalOpen}
@@ -334,12 +360,19 @@ export default function Detail() {
         >
           {/* <BsQuestionSquareFill onClick={() => setIsHelpModalOpen(true)} /> */}
         </QuestionIcon>
-        <ModeSelectButton
-          mode={summaryMode}
-          onClick={() => setIsModeModalOpen(true)}
-        >
-          요약 모드 선택
-        </ModeSelectButton>
+        <ModeWrapper>
+          <Mode>
+            <ModeText mode={summaryMode}>
+              {summaryMode === 'simple' ? '시험 5분 전' : '연상 암기'}
+            </ModeText>
+          </Mode>
+          <ModeSelectButton
+            mode={summaryMode}
+            onClick={() => setIsModeModalOpen(true)}
+          >
+            요약 모드 선택
+          </ModeSelectButton>
+        </ModeWrapper>
       </HeaderWrapper>
       <Main>
         <ContentArea id="content-area">

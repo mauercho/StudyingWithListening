@@ -4,6 +4,8 @@ import styled from '@emotion/styled'
 import { keyframes } from '@emotion/react'
 
 import { FaHeadphones } from 'react-icons/fa'
+
+import theme from '../assets/styles/theme'
 import useLongPress from '../hooks/useLongPress'
 import usePlayerStore from '../stores/usePlayerStore'
 
@@ -37,7 +39,7 @@ const Container = styled.li`
   padding: 10px;
   border-radius: 10px;
   box-sizing: border-box;
-  border: 1px solid black;
+  border: 1px solid ${theme.color.grey_dark};
   &:active {
     background-color: ${({ theme }) => theme.color.grey_dark};
   }
@@ -86,6 +88,7 @@ const Text = styled.p`
   color: ${({ theme }) => theme.color.primary_dark};
   font-weight: ${({ theme }) => theme.font.weight.light};
   line-height: 1.4;
+  overflow-wrap: break-word;
   position: relative;
   z-index: 2; /* 텍스트가 쉼머 위로 오게 */
   ${({ theme, status }) =>
