@@ -100,9 +100,6 @@ export default function Home() {
           <Lottie options={defaultOptions} height={100} width={120} />
         </div>
       </Header>
-      {/* <SubTitle>
-        <Point>듣</Point>는 것만으로 '암기'가 되는 <Point>공</Point>부
-      </SubTitle> */}
       <SubTitle>
         <Point>듣</Point>기만 해도 <Point>공</Point>부가 되는
       </SubTitle>
