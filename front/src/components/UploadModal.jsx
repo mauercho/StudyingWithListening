@@ -37,7 +37,7 @@ const SchemeTitle = styled.div`
     &:first-of-type {
       color: ${({ theme }) => theme.color.black};
       span {
-        color: ${({theme}) => theme.color.primary};
+        color: ${({ theme }) => theme.color.primary};
       }
     }
 
@@ -154,6 +154,18 @@ const CloseButton = styled.button`
 export default function UploadModal({ isOpen, onClose, direct = false }) {
   let sse
 
+  const initialState = {
+    uploadStatus: direct,
+    serverResponse: false,
+    data: '',
+    name: '',
+    title: '',
+    qList: [],
+  }
+
+  const [state, setState] = useState(initialState)
+  const inputRef = useRef(null)
+
   const handleConnectInit = () => {
     sse = new EventSource('https://k11a304.p.ssafy.io/api/alert/connect')
 
@@ -172,6 +184,7 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
     sse.addEventListener('all questions of summary are created', (e) => {
       const { data: receivedConnectData } = e
       console.log('question created event data: ', receivedConnectData)
+      setState((prev) => ({ ...prev, qList: receivedConnectData.questions }))
     })
 
     // answer들이 모두 완성되었을 때 이벤트리스너
@@ -181,24 +194,6 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
       console.log('answer created event data: ', receivedConnectData)
     })
   }
-
-  const initialState = {
-    uploadStatus: direct,
-    serverResponse: false,
-    data: '',
-    name: '',
-    title: '',
-    qList: [
-      // { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      // { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      // { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      // { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-      // { content: 'DBMS는 어떻게 데이터 무결성을 유지하나요?' },
-    ],
-  }
-
-  const [state, setState] = useState(initialState)
-  const inputRef = useRef(null)
 
   const handleFileChange = (event) => {
     const file = event.target.files[0]
@@ -281,7 +276,9 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
             ) : (
               <div>
                 <FaUpload size={32} />
-                <p style={{marginTop: '8px', color: "black"}}>눌러서 학습자료를 업로드 해보세요!</p>
+                <p style={{ marginTop: '8px', color: 'black' }}>
+                  눌러서 학습자료를 업로드 해보세요!
+                </p>
               </div>
             )}
             <input
