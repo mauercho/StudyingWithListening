@@ -224,25 +224,34 @@ export default function UploadModal({ isOpen, onClose, direct = false }) {
   const handleComplete = async () => {
     setState(initialState) // 상태 초기화
 
-    try {
-      const response = await summariesApi.patchSummaryTitle(
-        newSummaryId,
-        titleRef.current.value
-      )
-      console.log(response)
-      console.log(response?.status)
-      // 성공적으로 응답을 받았을 경우
-      if (response?.status === 200) {
-        console.log('Patch successful:', response.data)
-        navigate(`/detail/${newSummaryId}`) // 성공 시 이동
-      } else {
-        console.error('Unexpected response:', response)
-        navigate(`/detail/${newSummaryId}`) // 성공 시 이동
-      }
-    } catch (error) {
-      // 요청 실패 시 에러 로그 출력
-      console.error('Patch failed:', error)
-    }
+    // try {
+    // const response = await summariesApi.patchSummaryTitle(
+    //   newSummaryId,
+    //   titleRef.current.value
+    // )
+    // 성공적으로 응답을 받았을 경우
+    //  if (response?.status === 200) {
+    //   console.log('Patch successful:', response.data)
+    //   navigate(`/detail/${newSummaryId}`) // 성공 시 이동
+    // } else {
+    //   console.error('Unexpecected response:', response)
+    //   navigate(`/detail/${newSummaryId}`) // 성공 시 이동
+    // }
+    summariesApi
+      .patchSummaryTitle(newSummaryId, titleRef.current.value)
+      .then(({ data }) => {
+        console.log(data)
+        navigate(`/detail/${newSummaryId}`)
+      })
+      .catch((err) => {
+        console.error('Unexpecected response:', err)
+      })
+    // console.log(response)
+    // console.log(response?.status)
+    // } catch (error) {
+    //   // 요청 실패 시 에러 로그 출력
+    //   console.error('Patch failed:', error)
+    // }
   }
 
   const handleUpload = async () => {
