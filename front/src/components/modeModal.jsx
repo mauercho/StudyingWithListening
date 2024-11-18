@@ -125,7 +125,6 @@ export default function HelpModal({ isOpen, onClose, onSelectMode }) {
   }
 
   const handleModeSelect = (mode) => {
-    console.log(mode)
     onSelectMode(mode)
   }
 

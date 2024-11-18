@@ -148,7 +148,6 @@ export default function Detail() {
     const fetchSummaryDetail = async () => {
       try {
         const data = await summariesApi.getSummariesDetail(summaryId)
-        console.log(data)
 
         // summaryMode에 따라 맞는 content와 voiceUrl을 선택
         const updatedSentences = data.sentenceResponseList.map((sentence) => {
@@ -204,7 +203,15 @@ export default function Detail() {
 
     setCurrentIndex(null)
     fetchSummaryDetail()
-  }, [summaryId, summaryMode, setSummaryTitle, setVoiceUrls, voiceUrls, reset])
+  }, [
+    summaryId,
+    summaryMode,
+    setCurrentIndex,
+    setSummaryTitle,
+    setVoiceUrls,
+    voiceUrls,
+    reset,
+  ])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalFlag, setModalFlag] = useState(false)
@@ -231,7 +238,6 @@ export default function Detail() {
         sentenceId,
         currentSentence.openStatus
       )
-      console.log('success')
       setSentences(
         sentences.map((sentence) =>
           sentence.id === sentenceId
@@ -274,8 +280,6 @@ export default function Detail() {
   }
 
   const handleShortPress = (sentenceOrder, sentenceURL, status) => {
-    console.log(`Sentence ${sentenceOrder}`)
-
     if (!status) {
       setModalFlag(false)
       setSelectedSentenceId(sentenceOrder)
@@ -287,7 +291,6 @@ export default function Detail() {
         status === 'question'
           ? (sentenceOrder - 1) * 2
           : (sentenceOrder - 1) * 2 + 1
-      console.log(index)
       setCurrentIndex(index)
       setIsPlaying(true)
     }
@@ -297,7 +300,6 @@ export default function Detail() {
     setModalFlag(!status ? false : true)
     setIsModalOpen(true)
     setSelectedSentenceId(sentenceId)
-    console.log(`Sentence ${sentenceId}`)
   }
 
   const handleTableTouch = (sentenceOrder) => {
@@ -323,7 +325,6 @@ export default function Detail() {
   }
 
   const handleSummaryMode = (mode) => {
-    console.log(mode)
     setSummaryMode(mode)
     setIsModeModalOpen(false)
   }
