@@ -21,7 +21,7 @@ const SectionTitle = styled.p`
   margin-top: 4px;
 `
 
-const ListTitle = styled.p`
+const ListTitle = styled.div`
   display: flex;
   justify-content: space-between;
 `
@@ -71,8 +71,7 @@ const ListItem = styled.li`
       font-size: ${({ theme }) => theme.font.size.sm};
     }
   }
-`;
-
+`
 
 // Helper function
 const formatDate = (dateString) =>
