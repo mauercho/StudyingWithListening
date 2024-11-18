@@ -22,6 +22,12 @@ const Container = styled.div`
       padding: 0 1rem;
       align-items: center;
 
+      p {
+        &:last-of-type {
+          margin-top: 10px;
+        }
+      }
+
       div {
         margin-top: 1rem;
         width: 6rem;
@@ -63,9 +69,9 @@ export default function FileRegister({ onClick, ...props }) {
   return (
     <Container onClick={onClick}>
       <section>
-        <p>새로운 학습 파일을 업로드</p>
-        <p>하고 암기를 하러 가볼까요?</p>
-        <div>시작하기!</div>
+        <p>암기 할 파일을 올려볼까요?</p>
+        <p>이제 공부의 시간입니다!</p>
+        <div>시작하기</div>
       </section>
       <section>
         <Lottie options={defaultOptions} height={100} width={120} />
