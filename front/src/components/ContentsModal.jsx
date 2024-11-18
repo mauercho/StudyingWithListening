@@ -29,7 +29,6 @@ const ModalContainer = styled.div`
   width: 90%; /* 너비를 더 넓게 */
   max-width: 768px; /* 최대 너비 확대 */
   max-height: 90vh; /* 최대 높이 확대 */
-  min-height: 70vh;
   height: auto; /* 내용에 따라 높이 조정 */
   border-radius: 20px;
   padding: 10px;
