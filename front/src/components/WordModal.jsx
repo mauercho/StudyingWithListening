@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import styled from '@emotion/styled'
-import { FaCheck, FaCircleNotch } from 'react-icons/fa6'
+import {
+  FaCheck,
+  FaCircleNotch,
+  FaLightbulb,
+  FaBookOpen,
+} from 'react-icons/fa6'
 import ProgressBar from './home/ProgressBar'
 import summariesApi from '../api/summariesApi'
 
@@ -40,6 +45,7 @@ const ModalContainer = styled.div`
   border-radius: 8px;
   border: 1px solid ${({ theme }) => theme.color.primary};
   background: ${({ theme }) => theme.color.primary_light};
+  animation: fadeIn 0.5s ease-out;
 `
 
 const ContentBase = styled.div`
@@ -53,16 +59,6 @@ const ContentBase = styled.div`
   gap: 10px;
 `
 
-const UploadContent = styled(ContentBase)`
-  align-items: center;
-  justify-content: center;
-
-  & > div {
-    color: ${({ theme }) => theme.color.primary};
-    text-align: center;
-  }
-`
-
 const SchemeContent = styled(ContentBase)`
   padding: 10px;
   width: calc(100% - 20px);
@@ -71,6 +67,33 @@ const SchemeContent = styled(ContentBase)`
   overflow-y: scroll;
   flex-direction: column;
   gap: 20px;
+`
+
+const SchemeTitle = styled.div`
+  width: 100%;
+  div {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+
+    span {
+      margin-right: 4px;
+    }
+
+    &:first-of-type {
+      color: ${({ theme }) => theme.color.black};
+      span {
+        color: ${({ theme }) => theme.color.primary};
+      }
+    }
+
+    &:last-of-type {
+      color: #dc143c;
+      span {
+        color: #ffd400;
+      }
+    }
+  }
 `
 
 const TitleInput = styled.input`
@@ -97,6 +120,7 @@ const Button = styled.button`
   color: ${({ theme }) => theme.color.white};
   cursor: pointer;
   font-weight: ${({ theme }) => theme.font.weight.medium};
+  animation: ${({ isActive }) => (isActive ? 'pulse 1s infinite' : 'none')};
 
   &:disabled {
     opacity: 0.4;
@@ -111,9 +135,11 @@ const CloseButton = styled.button`
   cursor: pointer;
   align-self: flex-end;
   color: ${({ theme }) => theme.color.primary_dark};
+  transition: transform 0.3s ease, color 0.3s ease;
 
   &:hover {
     color: ${({ theme }) => theme.color.primary};
+    transform: rotate(20deg) scale(1.1);
   }
 `
 
@@ -140,9 +166,9 @@ export default function WordModal({ isOpen, onClose, text, ...props }) {
   // 모달이 열릴 때만 요청 실행
   useEffect(() => {
     if (isOpen) {
-      handleUpload();
+      handleUpload()
     }
-  }, [isOpen]); // isOpen 값이 변경될 때 실행
+  }, [isOpen]) // isOpen 값이 변경될 때 실행
 
   const handleUpload = async () => {
     const formData = new FormData()
@@ -169,10 +195,20 @@ export default function WordModal({ isOpen, onClose, text, ...props }) {
         >
           &times;
         </CloseButton>
-        <div>
-          학습할 내용이에요. 본격적인 듣기 학습 전에 배울 내용을 읽어보면 학습
-          효과가 올라간답니다!
-        </div>
+        <SchemeTitle>
+          <div>
+            <span>
+              <FaBookOpen />
+            </span>
+            배울 내용을 미리 읽어보세요.
+          </div>
+          <div>
+            <span>
+              <FaLightbulb />
+            </span>
+            듣기 학습의 효과가 더욱 높아져요!
+          </div>
+        </SchemeTitle>
         <SchemeContent>
           {state.qList.map((v, idx) => (
             <p key={idx}>
