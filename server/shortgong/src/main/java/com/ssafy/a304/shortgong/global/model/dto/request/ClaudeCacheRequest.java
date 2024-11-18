@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ClaudeRequest {
+public class ClaudeCacheRequest {
 
 	private String model;
 
@@ -21,5 +21,7 @@ public class ClaudeRequest {
 	private Integer maxTokens;
 
 	private List<ClaudeMessage> messages;
+
+	private List<SystemContent> system;
 
 }

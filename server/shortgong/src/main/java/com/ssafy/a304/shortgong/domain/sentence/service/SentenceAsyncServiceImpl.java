@@ -14,6 +14,7 @@ import com.ssafy.a304.shortgong.domain.sentence.model.entity.SentenceTitle;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceRepository;
 import com.ssafy.a304.shortgong.domain.sentence.repository.SentenceTitleRepository;
 import com.ssafy.a304.shortgong.domain.summary.model.entity.Summary;
+import com.ssafy.a304.shortgong.global.model.dto.CacheMessageContent;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
 import com.ssafy.a304.shortgong.global.util.ClaudeUtil;
 import com.ssafy.a304.shortgong.global.util.PromptUtil;
@@ -126,13 +127,20 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 			return;
 		}
 
-		String answerPrompt = promptUtil.getAnswerPrompt(
+		// String answerPrompt = promptUtil.getAnswerPrompt(
+		// 	sentence.getSentenceTitle().getName(),
+		// 	sentence.getPoint(),
+		// 	sentence.getQuestion(),
+		// 	originalText);
+
+		CacheMessageContent cacheMessageContent = promptUtil.getCacheAnswerPrompt(
 			sentence.getSentenceTitle().getName(),
 			sentence.getPoint(),
 			sentence.getQuestion(),
 			originalText);
 
-		claudeUtil.sendMessageAsync(answerPrompt, new ClaudeUtil.Callback() {
+		// claudeUtil.sendMessageAsync(answerPrompt, new ClaudeUtil.Callback() {
+		claudeUtil.sendCacheMessageAsync(cacheMessageContent, new ClaudeUtil.Callback() {
 			@Override
 			public void onSuccess(ClaudeResponse response) {
 
@@ -160,13 +168,20 @@ public class SentenceAsyncServiceImpl implements SentenceAsyncService {
 			return;
 		}
 
-		String answerPrompt = promptUtil.getKeywordAnswerPrompt(
+		// String answerPrompt = promptUtil.getKeywordAnswerPrompt(
+		// 	sentence.getSentenceTitle().getName(),
+		// 	sentence.getPoint(),
+		// 	sentence.getQuestion(),
+		// 	originalText);
+
+		CacheMessageContent cacheMessageContent = promptUtil.getCacheKeywordAnswerPrompt(
 			sentence.getSentenceTitle().getName(),
 			sentence.getPoint(),
 			sentence.getQuestion(),
 			originalText);
 
-		claudeUtil.sendMessageAsync(answerPrompt, new ClaudeUtil.Callback() {
+		// claudeUtil.sendMessageAsync(answerPrompt, new ClaudeUtil.Callback() {
+		claudeUtil.sendCacheMessageAsync(cacheMessageContent, new ClaudeUtil.Callback() {
 			@Override
 			public void onSuccess(ClaudeResponse response) {
 

@@ -22,12 +22,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.ssafy.a304.shortgong.global.model.dto.CacheControl;
+import com.ssafy.a304.shortgong.global.model.dto.CacheMessageContent;
 import com.ssafy.a304.shortgong.global.model.dto.ClaudeMessage;
 import com.ssafy.a304.shortgong.global.model.dto.MessageContent;
 import com.ssafy.a304.shortgong.global.model.dto.MessageContentDetail;
 import com.ssafy.a304.shortgong.global.model.dto.MessageContentInterface;
 import com.ssafy.a304.shortgong.global.model.dto.MessagePdfImageContentDetail;
 import com.ssafy.a304.shortgong.global.model.dto.MessageSource;
+import com.ssafy.a304.shortgong.global.model.dto.SystemContent;
+import com.ssafy.a304.shortgong.global.model.dto.request.ClaudeCacheRequest;
 import com.ssafy.a304.shortgong.global.model.dto.request.ClaudePdfRequest;
 import com.ssafy.a304.shortgong.global.model.dto.request.ClaudeRequest;
 import com.ssafy.a304.shortgong.global.model.dto.response.ClaudeResponse;
@@ -207,7 +210,7 @@ public class ClaudeUtil {
 			ResponseEntity<ClaudeResponse> responseEntity = restTemplate.postForEntity(apiUrl, requestEntity,
 				ClaudeResponse.class);
 
-			// log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
+			log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
 			// 로그로 토큰 보기
 
 			return responseEntity.getBody();
@@ -237,7 +240,6 @@ public class ClaudeUtil {
 		ClaudeRequest requestPayload = ClaudeRequest.builder()
 			.model(model)
 			.messages(List.of(userMessageObj))
-			.temperature(temperature)
 			.maxTokens(maxTokens)
 			.build();
 
@@ -255,6 +257,67 @@ public class ClaudeUtil {
 			ClaudeResponse.class);
 
 		// log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
+
+		return responseEntity.getBody();
+	}
+
+	@Async
+	public void sendCacheMessageAsync(CacheMessageContent cacheMessageContent, Callback callback) {
+		// 요청을 Queue에 추가
+		requestQueue.offer(() -> {
+			try {
+				ClaudeResponse response = sendCacheMessage(cacheMessageContent);
+				callback.onSuccess(response);
+			} catch (Exception e) {
+				callback.onError(e);
+			}
+		});
+	}
+
+	/**
+	 * 캐시 메시지를 보내는 메소드
+	 */
+	public ClaudeResponse sendCacheMessage(CacheMessageContent cacheMessageContent) {
+
+		CacheControl cacheControl = CacheControl.builder()
+			.type("ephemeral")
+			.build();
+		SystemContent systemContent = SystemContent.builder()
+			.type("text")
+			.text(cacheMessageContent.getCacheMessage())
+			.cacheControl(cacheControl)
+			.build();
+
+		// 요청 데이터 설정
+		ClaudeMessage userMessageObj = ClaudeMessage.builder()
+			.role("user")
+			.content(cacheMessageContent.getUserMessage())
+			.build();
+
+		ClaudeCacheRequest requestPayload = ClaudeCacheRequest.builder()
+			.model(model)
+			.messages(List.of(userMessageObj))
+			.maxTokens(maxTokens)
+			.system(List.of(systemContent))
+			.build();
+
+		// HTTP 헤더 설정
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+		headers.set("x-api-key", getApiKey());
+		headers.set("anthropic-version", "2023-06-01");
+		headers.set("anthropic-beta", "prompt-caching-2024-07-31");
+
+		// HTTP 요청 생성
+		HttpEntity<ClaudeCacheRequest> requestEntity = new HttpEntity<>(requestPayload, headers);
+
+		// API 요청 보내기
+		ResponseEntity<ClaudeResponse> responseEntity = restTemplate.postForEntity(apiUrl, requestEntity,
+			ClaudeResponse.class);
+
+		// log.info("responseEntity: {}", responseEntity.getBody().getContent().get(0).getText());
+		log.info("cache_creation_input_tokens: {}", responseEntity.getBody().getUsage().getCacheCreationInputTokens());
+		log.info("cache_read_input_tokens: {}", responseEntity.getBody().getUsage().getCacheReadInputTokens());
 
 		return responseEntity.getBody();
 	}
