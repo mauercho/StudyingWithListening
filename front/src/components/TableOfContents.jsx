@@ -116,8 +116,8 @@ export default function TableOfContents({ indexes, onButtonClick }) {
       window.removeEventListener('touchstart', handleTouchStart)
       window.removeEventListener('touchmove', handleTouchMove)
     }
+    // eslint-disable-next-line
   }, [isOpen])
-
   return (
     <Container>
       <Navigation isOpen={isOpen}>
