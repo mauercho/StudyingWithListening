@@ -12,7 +12,7 @@ public interface SentenceService {
 
 	CompletableFuture<Void> parseQuizSentenceList(String text, Summary summary);
 
-	void parseQuizSentenceListByKeyword(String text, Summary summary);
+	CompletableFuture<Void> parseQuizSentenceListByKeyword(String text, Summary summary);
 
 	/**
 	 * 문장 객체 반환

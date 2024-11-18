@@ -70,7 +70,12 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
 
 		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장 & Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
-		sentenceService.parseQuizSentenceList(text, summary);
+		// 요약집에 들어갈 문장 비동기로 파싱
+		CompletableFuture<Void> parseTask = sentenceService.parseQuizSentenceList(text, summary);
+		parseTask.thenRun(() -> {
+			// log.info("Sentence parsing completed for summaryId: {}", summary.getId());
+			sseEmitters.sendAllAnswersCreatedMessageToEmitter(summary.getId());
+		});
 		return summary.getId();
 	}
 
@@ -87,7 +92,12 @@ public class SummaryFacadeImpl implements SummaryFacade {
 		updateTitleBySummaryId(contentFile.getOriginalFilename(), summary.getId());
 
 		// 요약집에 들어갈 문장(T, P, Q) 파싱 & 저장 & Answer (NA, SA, DA) 들만 따로 text 요청 & 저장
-		sentenceService.parseQuizSentenceListByKeyword(text, summary);
+		// 요약집에 들어갈 문장 비동기로 파싱
+		CompletableFuture<Void> parseTask = sentenceService.parseQuizSentenceListByKeyword(text, summary);
+		parseTask.thenRun(() -> {
+			// log.info("Sentence parsing completed for summaryId: {}", summary.getId());
+			sseEmitters.sendAllAnswersCreatedMessageToEmitter(summary.getId());
+		});
 		return summary.getId();
 	}
 
